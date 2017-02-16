@@ -35,6 +35,8 @@
 #include <QxtGlobalShortcut>
 #include <QTimer>
 #include <QFrame>
+#include <QPushButton>
+#include <QAction>
 
 #include "searchedit.h"
 #include <libdeskhare/match.h>
@@ -103,17 +105,44 @@ SearchWindow::SearchWindow(QWidget *parent)
     this, &SearchWindow::activated);
 
   // window frame
-  QFrame* frame = new QFrame(this);
+  auto* frame = new QFrame(this);
   frame->setFrameShape(QFrame::NoFrame);
   frame->setObjectName("frame");
 
-  QVBoxLayout* frameLayout = new QVBoxLayout(this);
+  auto* frameLayout = new QVBoxLayout(this);
   frameLayout->setSizeConstraint(QLayout::SetFixedSize);
   frameLayout->addWidget(frame);
   frameLayout->setMargin(0);
   setLayout(frameLayout);
 
-  QVBoxLayout* contentLayout = new QVBoxLayout(frame);
+  auto* headerLine = new QHBoxLayout();
+  headerLine->addWidget(new QLabel(tr("All")), 1.0, Qt::AlignCenter);
+
+  auto* menuButton = new QPushButton();
+  menuButton->setIcon(QIcon::fromTheme("configure"));
+  menuButton->setIconSize(QSize(16, 16));
+  menuButton->setFlat(true);
+  menuButton->setObjectName("menuButton");
+  menuButton->setFocusPolicy(Qt::NoFocus);
+  menuButton->setContextMenuPolicy(Qt::ActionsContextMenu);
+  headerLine->addWidget(menuButton, 0.0, Qt::AlignRight);
+
+//  auto* settingsAction = new QAction("Settings", menuButton);
+//  settingsAction->setShortcuts({QKeySequence("Ctrl+,"), QKeySequence("Alt+,")});
+//  menuButton->addAction(settingsAction);
+
+  auto* hideAction = new QAction(tr("Hide"), menuButton);
+  hideAction->setShortcuts({QKeySequence("Esc"), QKeySequence("Ctrl+W")});
+  connect(hideAction, &QAction::triggered, this, &SearchWindow::hide);
+  menuButton->addAction(hideAction);
+
+  auto* quitAction = new QAction(tr("Quit"), menuButton);
+  quitAction->setShortcuts({QKeySequence("Alt+F4"), QKeySequence("Ctrl+Q")});
+  connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
+  menuButton->addAction(quitAction);
+
+  auto* contentLayout = new QVBoxLayout(frame);
+  contentLayout->addLayout(headerLine);
   contentLayout->addWidget(edit_);
   contentLayout->addWidget(list_);
   contentLayout->setSpacing(0);
@@ -125,7 +154,8 @@ SearchWindow::SearchWindow(QWidget *parent)
     "  background-color: #ccc; "
     "  border-radius: 10px;"
     "  padding: 10px;"
-    "  margin: 20px;"
+    "  padding-top: 0px;"
+    "  margin: 10px;"
     "}"
     ""
     "#input {"
@@ -141,7 +171,7 @@ void SearchWindow::onEdit()
   {
     controller.search(edit_->text());
     list_->show();
-    list_->setCurrentIndex(model_->index(0));
+    //list_->setCurrentIndex(model_->index(0));
   }
 }
 
