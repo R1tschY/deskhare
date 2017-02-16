@@ -32,6 +32,7 @@ namespace Deskhare {
 class Query;
 class Match;
 class PluginContext;
+class ResultSet;
 
 /// \brief
 class Source
@@ -40,7 +41,7 @@ public:
   virtual ~Source() = default;
 
   virtual bool canHandleQuery(const Query& query) = 0;
-  virtual MatchResults search(const Query& query) = 0;
+  virtual void search(const Query& query, ResultSet& results) = 0;
 };
 
 } // namespace QuickStarter

@@ -18,16 +18,19 @@
 
 #pragma once
 
+#include <libdeskhare/source.h>
+
 namespace Deskhare {
 
 /// \brief
-class Applications
+class XdgApplications : public Source
 {
 public:
-
-  Applications();
+  XdgApplications(const PluginContext& ctx);
 
 private:
+  bool canHandleQuery(const Query& query) override;
+  void search(const Query& query, ResultSet& results) override;
 };
 
 } // namespace Deskhare

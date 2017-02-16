@@ -21,6 +21,7 @@
 #include <QString>
 #include <QDebug>
 #include <QPluginLoader>
+#include <QVector>
 
 #include "actions/runaction.h"
 #include "query.h"
@@ -42,23 +43,19 @@ Controller::Controller()
   {
     sources_.push_back(source->getSource(ctx));
   }
-}
 
-MatchResults Controller::search(const QString& query) const
-{
-  Query q(Query::Categories::All, query);
-  MatchResults result;
-
+  QVector<Source*> sourcesptrs;
   for (auto& source : sources_)
   {
-    if (source->canHandleQuery(q))
-    {
-      MatchResults r = source->search(q);
-      result.insert(result.end(),
-        std::make_move_iterator(r.begin()), std::make_move_iterator(r.end()));
-    }
+    sourcesptrs.push_back(source.get());
   }
-  return result;
+
+  queries_executor_.setSources(sourcesptrs);
+}
+
+void Controller::search(const QString& query)
+{
+  queries_executor_.setQuery(Query::Categories::All, query);
 }
 
 Controller::~Controller()
@@ -74,6 +71,11 @@ bool Controller::execute(const Match& match) const
     return true;
   }
   return false;
+}
+
+MatchesModel* Controller::getResultSetModel()
+{
+  return queries_executor_.getModel();
 }
 
 } // namespace QuickStarter

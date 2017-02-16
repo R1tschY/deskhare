@@ -21,6 +21,10 @@
 #include <QObject>
 #include <vector>
 #include <memory>
+#include <QVector>
+#include <QAbstractListModel>
+
+#include "query.h"
 
 class QAbstractListModel;
 template<typename T> class QFutureWatcher;
@@ -30,6 +34,16 @@ namespace Deskhare {
 class Match;
 class Source;
 class Query;
+class ResultSet;
+class ResultSetModel;
+
+class MatchesModel : public QAbstractListModel
+{
+public:
+  using QAbstractListModel::QAbstractListModel;
+
+  virtual Match* getMatch(std::size_t row) = 0;
+};
 
 /// \brief
 class QueriesExecutor : public QObject
@@ -37,26 +51,30 @@ class QueriesExecutor : public QObject
   Q_OBJECT
 public:
   enum {
-    ScoreRole = Qt::UserRole, // int
-    UriRole = Qt::UserRole + 1 // QString
+    MatchRole = Qt::UserRole, // Match*
+    ScoreRole, // int
+    UriRole // QString
   };
 
 
   QueriesExecutor();
   ~QueriesExecutor();
 
-  QAbstractListModel* getModel();
-  void setSources(std::vector<Source*> sources_);
+  MatchesModel* getModel();
+  void setSources(const QVector<Source*>& sources);
 
 public:
-  void setQuery(const Query& query);
+  void setQuery(Query::Categories categories, const QString& search_string);
 
 private:
-  QAbstractListModel* model_;
-  QFutureWatcher<void>* future_watcher_;
-  std::vector<Source*> sources_;
+  ResultSetModel* model_;
+  QFutureWatcher<Source*>* future_watcher_;
+  QVector<Source*> sources_;
 
+  std::shared_ptr<ResultSet> query_results_;
+  std::shared_ptr<const Query> query_;
 
+  void queryFinished();
 };
 
 } // namespace Deskhare

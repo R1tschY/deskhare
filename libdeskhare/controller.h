@@ -22,11 +22,13 @@
 #include <vector>
 #include <memory>
 
-#include <libdeskhare/pluginmanager.h>
-#include <libdeskhare/source.h>
-#include <libdeskhare/shell/fileiconservice.h>
+#include "pluginmanager.h"
+#include "source.h"
+#include "shell/fileiconservice.h"
+#include "queriesexecutor.h"
 
 class QString;
+class QAbstractListModel;
 
 namespace Deskhare {
 
@@ -39,13 +41,16 @@ public:
   Controller();
   ~Controller();
 
-  MatchResults search(const QString& query) const;
+  void search(const QString& query);
   bool execute(const Match& match) const;
+
+  MatchesModel* getResultSetModel();
 
 private:
   std::vector<std::unique_ptr<Source>> sources_;
   FileIconProvider file_icon_provider_;
   PluginManager plugin_manager_;
+  QueriesExecutor queries_executor_;
 };
 
 } // namespace QuickStarter

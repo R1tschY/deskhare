@@ -22,12 +22,14 @@
 #include <vector>
 #include <QAbstractListModel>
 
+#include <libdeskhare/queriesexecutor.h>
+
 namespace Deskhare {
 
 class Match;
 
 /// \brief
-class MatchListModel : public QAbstractListModel
+class MatchListModel : public MatchesModel
 {
 public:
   MatchListModel(QObject *parent = 0);
@@ -38,7 +40,7 @@ public:
   int rowCount(const QModelIndex &parent) const override;
 
   void addMatchs(std::vector<std::unique_ptr<Match>>&& match);
-  Match* getMatch(std::size_t row);
+  Match* getMatch(std::size_t row) override;
   void clear();
 
 private:

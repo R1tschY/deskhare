@@ -91,7 +91,7 @@ SearchWindow::SearchWindow(QWidget *parent)
   connect(edit_, SIGNAL(textChanged(QString)),
     this, SLOT(onEdit()));
 
-  model_ = new MatchListModel(this);
+  model_ = controller.getResultSetModel();
   list_ = new QListView();
   list_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   list_->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -140,8 +140,7 @@ void SearchWindow::onEdit()
 
   if (edit_->text().length())
   {
-    model_->clear();
-    model_->addMatchs(controller.search(edit_->text()));
+    controller.search(edit_->text());
     list_->show();
     list_->setCurrentIndex(model_->index(0));
   }

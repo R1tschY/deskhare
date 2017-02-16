@@ -31,8 +31,8 @@ class QModelIndex;
 
 namespace Deskhare {
 
-class MatchListModel;
 class SearchEdit;
+class MatchesModel;
 
 class SearchWindow : public QWidget
 {
@@ -54,7 +54,7 @@ protected:
 private:
   QLineEdit* edit_;
   QListView* list_;
-  MatchListModel* model_;
+  MatchesModel* model_;
   QxtGlobalShortcut* shortcut_;
 
   Controller controller;

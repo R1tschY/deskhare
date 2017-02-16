@@ -24,22 +24,28 @@
 #include <cpp-utils/scope.h>
 
 #include "action.h"
+#include "source.h"
+#include "resultset.h"
+#include "query.h"
 
 namespace Deskhare {
 
-namespace {
-
-class ResultSetModel : public QAbstractListModel
+class ResultSetModel : public MatchesModel
 {
 public:
   struct Entry
   {
+    Entry() = default;
+    Entry(std::unique_ptr<Match> match, std::unique_ptr<Action> defaultAction)
+    : match(std::move(match)), defaultAction(std::move(defaultAction))
+    { }
+
     std::unique_ptr<Match> match;
     std::unique_ptr<Action> defaultAction;
   };
 
   ResultSetModel(QObject* parent)
-  : QAbstractListModel(parent)
+  : MatchesModel(parent)
   { }
 
   int rowCount(const QModelIndex& parent) const override;
@@ -47,6 +53,8 @@ public:
 
   void takeMatches(std::vector<Entry>& entries);
   void clear();
+
+  Match* getMatch(std::size_t row) override;
 
 private:
   std::vector<Entry> entries_;
@@ -59,7 +67,7 @@ int ResultSetModel::rowCount(const QModelIndex & parent = QModelIndex()) const
 
 QVariant ResultSetModel::data(const QModelIndex& index, int role) const
 {
-  if (!index.isValid() || index.row() > entries_.size())
+  if (!index.isValid() || index.row() >= entries_.size())
     return QVariant();
 
   if (role == Qt::DisplayRole)
@@ -113,32 +121,85 @@ void ResultSetModel::clear()
   entries_.clear();
 }
 
-} // namespace
+Match* ResultSetModel::getMatch(std::size_t row)
+{
+  if (row >= entries_.size())
+    return nullptr;
 
+  return entries_[row].match.get();
+}
 
 QueriesExecutor::QueriesExecutor()
 {
   model_ = new ResultSetModel(this);
-  future_watcher_ = new QFutureWatcher<void>(this);
+  future_watcher_ = new QFutureWatcher<Source*>(this);
+
+  connect(
+    future_watcher_, &QFutureWatcher<Source*>::finished,
+    this, &QueriesExecutor::queryFinished);
 }
 
 QueriesExecutor::~QueriesExecutor() = default;
 
-QAbstractListModel* QueriesExecutor::getModel()
+MatchesModel* QueriesExecutor::getModel()
 {
   return model_;
 }
 
-void QueriesExecutor::setSources(std::vector<Source*> sources_)
+void QueriesExecutor::setSources(const QVector<Source*>& sources)
 {
-  sources_ = std::move(sources_);
+  sources_ = sources;
 }
 
-void QueriesExecutor::setQuery(const Query& query)
+class SourceSearcher
+{
+public:
+  using result_type = Source*;
+
+  SourceSearcher(const std::shared_ptr<const Query>& query,
+    const std::shared_ptr<ResultSet>& results)
+  : query_(query), results_(results)
+  { }
+
+  Source* operator()(Source* source)
+  {
+    if (source->canHandleQuery(*query_))
+    {
+      source->search(*query_, *results_);
+    }
+
+    return source;
+  }
+
+private:
+  std::shared_ptr<ResultSet> results_;
+  std::shared_ptr<const Query> query_;
+};
+
+void QueriesExecutor::setQuery(
+  Query::Categories categories,
+  const QString& search_string)
 {
   static_cast<ResultSetModel*>(model_)->clear();
+  query_results_ = std::make_shared<ResultSet>();
+  query_ = std::make_shared<Query>(categories, search_string);
 
-//  QtConcurrent::mapped(sources_,
+  future_watcher_->setFuture(
+    QtConcurrent::mapped(sources_, SourceSearcher(query_, query_results_)));
+}
+
+void QueriesExecutor::queryFinished()
+{
+  std::vector<std::unique_ptr<Match>> matches;
+  query_results_->recieveMatches(matches);
+
+  std::vector<ResultSetModel::Entry> entries;
+  for (auto& match : matches)
+  {
+    entries.emplace_back(std::move(match), nullptr);
+  }
+
+  model_->takeMatches(entries);
 }
 
 } // namespace Deskhare

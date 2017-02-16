@@ -1,59 +1,40 @@
 # This file is used to ignore files which are generated
 # ----------------------------------------------------------------------------
 
+# Eclipse
+.*project
+.settings
+
+# Backups
 *~
+.*.swp
+*.bak
 *.autosave
-*.a
-*.core
-*.moc
-*.o
-*.obj
-*.orig
-*.rej
-*.so
-*.so.*
-*_pch.h.cpp
 *_resource.rc
-*.qm
 .#*
 *.*#
-core
-!core/
-tags
-.DS_Store
-*.debug
+
+# generated
 Makefile*
-*.prl
-*.app
 moc_*.cpp
 ui_*.h
 qrc_*.cpp
-*.db
 *.res
 *.rc
-/.qmake.cache
-/.qmake.stash
+*.db
 
-# qtcreator generated files
+# QtCreator
 *.pro.user*
-
-# xemacs temporary files
-*.flc
-
-# Vim temporary files
-.*.swp
-
-# MinGW generated files
-*.Debug
-*.Release
-
-# Python byte code
-*.pyc
+CMakeLists.txt.user
 
 # Binaries
-# --------
 *.dll
 *.exe
 *.so
+*.o
+*.so
+*.so.*
+*.a
 
-
+# Build
+build*

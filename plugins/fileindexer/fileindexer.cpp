@@ -34,6 +34,7 @@
 #include <libdeskhare/matches/filematch.h>
 #include <libdeskhare/query.h>
 #include <libdeskhare/source.h>
+#include <libdeskhare/resultset.h>
 
 Q_LOGGING_CATEGORY(fileIndexer, "deskhare.fileindexer")
 
@@ -65,10 +66,10 @@ public:
     return true;
   }
 
-  std::vector<std::unique_ptr<LocalFileMatch>> search(const QString& query,
+  std::vector<std::unique_ptr<Match>> search(const QString& query,
     const FileIconProvider& icon_provider)
   {
-    std::vector<std::unique_ptr<LocalFileMatch>> matches;
+    std::vector<std::unique_ptr<Match>> matches;
 
     QString search_query_string;
     search_query_string =
@@ -176,7 +177,7 @@ public:
   ~FileIndexSource();
 
   bool canHandleQuery(const Query& query) override;
-  MatchResults search(const Query& query) override;
+  void search(const Query& query, ResultSet& results) override;
 
 private:
   std::unique_ptr<FileIndex> db_;
@@ -209,16 +210,13 @@ bool FileIndexSource::canHandleQuery(const Query& query)
 }
 
 
-MatchResults FileIndexSource::search(const Query& query)
+void FileIndexSource::search(const Query& query, ResultSet& results)
 {
   Q_ASSERT(!query.getSearchString().isEmpty());
   Q_ASSERT(db_->isOpen());
 
-  auto results = db_->search(query.getSearchString(),
-    *context_.getFileIconProvider());
-  return MatchResults(
-    std::make_move_iterator(results.begin()),
-    std::make_move_iterator(results.end()));
+  auto matches = db_->search(query.getSearchString(), *context_.getFileIconProvider());
+  results.sendMatches(matches);
 }
 
 void FileIndexSource::index()

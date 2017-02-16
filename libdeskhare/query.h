@@ -20,6 +20,7 @@
 #define APP_PLUGINS_QUICKSTARTER_SOURCES_QUERY_H_
 
 #include <QString>
+#include <atomic>
 
 namespace Deskhare {
 
@@ -50,9 +51,13 @@ public:
   // Matcher/*List<Regex, MatchScore>*/ getRegexMatchers() const;
   // Matcher/*List<Regex, MatchScore>*/ getSqlMatchers() const;
 
+  void cancel() { canceled_ = true; }
+  bool canceled() const volatile { return canceled_; }
+
 private:
   const Categories categories_;
   const QString search_string_;
+  std::atomic<bool> canceled_;
 };
 
 } // namespace QuickStarter

@@ -16,14 +16,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <plugins/xdg/applications.h>
+#include "xdgapplications.h"
 
 namespace Deskhare {
 
-Applications::Applications()
+XdgApplications::XdgApplications(const PluginContext& ctx)
 {
   // TODO Auto-generated constructor stub
 
+}
+
+bool XdgApplications::canHandleQuery(const Query& query)
+{
+}
+
+void XdgApplications::search(const Query& query, ResultSet& results)
+{
 }
 
 } // namespace Deskhare

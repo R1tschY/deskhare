@@ -23,7 +23,7 @@
 namespace Deskhare {
 
 MatchListModel::MatchListModel(QObject *parent)
-: QAbstractListModel(parent)
+: MatchesModel(parent)
 {
 }
 

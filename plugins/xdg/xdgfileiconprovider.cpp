@@ -16,8 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <plugins/xdg/xdgfileiconprovider.h>
-#include <xdgmimetype.h>
+#include "xdgfileiconprovider.h"
+
+#include <QDebug>
+
 
 namespace Deskhare {
 
