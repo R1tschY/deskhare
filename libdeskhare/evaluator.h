@@ -22,30 +22,21 @@
 
 #pragma once
 
-#include <vector>
-#include <QMutex>
-#include <memory>
 
 namespace Deskhare {
 
-class Match;
 class Query;
+class Match;
 
-/// \brief
-class ResultSet
+/// \brief sets score how good match fits to query
+class Evaluator
 {
 public:
-  ResultSet(const std::shared_ptr<const Query>& query);
+  Evaluator();
 
-  void sendMatch(std::unique_ptr<Match> match);
-  void sendMatches(std::vector<std::unique_ptr<Match>>& matches);
-
-  void recieveMatches(std::vector<std::unique_ptr<Match>>& matches);
+  float evaluate(const Query& query, const Match& match);
 
 private:
-  std::vector<std::unique_ptr<Match>> matches_buffer_;
-  QMutex mutex_;
-  std::shared_ptr<const Query> query_;
 };
 
 } // namespace Deskhare

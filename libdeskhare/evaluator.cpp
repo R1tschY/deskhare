@@ -20,32 +20,45 @@
 /// IN THE SOFTWARE.
 ///
 
-#pragma once
+#include "evaluator.h"
 
-#include <vector>
-#include <QMutex>
-#include <memory>
+#include <QString>
+
+#include "query.h"
+#include "match.h"
 
 namespace Deskhare {
 
-class Match;
-class Query;
-
-/// \brief
-class ResultSet
+Evaluator::Evaluator()
 {
-public:
-  ResultSet(const std::shared_ptr<const Query>& query);
 
-  void sendMatch(std::unique_ptr<Match> match);
-  void sendMatches(std::vector<std::unique_ptr<Match>>& matches);
+}
 
-  void recieveMatches(std::vector<std::unique_ptr<Match>>& matches);
+float Evaluator::evaluate(const Query& query, const Match& match)
+{
+  QString querystr = query.getSearchString();
+  QString matched = match.getTitle();
 
-private:
-  std::vector<std::unique_ptr<Match>> matches_buffer_;
-  QMutex mutex_;
-  std::shared_ptr<const Query> query_;
-};
+  if (querystr.length() == 0 || matched.length() == 0)
+    // no evaluation possible
+    return 1.0;
+
+  if (matched.startsWith(querystr, Qt::CaseInsensitive))
+  {
+    return 1.0;
+  }
+  else if (matched.indexOf(querystr, Qt::CaseInsensitive) != -1)
+  {
+    return 0.95;
+  }
+  else if (matched[0].toLower() == querystr[0].toLower())
+  {
+    return 0.75;
+  }
+  else
+  {
+    return 0.5;
+  }
+}
 
 } // namespace Deskhare

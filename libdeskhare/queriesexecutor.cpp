@@ -72,7 +72,12 @@ QVariant ResultSetModel::data(const QModelIndex& index, int role) const
 
   if (role == Qt::DisplayRole)
   {
+#ifndef NDEBUG
+    return entries_[index.row()].match->getTitle()
+      + " (" + QString::number(entries_[index.row()].match->getScore()) + ")";
+#else
     return entries_[index.row()].match->getTitle();
+#endif
   }
 
   if (role == Qt::ToolTipRole)
@@ -181,8 +186,8 @@ void QueriesExecutor::setQuery(
   const QString& search_string)
 {
   static_cast<ResultSetModel*>(model_)->clear();
-  query_results_ = std::make_shared<ResultSet>();
   query_ = std::make_shared<Query>(categories, search_string);
+  query_results_ = std::make_shared<ResultSet>(query_);
 
   future_watcher_->setFuture(
     QtConcurrent::mapped(sources_, SourceSearcher(query_, query_results_)));
@@ -192,6 +197,7 @@ void QueriesExecutor::queryFinished()
 {
   std::vector<std::unique_ptr<Match>> matches;
   query_results_->recieveMatches(matches);
+  std::sort(matches.begin(), matches.end(), MatchScoreComparer());
 
   std::vector<ResultSetModel::Entry> entries;
   for (auto& match : matches)

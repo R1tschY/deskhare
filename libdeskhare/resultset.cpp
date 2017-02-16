@@ -23,15 +23,19 @@
 #include "resultset.h"
 
 #include "match.h"
+#include "evaluator.h"
 
 namespace Deskhare {
 
-ResultSet::ResultSet()
-{
-}
+ResultSet::ResultSet(const std::shared_ptr<const Query>& query)
+: query_(query)
+{ }
 
 void ResultSet::sendMatch(std::unique_ptr<Match> match)
 {
+  Evaluator evaluator;
+  match->setScore(evaluator.evaluate(*query_, *match));
+
   QMutexLocker lock(&mutex_);
 
   matches_buffer_.push_back(std::move(match));
@@ -39,6 +43,13 @@ void ResultSet::sendMatch(std::unique_ptr<Match> match)
 
 void ResultSet::sendMatches(std::vector<std::unique_ptr<Match>>& matches)
 {
+  Evaluator evaluator;
+
+  for (auto& match : matches)
+  {
+    match->setScore(evaluator.evaluate(*query_, *match));
+  }
+
   QMutexLocker lock(&mutex_);
 
   matches_buffer_.insert(matches_buffer_.end(),

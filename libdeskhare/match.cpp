@@ -23,12 +23,12 @@
 
 namespace Deskhare {
 
-MatchBase::MatchBase(int score)
+MatchBase::MatchBase(float score)
 : score_(score)
 {
 }
 
-Match::Match(const QString& uri, int score)
+Match::Match(const QString& uri, float score)
 : MatchBase(score), uri_(uri)
 { }
 

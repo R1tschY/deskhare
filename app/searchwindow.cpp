@@ -36,7 +36,6 @@
 #include <QTimer>
 #include <QFrame>
 
-#include "matchlistmodel.h"
 #include "searchedit.h"
 #include <libdeskhare/match.h>
 #include <libdeskhare/action.h>

@@ -55,18 +55,18 @@ enum MatchScore
 class MatchBase
 {
 public:
-  MatchBase(int score = 0);
+  MatchBase(float score = 0);
   virtual ~MatchBase() = default;
 
   virtual QString getDescription() const = 0;
   virtual QString getTitle() const = 0;
   virtual QIcon getIcon() const = 0;
 
-  int getScore() const { return score_; }
-  void setScore(int score) { score_ = score; }
+  float getScore() const { return score_; }
+  void setScore(float score) { score_ = score; }
 
 private:
-  int score_;
+  float score_;
 };
 
 class Match : public MatchBase
@@ -74,7 +74,7 @@ class Match : public MatchBase
 public:
   using MatchBase::MatchBase;
 
-  Match(const QString& uri, int score = 0);
+  Match(const QString& uri, float score = 0);
 
   virtual std::unique_ptr<Action> getDefaultAction() const;
 
@@ -85,6 +85,14 @@ private:
 };
 
 using MatchResults = std::vector<std::unique_ptr<Match>>;
+
+struct MatchScoreComparer
+{
+  bool operator()(const std::unique_ptr<Match>& lhs, const std::unique_ptr<Match>& rhs) const
+  {
+    return lhs->getScore() > rhs->getScore();
+  }
+};
 
 } // namespace QuickStarter
 
