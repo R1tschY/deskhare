@@ -18,20 +18,40 @@
 #include "filematch.h"
 
 #include <QFileInfo>
+#include <QDir>
+#include <QStringList>
 
 #include "../shell/fileiconservice.h"
 
 namespace Deskhare {
 
+static QStringList getPathComponents(const QFileInfo& fileInfo)
+{
+  QStringList pathparts;
+  pathparts.append(fileInfo.fileName());
+
+  QDir dir = fileInfo.absoluteDir();
+  while (!dir.isRoot())
+  {
+    pathparts.prepend(dir.dirName());
+    dir.cdUp();
+  }
+  pathparts.prepend(dir.dirName());
+
+  return pathparts;
+}
+
 LocalFileMatch::LocalFileMatch(const QString& filePath, const FileIconProvider& icons)
-: Match("file://" + filePath), fileInfo_(filePath), icons_(icons)
+: Match("file://" + filePath), fileInfo_(filePath), icon_(icons.icon(fileInfo_))
 {
   Q_ASSERT(fileInfo_.isAbsolute());
+
+  description_ = getPathComponents(fileInfo_).join(QStringLiteral(" › "));
 }
 
 QString LocalFileMatch::getDescription() const
 {
-  return fileInfo_.path();
+  return description_;
 }
 
 QString LocalFileMatch::getTitle() const
@@ -41,7 +61,7 @@ QString LocalFileMatch::getTitle() const
 
 QIcon LocalFileMatch::getIcon() const
 {
-  return icons_.icon(fileInfo_);
+  return icon_;
 }
 
 } // namespace Deskhare

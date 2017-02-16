@@ -38,7 +38,9 @@ public:
 
 private:
   QFileInfo fileInfo_;
-  const FileIconProvider& icons_;
+
+  QString description_;
+  QIcon icon_;
 };
 
 } // namespace Deskhare
