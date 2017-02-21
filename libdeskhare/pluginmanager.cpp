@@ -94,37 +94,5 @@ void PluginManager::loadPlugins()
   }
 }
 
-std::vector<SourcePlugin*> PluginManager::getSources() const
-{
-  std::vector<SourcePlugin*> result;
-
-  for (auto* plugins : plugins_)
-  {
-    auto* source = qobject_cast<SourcePlugin*>(plugins);
-    if (source)
-    {
-      result.push_back(source);
-    }
-  }
-
-  return result;
-}
-
-std::vector<FileIconProviderPlugin*> PluginManager::getFileIconProviders() const
-{
-  std::vector<FileIconProviderPlugin*> result;
-
-  for (auto* plugins : plugins_)
-  {
-    auto* source = qobject_cast<FileIconProviderPlugin*>(plugins);
-    if (source)
-    {
-      result.push_back(source);
-    }
-  }
-
-  return result;
-}
-
 } // namespace Deskhare
 

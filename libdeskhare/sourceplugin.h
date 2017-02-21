@@ -38,7 +38,6 @@ public:
 
 } // namespace Deskhare
 
-
 #define DeskhareSource_iid "deskhare.Source"
 Q_DECLARE_INTERFACE(Deskhare::SourcePlugin, DeskhareSource_iid)
 

@@ -18,15 +18,28 @@
 
 #pragma once
 
-#include "source.h"
+#include <memory>
+#include <QtPlugin>
+#include <QString>
 
 namespace Deskhare {
 
-class ActionSource : public Source
+class Source;
+class PluginContext;
+
+class ActionSourcePlugin
 {
 public:
-  virtual bool canHandleQuery(const Query& query) = 0;
-  virtual void search(const Query& query, ResultSet& results) = 0;
+  virtual ~ActionSourcePlugin() { }
+
+  virtual std::unique_ptr<Source> getActionSource(const PluginContext& ctx) = 0;
+  virtual QString getActionSourceDescription() = 0;
 };
 
 } // namespace Deskhare
+
+#define DeskhareActionSource_iid "deskhare.ActionSource"
+Q_DECLARE_INTERFACE(Deskhare::ActionSourcePlugin, DeskhareActionSource_iid)
+
+
+

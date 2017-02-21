@@ -52,6 +52,7 @@ public slots:
 
 private:
   std::vector<std::unique_ptr<Source>> sources_;
+  std::vector<std::unique_ptr<Source>> action_sources_;
   FileIconProvider file_icon_provider_;
   PluginManager* plugin_manager_;
   QueryResultModel* result_model_;

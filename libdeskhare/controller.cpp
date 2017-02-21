@@ -26,9 +26,11 @@
 #include "actions/runaction.h"
 #include "query.h"
 #include "sourceplugin.h"
+#include "actionsourceplugin.h"
 #include "source.h"
 #include "queryresultmodel.h"
 #include "pluginmanager.h"
+#include "shell/fileiconproviderplugin.h"
 
 namespace Deskhare {
 
@@ -41,21 +43,32 @@ Controller::Controller(QObject* parent)
 {
   plugin_manager_->loadPlugins();
 
-  file_icon_provider_.updateFromPlugins(plugin_manager_->getFileIconProviders());
+  file_icon_provider_.updateFromPlugins(
+    plugin_manager_->getPlugins<FileIconProviderPlugin>());
 
   auto& ctx = plugin_manager_->getContext();
-  for (auto* source : plugin_manager_->getSources())
+  for (auto* source : plugin_manager_->getPlugins<SourcePlugin>())
   {
     sources_.push_back(source->getSource(ctx));
   }
-
   QVector<Source*> sourcesptrs;
   for (auto& source : sources_)
   {
     sourcesptrs.push_back(source.get());
   }
-
   result_model_->setSources(sourcesptrs);
+
+
+  for (auto* source : plugin_manager_->getPlugins<ActionSourcePlugin>())
+  {
+    action_sources_.push_back(source->getActionSource(ctx));
+  }
+  QVector<Source*> actionsourcesptrs;
+  for (auto& source : action_sources_)
+  {
+    actionsourcesptrs.push_back(source.get());
+  }
+  actions_model_->setSources(actionsourcesptrs);
 }
 
 Controller::~Controller() = default;

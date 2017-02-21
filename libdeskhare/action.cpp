@@ -16,6 +16,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include "action.h"
+
 namespace Deskhare {
 
+void Action::execute() const
+{
+  throw std::runtime_error("action needs target");
+}
+
 } // namespace QuickStarter
+

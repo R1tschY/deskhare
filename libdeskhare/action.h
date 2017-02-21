@@ -31,7 +31,9 @@ public:
   { }
 
   virtual bool canHandleMatch(const Match& match) const = 0;
-  virtual void execute(const Match& match) const = 0;
+  virtual void execute(const Match& target) const = 0;
+
+  void execute() const override;
 };
 
 } // namespace QuickStarter

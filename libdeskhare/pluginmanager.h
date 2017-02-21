@@ -26,9 +26,6 @@
 
 namespace Deskhare {
 
-class SourcePlugin;
-class FileIconProviderPlugin;
-
 /// \brief
 class PluginManager : public QObject
 {
@@ -38,9 +35,10 @@ public:
 
   void loadPlugins();
 
+  template<typename Plugin>
+  std::vector<Plugin*> getPlugins();
+
   std::vector<QString> getSearchPaths() const;
-  std::vector<SourcePlugin*> getSources() const;
-  std::vector<FileIconProviderPlugin*> getFileIconProviders() const;
   const PluginContext& getContext() const { return ctx_; }
 
 private:
@@ -50,5 +48,20 @@ private:
 
   void loadPlugin(const QString& filePath);
 };
+
+template<typename Plugin>
+inline std::vector<Plugin*> PluginManager::getPlugins()
+{
+  std::vector<Plugin*> result;
+  result.reserve(plugins_.size());
+
+  for (QObject* plugin : plugins_)
+  {
+    auto* source = qobject_cast<Plugin*>(plugin);
+    if (source)
+      result.push_back(source);
+  }
+  return result;
+}
 
 } // namespace Deskhare
