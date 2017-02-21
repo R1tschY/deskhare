@@ -27,19 +27,24 @@
 #include "query.h"
 #include "sourceplugin.h"
 #include "source.h"
+#include "queryresultmodel.h"
+#include "pluginmanager.h"
 
 namespace Deskhare {
 
-Controller::Controller()
-: file_icon_provider_(),
-  plugin_manager_(PluginContext(&file_icon_provider_))
+Controller::Controller(QObject* parent)
+: QObject(parent),
+  file_icon_provider_(),
+  plugin_manager_(new PluginManager(PluginContext(&file_icon_provider_), this)),
+  result_model_(new QueryResultModel(this)),
+  actions_model_(new QueryResultModel(this))
 {
-  plugin_manager_.loadPlugins();
+  plugin_manager_->loadPlugins();
 
-  file_icon_provider_.updateFromPlugins(plugin_manager_.getFileIconProviders());
+  file_icon_provider_.updateFromPlugins(plugin_manager_->getFileIconProviders());
 
-  auto& ctx = plugin_manager_.getContext();
-  for (auto* source : plugin_manager_.getSources())
+  auto& ctx = plugin_manager_->getContext();
+  for (auto* source : plugin_manager_->getSources())
   {
     sources_.push_back(source->getSource(ctx));
   }
@@ -50,32 +55,21 @@ Controller::Controller()
     sourcesptrs.push_back(source.get());
   }
 
-  queries_executor_.setSources(sourcesptrs);
+  result_model_->setSources(sourcesptrs);
 }
+
+Controller::~Controller() = default;
 
 void Controller::search(const QString& query)
 {
-  queries_executor_.setQuery(Query::Categories::All, query);
+  result_model_->setQuery(Query::Categories::All, query);
 }
 
-Controller::~Controller()
+void Controller::execute(const Match& match) const
 {
-}
+  // TODO: add to history
 
-bool Controller::execute(const Match& match) const
-{
-  auto action = match.getDefaultAction();
-  if (action)
-  {
-    action->execute(match);
-    return true;
-  }
-  return false;
-}
-
-MatchesModel* Controller::getResultSetModel()
-{
-  return queries_executor_.getModel();
+  match.execute();
 }
 
 } // namespace QuickStarter

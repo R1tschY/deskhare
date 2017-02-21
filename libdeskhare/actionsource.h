@@ -18,19 +18,15 @@
 
 #pragma once
 
-#include "../libdeskhare/match.h"
-#include "../libdeskhare/query.h"
+#include "source.h"
 
 namespace Deskhare {
 
-class ActionSource
+class ActionSource : public Source
 {
 public:
-  virtual ~ActionSource() = default;
-
-  virtual MatchResults find_for_match(const Query& query, const Match& match) = 0;
-
-private:
+  virtual bool canHandleQuery(const Query& query) = 0;
+  virtual void search(const Query& query, ResultSet& results) = 0;
 };
 
 } // namespace Deskhare

@@ -16,26 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "action.h"
-#include <libdeskhare/match.h>
-#include <libdeskhare/action.h>
-#include <libdeskhare/actions/openurlaction.h>
+#include "match.h"
 
 namespace Deskhare {
 
-MatchBase::MatchBase(float score)
-: score_(score)
-{
-}
-
-Match::Match(const QString& uri, float score)
-: MatchBase(score), uri_(uri)
-{ }
-
-std::unique_ptr<Action> Match::getDefaultAction() const
-{
-  return std::make_unique<OpenUrlAction>();
-}
 
 } // namespace QuickStarter
 

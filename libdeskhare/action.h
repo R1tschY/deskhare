@@ -23,10 +23,12 @@
 
 namespace Deskhare {
 
-class Action : public MatchBase
+class Action : public Match
 {
 public:
-  using MatchBase::MatchBase;
+  Action(float score)
+  : Match(QString(), score)
+  { }
 
   virtual bool canHandleMatch(const Match& match) const = 0;
   virtual void execute(const Match& match) const = 0;

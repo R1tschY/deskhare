@@ -16,7 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "queriesexecutor.h"
+#include "queryresultmodel.h"
 
 #include <QFutureWatcher>
 #include <QAbstractListModel>
@@ -30,42 +30,24 @@
 
 namespace Deskhare {
 
-class ResultSetModel : public MatchesModel
+QueryResultModel::QueryResultModel(QObject* parent)
+: QAbstractListModel(parent)
 {
-public:
-  struct Entry
-  {
-    Entry() = default;
-    Entry(std::unique_ptr<Match> match, std::unique_ptr<Action> defaultAction)
-    : match(std::move(match)), defaultAction(std::move(defaultAction))
-    { }
+  future_watcher_ = new QFutureWatcher<Source*>(this);
 
-    std::unique_ptr<Match> match;
-    std::unique_ptr<Action> defaultAction;
-  };
+  connect(
+    future_watcher_, &QFutureWatcher<Source*>::finished,
+    this, &QueryResultModel::queryFinished);
+}
 
-  ResultSetModel(QObject* parent)
-  : MatchesModel(parent)
-  { }
+QueryResultModel::~QueryResultModel() = default;
 
-  int rowCount(const QModelIndex& parent) const override;
-  QVariant data(const QModelIndex& index, int role) const override;
-
-  void takeMatches(std::vector<Entry>& entries);
-  void clear();
-
-  Match* getMatch(std::size_t row) override;
-
-private:
-  std::vector<Entry> entries_;
-};
-
-int ResultSetModel::rowCount(const QModelIndex & parent = QModelIndex()) const
+int QueryResultModel::rowCount(const QModelIndex & parent = QModelIndex()) const
 {
   return entries_.size();
 }
 
-QVariant ResultSetModel::data(const QModelIndex& index, int role) const
+QVariant QueryResultModel::data(const QModelIndex& index, int role) const
 {
   if (!index.isValid() || index.row() >= entries_.size())
     return QVariant();
@@ -73,8 +55,8 @@ QVariant ResultSetModel::data(const QModelIndex& index, int role) const
   if (role == Qt::DisplayRole)
   {
 #ifndef NDEBUG
-    return entries_[index.row()].match->getTitle()
-      + " (" + QString::number(entries_[index.row()].match->getScore()) + ")";
+    return entries_[index.row()]->getTitle()
+      + " (" + QString::number(entries_[index.row()]->getScore()) + ")";
 #else
     return entries_[index.row()].match->getTitle();
 #endif
@@ -82,28 +64,28 @@ QVariant ResultSetModel::data(const QModelIndex& index, int role) const
 
   if (role == Qt::ToolTipRole)
   {
-    return entries_[index.row()].match->getDescription();
+    return entries_[index.row()]->getDescription();
   }
 
   if (role == Qt::DecorationRole)
   {
-    return entries_[index.row()].match->getIcon();
+    return entries_[index.row()]->getIcon();
   }
 
-  if (role == QueriesExecutor::ScoreRole)
+  if (role == QueryResultModel::ScoreRole)
   {
-    return entries_[index.row()].match->getScore();
+    return entries_[index.row()]->getScore();
   }
 
-  if (role == QueriesExecutor::UriRole)
+  if (role == QueryResultModel::UriRole)
   {
-    return entries_[index.row()].match->getUri();
+    return entries_[index.row()]->getUri();
   }
 
   return QVariant();
 }
 
-void ResultSetModel::takeMatches(std::vector<Entry>& entries)
+void QueryResultModel::takeMatches(std::vector<std::unique_ptr<Match>>& entries)
 {
   beginInsertRows(QModelIndex(),
     entries_.size(),
@@ -118,7 +100,7 @@ void ResultSetModel::takeMatches(std::vector<Entry>& entries)
   entries.clear();
 }
 
-void ResultSetModel::clear()
+void QueryResultModel::clear()
 {
   beginRemoveRows(QModelIndex(), 0, entries_.size() - 1);
   scope(exit) { endRemoveRows(); };
@@ -126,32 +108,15 @@ void ResultSetModel::clear()
   entries_.clear();
 }
 
-Match* ResultSetModel::getMatch(std::size_t row)
+Match* QueryResultModel::getMatch(std::size_t row)
 {
   if (row >= entries_.size())
     return nullptr;
 
-  return entries_[row].match.get();
+  return entries_[row].get();
 }
 
-QueriesExecutor::QueriesExecutor()
-{
-  model_ = new ResultSetModel(this);
-  future_watcher_ = new QFutureWatcher<Source*>(this);
-
-  connect(
-    future_watcher_, &QFutureWatcher<Source*>::finished,
-    this, &QueriesExecutor::queryFinished);
-}
-
-QueriesExecutor::~QueriesExecutor() = default;
-
-MatchesModel* QueriesExecutor::getModel()
-{
-  return model_;
-}
-
-void QueriesExecutor::setSources(const QVector<Source*>& sources)
+void QueryResultModel::setSources(const QVector<Source*>& sources)
 {
   sources_ = sources;
 }
@@ -181,11 +146,11 @@ private:
   std::shared_ptr<const Query> query_;
 };
 
-void QueriesExecutor::setQuery(
+void QueryResultModel::setQuery(
   Query::Categories categories,
   const QString& search_string)
 {
-  static_cast<ResultSetModel*>(model_)->clear();
+  clear();
   query_ = std::make_shared<Query>(categories, search_string);
   query_results_ = std::make_shared<ResultSet>(query_);
 
@@ -193,19 +158,19 @@ void QueriesExecutor::setQuery(
     QtConcurrent::mapped(sources_, SourceSearcher(query_, query_results_)));
 }
 
-void QueriesExecutor::queryFinished()
+void QueryResultModel::queryFinished()
 {
   std::vector<std::unique_ptr<Match>> matches;
   query_results_->recieveMatches(matches);
   std::sort(matches.begin(), matches.end(), MatchScoreComparer());
 
-  std::vector<ResultSetModel::Entry> entries;
+  Matches entries;
   for (auto& match : matches)
   {
-    entries.emplace_back(std::move(match), nullptr);
+    entries.emplace_back(std::move(match));
   }
 
-  model_->takeMatches(entries);
+  takeMatches(entries);
 }
 
 } // namespace Deskhare

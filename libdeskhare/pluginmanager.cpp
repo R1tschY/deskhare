@@ -36,8 +36,8 @@ namespace Deskhare {
 
 Q_LOGGING_CATEGORY(pluginManager, "deskhare.pluginmanager")
 
-PluginManager::PluginManager(const PluginContext& ctx)
-: ctx_(ctx)
+PluginManager::PluginManager(const PluginContext& ctx, QObject* parent)
+: QObject(parent), ctx_(ctx)
 {
   auto appDir = QCoreApplication::applicationDirPath();
   auto dataDirs = QStandardPaths::standardLocations(

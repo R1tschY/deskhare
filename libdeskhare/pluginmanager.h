@@ -34,7 +34,7 @@ class PluginManager : public QObject
 {
   Q_OBJECT
 public:
-  PluginManager(const PluginContext& ctx);
+  PluginManager(const PluginContext& ctx, QObject* parent = 0);
 
   void loadPlugins();
 

@@ -28,7 +28,7 @@ class OpenUrlAction: public Action
 {
   Q_DECLARE_TR_FUNCTIONS(OpenUrlAction)
 public:
-  OpenUrlAction();
+  OpenUrlAction(float score);
 
   QString getDescription() const override;
   QString getTitle() const override;

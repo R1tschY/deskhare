@@ -15,13 +15,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
+
 #include "filematch.h"
 
 #include <QFileInfo>
 #include <QDir>
 #include <QStringList>
+#include <QLoggingCategory>
+#include <QDesktopServices>
 
 #include "../shell/fileiconservice.h"
+
+Q_LOGGING_CATEGORY(localFileMatch, "deskhare.LocalFileMatch")
 
 namespace Deskhare {
 
@@ -41,8 +46,8 @@ static QStringList getPathComponents(const QFileInfo& fileInfo)
   return pathparts;
 }
 
-LocalFileMatch::LocalFileMatch(const QString& filePath, const FileIconProvider& icons)
-: Match("file://" + filePath), fileInfo_(filePath), icon_(icons.icon(fileInfo_))
+LocalFileMatch::LocalFileMatch(const QString& filePath, const FileIconProvider& icons, float score)
+: Match("file://" + filePath, score), fileInfo_(filePath), icon_(icons.icon(fileInfo_))
 {
   Q_ASSERT(fileInfo_.isAbsolute());
 
@@ -62,6 +67,14 @@ QString LocalFileMatch::getTitle() const
 QIcon LocalFileMatch::getIcon() const
 {
   return icon_;
+}
+
+void LocalFileMatch::execute() const
+{
+  if (!QDesktopServices::openUrl(QUrl(getUri(), QUrl::TolerantMode)))
+  {
+    qCDebug(localFileMatch) << "Failed to open file:" << getUri();
+  }
 }
 
 } // namespace Deskhare

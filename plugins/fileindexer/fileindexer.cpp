@@ -92,7 +92,8 @@ public:
     {
       matches.emplace_back(std::make_unique<LocalFileMatch>(
         sqlquery.value("path").toString() + "/" + sqlquery.value("name").toString(),
-        icon_provider
+        icon_provider,
+        1.0
       ));
     }
 

@@ -20,6 +20,7 @@
 #define SEARCHWINDOW_H
 
 #include <QWidget>
+#include <memory>
 
 #include <libdeskhare/controller.h>
 
@@ -33,12 +34,14 @@ namespace Deskhare {
 
 class SearchEdit;
 class MatchesModel;
+class SettingsView;
 
 class SearchWindow : public QWidget
 {
   Q_OBJECT
 public:
   explicit SearchWindow(QWidget *parent = 0);
+  ~SearchWindow();
 
 public slots:
   void onEdit();
@@ -54,8 +57,9 @@ protected:
 private:
   QLineEdit* edit_;
   QListView* list_;
-  MatchesModel* model_;
+  QueryResultModel* model_;
   QxtGlobalShortcut* shortcut_;
+  std::unique_ptr<SettingsView> settings_view_;
 
   Controller controller;
 

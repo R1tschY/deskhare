@@ -22,10 +22,7 @@
 #include <vector>
 #include <memory>
 
-#include "pluginmanager.h"
-#include "source.h"
 #include "shell/fileiconservice.h"
-#include "queriesexecutor.h"
 
 class QString;
 class QAbstractListModel;
@@ -34,23 +31,31 @@ namespace Deskhare {
 
 class Source;
 class Action;
+class Match;
+class QueryResultModel;
+class PluginManager;
 
-class Controller
+class Controller : QObject
 {
+  Q_OBJECT
 public:
-  Controller();
+  Controller(QObject* parent = 0);
   ~Controller();
 
-  void search(const QString& query);
-  bool execute(const Match& match) const;
+  QueryResultModel* getQueryResultModel() { return result_model_; }
+  QueryResultModel* getActionQueryResultModel() { return actions_model_; }
 
-  MatchesModel* getResultSetModel();
+  void execute(const Match& match) const;
+
+public slots:
+  void search(const QString& query);
 
 private:
   std::vector<std::unique_ptr<Source>> sources_;
   FileIconProvider file_icon_provider_;
-  PluginManager plugin_manager_;
-  QueriesExecutor queries_executor_;
+  PluginManager* plugin_manager_;
+  QueryResultModel* result_model_;
+  QueryResultModel* actions_model_;
 };
 
 } // namespace QuickStarter

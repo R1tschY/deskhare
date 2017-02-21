@@ -39,12 +39,16 @@
 #include <QAction>
 
 #include "searchedit.h"
+#include "settingsview.h"
 #include <libdeskhare/match.h>
 #include <libdeskhare/action.h>
+#include <libdeskhare/queryresultmodel.h>
 
 Q_LOGGING_CATEGORY(searchWindow, "deskhare.app")
 
 namespace Deskhare {
+
+SearchWindow::~SearchWindow() = default;
 
 SearchWindow::SearchWindow(QWidget *parent)
 : QWidget(parent)
@@ -92,7 +96,7 @@ SearchWindow::SearchWindow(QWidget *parent)
   connect(edit_, SIGNAL(textChanged(QString)),
     this, SLOT(onEdit()));
 
-  model_ = controller.getResultSetModel();
+  model_ = controller.getQueryResultModel();
   list_ = new QListView();
   list_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   list_->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -115,6 +119,8 @@ SearchWindow::SearchWindow(QWidget *parent)
   frameLayout->setMargin(0);
   setLayout(frameLayout);
 
+  settings_view_ = std::make_unique<SettingsView>();
+
   auto* headerLine = new QHBoxLayout();
   headerLine->addWidget(new QLabel(tr("All")), 1.0, Qt::AlignCenter);
 
@@ -126,6 +132,9 @@ SearchWindow::SearchWindow(QWidget *parent)
   menuButton->setFocusPolicy(Qt::NoFocus);
   menuButton->setContextMenuPolicy(Qt::ActionsContextMenu);
   headerLine->addWidget(menuButton, 0.0, Qt::AlignRight);
+  connect(
+    menuButton, &QPushButton::clicked,
+    settings_view_.get(), &SettingsView::show);
 
 //  auto* settingsAction = new QAction("Settings", menuButton);
 //  settingsAction->setShortcuts({QKeySequence("Ctrl+,"), QKeySequence("Alt+,")});
@@ -282,14 +291,7 @@ void SearchWindow::activated(const QModelIndex& index)
   if (!match)
     return;
 
-  auto defaultAction = match->getDefaultAction();
-  if (!defaultAction)
-  {
-    // TODO: open action view
-    return;
-  }
-
-  defaultAction->execute(*match);
+  controller.execute(*match);
 }
 
 } // namespace Deskhare

@@ -33,7 +33,8 @@ public:
     const QString& description,
     const QString& file,
     const QString& command_line,
-    const QString& working_directory);
+    const QString& working_directory,
+    float score);
 
 private:
   const QString file_;

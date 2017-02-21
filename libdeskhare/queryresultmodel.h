@@ -37,16 +37,8 @@ class Query;
 class ResultSet;
 class ResultSetModel;
 
-class MatchesModel : public QAbstractListModel
-{
-public:
-  using QAbstractListModel::QAbstractListModel;
-
-  virtual Match* getMatch(std::size_t row) = 0;
-};
-
 /// \brief
-class QueriesExecutor : public QObject
+class QueryResultModel : public QAbstractListModel
 {
   Q_OBJECT
 public:
@@ -56,18 +48,20 @@ public:
     UriRole // QString
   };
 
+  QueryResultModel(QObject* parent = 0);
+  ~QueryResultModel();
 
-  QueriesExecutor();
-  ~QueriesExecutor();
-
-  MatchesModel* getModel();
   void setSources(const QVector<Source*>& sources);
+
+  Match* getMatch(std::size_t row);
 
 public:
   void setQuery(Query::Categories categories, const QString& search_string);
 
 private:
-  ResultSetModel* model_;
+  using Matches = std::vector<std::unique_ptr<Match>>;
+
+  Matches entries_;
   QFutureWatcher<Source*>* future_watcher_;
   QVector<Source*> sources_;
 
@@ -75,6 +69,12 @@ private:
   std::shared_ptr<const Query> query_;
 
   void queryFinished();
+
+  int rowCount(const QModelIndex& parent) const override;
+  QVariant data(const QModelIndex& index, int role) const override;
+
+  void takeMatches(Matches& entries);
+  void clear();
 };
 
 } // namespace Deskhare

@@ -51,12 +51,15 @@ enum MatchScore
 };
 }
 
-/// \brief Base class for match and action
-class MatchBase
+/// \brief
+class Match
 {
 public:
-  MatchBase(float score = 0);
-  virtual ~MatchBase() = default;
+  Match(const QString& uri, float score)
+  : score_(score), uri_(uri)
+  { }
+
+  virtual ~Match() = default;
 
   virtual QString getDescription() const = 0;
   virtual QString getTitle() const = 0;
@@ -65,22 +68,12 @@ public:
   float getScore() const { return score_; }
   void setScore(float score) { score_ = score; }
 
-private:
-  float score_;
-};
-
-class Match : public MatchBase
-{
-public:
-  using MatchBase::MatchBase;
-
-  Match(const QString& uri, float score = 0);
-
-  virtual std::unique_ptr<Action> getDefaultAction() const;
-
   QString getUri() const { return uri_; }
 
+  virtual void execute() const = 0;
+
 private:
+  float score_;
   const QString uri_;
 };
 

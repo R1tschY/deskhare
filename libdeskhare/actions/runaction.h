@@ -23,14 +23,14 @@
 
 namespace Deskhare {
 
-class RunAction : public Action
-{
-public:
-  RunAction();
-
-  bool canHandleMatch(const Match& match) const override;
-  void execute(const Match& match) const override;
-};
+//class RunAction : public Action
+//{
+//public:
+//  RunAction();
+//
+//  bool canHandleMatch(const Match& match) const override;
+//  void execute(const Match& match) const override;
+//};
 
 } // namespace QuickStarter
 

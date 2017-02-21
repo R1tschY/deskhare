@@ -30,11 +30,13 @@ class FileIconProvider;
 class LocalFileMatch : public Match
 {
 public:
-  LocalFileMatch(const QString& filePath, const FileIconProvider& icons);
+  LocalFileMatch(const QString& filePath, const FileIconProvider& icons, float score);
 
   QString getDescription() const override;
   QString getTitle() const override;
   QIcon getIcon() const override;
+
+  void execute() const override;
 
 private:
   QFileInfo fileInfo_;

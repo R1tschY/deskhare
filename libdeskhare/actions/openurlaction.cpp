@@ -24,8 +24,8 @@ Q_LOGGING_CATEGORY(openUrlAction, "deskhare.openUrlAction")
 
 namespace Deskhare {
 
-OpenUrlAction::OpenUrlAction()
-: Action()
+OpenUrlAction::OpenUrlAction(float score)
+: Action(score)
 { }
 
 QString OpenUrlAction::getDescription() const

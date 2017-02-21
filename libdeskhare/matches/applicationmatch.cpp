@@ -26,9 +26,10 @@ ApplicationMatch::ApplicationMatch(
   const QString& description,
   const QString& file,
   const QString& command_line,
-  const QString& working_directory
+  const QString& working_directory,
+  float score
 )
-: Match(uri),
+: Match(uri, score),
   title_(title),
   description_(description),
   file_(file),
