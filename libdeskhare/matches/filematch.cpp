@@ -25,6 +25,7 @@
 #include <QDesktopServices>
 
 #include "../shell/fileiconservice.h"
+#include "../actions/openurlaction.h"
 
 Q_LOGGING_CATEGORY(localFileMatch, "deskhare.LocalFileMatch")
 
@@ -69,12 +70,9 @@ QIcon LocalFileMatch::getIcon() const
   return icon_;
 }
 
-void LocalFileMatch::execute() const
+std::unique_ptr<Action> LocalFileMatch::getDefaultAction() const
 {
-  if (!QDesktopServices::openUrl(QUrl(getUri(), QUrl::TolerantMode)))
-  {
-    qCDebug(localFileMatch) << "Failed to open file:" << getUri();
-  }
+  return std::make_unique<OpenUrlAction>(MatchScore::Highest);
 }
 
 } // namespace Deskhare

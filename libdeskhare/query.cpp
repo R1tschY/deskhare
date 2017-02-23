@@ -16,13 +16,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "../libdeskhare/query.h"
+#include "query.h"
 
 namespace Deskhare {
 
-Query::Query(Categories categories, const QString& search_string)
-: categories_(categories), search_string_(search_string)
-{
-}
+Query::Query(Categories categories, const QString& search_string,
+  const Match* target)
+: categories_(categories), search_string_(search_string), target_(target)
+{ }
 
 } // namespace QuickStarter

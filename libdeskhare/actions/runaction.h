@@ -20,17 +20,26 @@
 #define APP_PLUGINS_QUICKSTARTER_ACTIONS_RUNACTION_H_
 
 #include "../action.h"
+#include <QCoreApplication>
 
 namespace Deskhare {
 
-//class RunAction : public Action
-//{
-//public:
-//  RunAction();
-//
-//  bool canHandleMatch(const Match& match) const override;
-//  void execute(const Match& match) const override;
-//};
+class RunAction : public Action
+{
+  Q_DECLARE_TR_FUNCTIONS(RunAction)
+public:
+  RunAction(const Action& action);
+
+  QString getDescription() const override;
+  QString getTitle() const override;
+  QIcon getIcon() const override;
+
+  bool canHandleMatch(const Match& match) const override;
+  void execute(const Match& match) const override;
+
+private:
+  const Action& action_;
+};
 
 } // namespace QuickStarter
 

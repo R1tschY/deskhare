@@ -36,7 +36,7 @@ public:
   QString getTitle() const override;
   QIcon getIcon() const override;
 
-  void execute() const override;
+  std::unique_ptr<Action> getDefaultAction() const override;
 
 private:
   QFileInfo fileInfo_;

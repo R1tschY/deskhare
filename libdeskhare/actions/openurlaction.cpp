@@ -45,8 +45,7 @@ QIcon OpenUrlAction::getIcon() const
 
 bool OpenUrlAction::canHandleMatch(const Match& match) const
 {
-  // must be explicitly used as default action
-  return false;
+  return QUrl(match.getUri(), QUrl::TolerantMode).isValid();
 }
 
 void OpenUrlAction::execute(const Match& match) const

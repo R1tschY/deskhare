@@ -70,7 +70,7 @@ public:
 
   QString getUri() const { return uri_; }
 
-  virtual void execute() const = 0;
+  virtual std::unique_ptr<Action> getDefaultAction() const = 0;
 
 private:
   float score_;

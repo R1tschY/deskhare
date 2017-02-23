@@ -20,42 +20,33 @@
 
 namespace Deskhare {
 
-//RunAction::RunAction()
-//: Action()
-//{
-//
-//}
-//
-//bool RunAction::canHandleMatch(const Match& match) const
-//{
-//  return true;
-//}
-//
-//void RunAction::execute(const Match& match) const
-//{/*
-//  if (match.hasInfo(Match::Application))
-//  {
-//    Match::InfoData data = match.getInfo(Match::Application);
-//
-//    // search working dir
-//    auto iter = std::find_if(data.begin(), data.end(), cpp::first_equal(L"working directory"));
-//    cpp::wstring_view working_directory =
-//      (iter != data.end()) ? cpp::wstring_view(iter->second) : cpp::wstring_view();
-//
-//    // TODO show command
-//
-//    iter = std::find_if(data.begin(), data.end(), cpp::first_equal(L"command line"));
-//    if (iter == data.end())
-//    {
-//      throw std::runtime_error("needed data in match lacks");
-//    }
-//
-//    Windows::Process::runCmdln(cpp::wstring_view(iter->second), working_directory);
-//  }
-//  else if (match.hasInfo(Match::Action))
-//  {
-//    match.execute();
-//  }*/
-//}
+RunAction::RunAction(const Action& action)
+: Action(MatchScore::Highest), action_(action)
+{ }
+
+bool RunAction::canHandleMatch(const Match& match) const
+{
+  return &match == &action_;
+}
+
+QString RunAction::getDescription() const
+{
+  return tr("Execute action");
+}
+
+QString RunAction::getTitle() const
+{
+  return tr("Execute");
+}
+
+QIcon RunAction::getIcon() const
+{
+  return QIcon::fromTheme("system-run");
+}
+
+void RunAction::execute(const Match& match) const
+{
+  action_.execute(match);
+}
 
 } // namespace QuickStarter

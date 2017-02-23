@@ -141,7 +141,10 @@ SearchWindow::SearchWindow(QWidget *parent)
 //  menuButton->addAction(settingsAction);
 
   auto* hideAction = new QAction(tr("Hide"), menuButton);
-  hideAction->setShortcuts({QKeySequence("Esc"), QKeySequence("Ctrl+W")});
+  hideAction->setShortcuts({
+    QKeySequence("Esc"),
+    QKeySequence("Ctrl+W"),
+    QKeySequence("Ctrl+D")});
   connect(hideAction, &QAction::triggered, this, &SearchWindow::hide);
   menuButton->addAction(hideAction);
 

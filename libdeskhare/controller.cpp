@@ -22,6 +22,8 @@
 #include <QDebug>
 #include <QPluginLoader>
 #include <QVector>
+#include <QDebug>
+#include <QLoggingCategory>
 
 #include "actions/runaction.h"
 #include "query.h"
@@ -31,6 +33,8 @@
 #include "queryresultmodel.h"
 #include "pluginmanager.h"
 #include "shell/fileiconproviderplugin.h"
+
+Q_LOGGING_CATEGORY(controller, "deskhare.Controller")
 
 namespace Deskhare {
 
@@ -82,7 +86,20 @@ void Controller::execute(const Match& match) const
 {
   // TODO: add to history
 
-  match.execute();
+  auto action = match.getDefaultAction();
+  if (!action)
+  {
+    qCCritical(controller) << "match has no default action";
+    return;
+  }
+
+  if (!action->canHandleMatch(match))
+  {
+    qCCritical(controller) << "default action cannot execute match";
+    return;
+  }
+
+  action->execute(match);
 }
 
 } // namespace QuickStarter

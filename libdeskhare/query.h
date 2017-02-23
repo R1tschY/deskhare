@@ -24,6 +24,8 @@
 
 namespace Deskhare {
 
+class Match;
+
 /// \brief
 class Query
 {
@@ -38,7 +40,8 @@ public:
     All      = 0xFFFF
   };
 
-  Query(Categories categories, const QString& search_string);
+  Query(Categories categories, const QString& search_string,
+    const Match* target = nullptr);
 
   Categories getCategories() const { return categories_; }
 
@@ -54,10 +57,13 @@ public:
   void cancel() { canceled_ = true; }
   bool canceled() const volatile { return canceled_; }
 
+  const Match* getTarget() const { return target_; }
+
 private:
   const Categories categories_;
   const QString search_string_;
   std::atomic<bool> canceled_;
+  const Match* target_;
 };
 
 } // namespace QuickStarter

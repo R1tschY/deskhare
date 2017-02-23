@@ -17,13 +17,13 @@
 //
 
 #include "action.h"
+#include "actions/runaction.h"
 
 namespace Deskhare {
 
-void Action::execute() const
+std::unique_ptr<Action> Action::getDefaultAction() const
 {
-  throw std::runtime_error("action needs target");
+  return std::make_unique<RunAction>(*this);
 }
 
 } // namespace QuickStarter
-
