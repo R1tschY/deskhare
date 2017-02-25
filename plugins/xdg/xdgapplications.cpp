@@ -18,20 +18,107 @@
 
 #include "xdgapplications.h"
 
+#include <cpp-utils/as_const.h>
+#include <cpp-utils/lambda.h>
+#include <cpp-utils/algorithm/container.h>
+#include <xdgdesktopfile.h>
+#include <QFileInfo>
+#include <QRegularExpression>
+#include <libdeskhare/query.h>
+#include <libdeskhare/resultset.h>
+
+#include "xdgapplicationmatch.h"
+#include "xdgcommon.h"
+
 namespace Deskhare {
 
 XdgApplications::XdgApplications(const PluginContext& ctx)
 {
-  // TODO Auto-generated constructor stub
-
+  index();
 }
 
 bool XdgApplications::canHandleQuery(const Query& query)
 {
+  return query.hasCategory(Query::Categories::App)
+    && !query.getSearchString().isEmpty();
 }
 
 void XdgApplications::search(const Query& query, ResultSet& results)
 {
+  auto regex = query.getSearchRegex();
+
+  std::vector<std::unique_ptr<Match>> matches;
+  for (auto& entry : cpp::as_const(index_))
+  {
+    float score = 0;
+    if (regex.match(entry.appname).hasMatch()
+      || regex.match(entry.title).hasMatch())
+    {
+      score = entry.score;
+    }
+    else if (regex.match(entry.description).hasMatch())
+    {
+      score = entry.score - MatchScore::IncrementMedium;
+    }
+    else
+    {
+      continue;
+    }
+
+    qCDebug(xdgLogger) << "match" << entry.appname;
+    matches.emplace_back(new XdgApplicationMatch(entry.desktopFile, score));
+  }
+  results.sendMatches(matches);
+}
+
+void XdgApplications::index()
+{
+  qCDebug(xdgLogger) << "start indexing ...";
+
+  std::size_t n = 0;
+  QList<XdgDesktopFile*> desktopFiles = XdgDesktopFileCache::getAllFiles();
+
+  index_.clear();
+  index_.reserve(desktopFiles.size());
+
+  for (XdgDesktopFile* desktopFile : cpp::as_const(desktopFiles))
+  {
+    n += 1;
+    if (desktopFile->isSuitable())
+      index_.emplace_back(*desktopFile);
+  }
+
+  qCDebug(xdgLogger) << "indexed" << n << "applications";
+}
+
+XdgApplications::IndexEntry::IndexEntry(
+  const XdgApplicationDesktopFile& xdgDesktopFile)
+{
+  desktopFile = xdgDesktopFile;
+  QFileInfo fileInfo(desktopFile.fileName());
+
+  appname = fileInfo.completeBaseName();
+
+  title = desktopFile.localizedValue(QStringLiteral("Name")).toString();
+
+  genericName = desktopFile.localizedValue(
+    QStringLiteral("GenericName")).toString();
+
+  description = desktopFile.localizedValue(
+    QStringLiteral("Comment")).toString();
+
+  if (desktopFile.value(QStringLiteral("NoDisplay")).toBool())
+  {
+    score = MatchScore::Poor;
+  }
+  else if (!desktopFile.isSuitable(false))
+  {
+    score = MatchScore::Average;
+  }
+  else
+  {
+    score = MatchScore::Excellent;
+  }
 }
 
 } // namespace Deskhare

@@ -1,5 +1,5 @@
 //
-// deskhare - cross-platform quick launcher
+// deskhare
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,37 +18,32 @@
 
 #pragma once
 
-#include <libdeskhare/source.h>
+#include <libdeskhare/match.h>
+
+#include <QString>
+#include <QIcon>
 
 #include "xdgapplicationdesktopfile.h"
 
 namespace Deskhare {
 
 /// \brief
-class XdgApplications : public Source
+class XdgApplicationMatch : public Match
 {
 public:
-  XdgApplications(const PluginContext& ctx);
+  XdgApplicationMatch(const XdgApplicationDesktopFile& desktopFile, float score);
+
+  QString getDescription() const override;
+  QString getTitle() const override;
+  QIcon getIcon() const override;
+
+  std::unique_ptr<Action> getDefaultAction() const override;
 
 private:
-  bool canHandleQuery(const Query& query) override;
-  void search(const Query& query, ResultSet& results) override;
-
-  void index();
-
-  struct IndexEntry
-  {
-    IndexEntry(const XdgApplicationDesktopFile& desktopFile);
-
-    QString title;
-    QString genericName;
-    QString description;
-    QString appname;
-    XdgApplicationDesktopFile desktopFile;
-    float score = 0;
-  };
-  std::vector<IndexEntry> index_;
-  std::vector<QString> whitelist_;
+  QString title_;
+  QString description_;
+  QIcon icon_;
+  XdgApplicationDesktopFile desktopFile_;
 };
 
 } // namespace Deskhare

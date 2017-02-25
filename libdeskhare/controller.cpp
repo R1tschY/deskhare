@@ -34,9 +34,10 @@
 #include "pluginmanager.h"
 #include "shell/fileiconproviderplugin.h"
 
-Q_LOGGING_CATEGORY(controller, "deskhare.Controller")
 
 namespace Deskhare {
+
+Q_LOGGING_CATEGORY(controllerLogger, "deskhare.Controller")
 
 Controller::Controller(QObject* parent)
 : QObject(parent),
@@ -54,6 +55,7 @@ Controller::Controller(QObject* parent)
   for (auto* source : plugin_manager_->getPlugins<SourcePlugin>())
   {
     sources_.push_back(source->getSource(ctx));
+    qCInfo(controllerLogger) << "got source:" << source->getSourceDescription();
   }
   QVector<Source*> sourcesptrs;
   for (auto& source : sources_)
@@ -89,13 +91,13 @@ void Controller::execute(const Match& match) const
   auto action = match.getDefaultAction();
   if (!action)
   {
-    qCCritical(controller) << "match has no default action";
+    qCCritical(controllerLogger) << "match has no default action";
     return;
   }
 
   if (!action->canHandleMatch(match))
   {
-    qCCritical(controller) << "default action cannot execute match";
+    qCCritical(controllerLogger) << "default action cannot execute match";
     return;
   }
 

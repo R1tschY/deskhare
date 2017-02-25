@@ -1,5 +1,5 @@
 //
-// deskhare - cross-platform quick launcher
+// deskhare
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,37 +18,39 @@
 
 #pragma once
 
-#include <libdeskhare/source.h>
+#include "libdeskhare/action.h"
+
+#include <QString>
+#include <QStringList>
+#include <QCoreApplication>
 
 #include "xdgapplicationdesktopfile.h"
 
 namespace Deskhare {
 
 /// \brief
-class XdgApplications : public Source
+class XdgApplicationAction : public Action
 {
+  Q_DECLARE_TR_FUNCTIONS(XdgApplicationAction)
 public:
-  XdgApplications(const PluginContext& ctx);
+  XdgApplicationAction(const XdgApplicationDesktopFile& app, float score);
+  XdgApplicationAction(const XdgApplicationDesktopFile& app, const QString& url,
+    float score);
+
+  QString getDescription() const override;
+  QString getTitle() const override;
+  QIcon getIcon() const override;
+
+  bool canHandleMatch(const Match& match) const override;
+  void execute(const Match& target) const override;
 
 private:
-  bool canHandleQuery(const Query& query) override;
-  void search(const Query& query, ResultSet& results) override;
+  QString description_;
+  QString title_;
+  QIcon icon_;
 
-  void index();
-
-  struct IndexEntry
-  {
-    IndexEntry(const XdgApplicationDesktopFile& desktopFile);
-
-    QString title;
-    QString genericName;
-    QString description;
-    QString appname;
-    XdgApplicationDesktopFile desktopFile;
-    float score = 0;
-  };
-  std::vector<IndexEntry> index_;
-  std::vector<QString> whitelist_;
+  XdgApplicationDesktopFile app_;
+  QString url_;
 };
 
 } // namespace Deskhare
