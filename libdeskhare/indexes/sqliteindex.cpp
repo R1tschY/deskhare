@@ -223,10 +223,10 @@ QString SqliteIndex::escapeLike(QChar c, QChar escapeChar)
   switch(c.toLatin1())
   {
   case '%':
-    return QString(escapeChar) + L'%';
+    return QString(escapeChar) + '%';
 
   case '_':
-    return QString(escapeChar) + L'_';
+    return QString(escapeChar) + '_';
 
   case '\'':
     return QStringLiteral("''");

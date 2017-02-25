@@ -55,8 +55,8 @@ QVariant QueryResultModel::data(const QModelIndex& index, int role) const
   if (role == Qt::DisplayRole)
   {
 #ifndef NDEBUG
-    return entries_[index.row()]->getTitle()
-      + " (" + QString::number(entries_[index.row()]->getScore()) + ")";
+    return QString(entries_[index.row()]->getTitle()
+      + " (" + QString::number(entries_[index.row()]->getScore()) + ")");
 #else
     return entries_[index.row()].match->getTitle();
 #endif
