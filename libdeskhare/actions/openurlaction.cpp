@@ -20,9 +20,10 @@
 #include <QDesktopServices>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(openUrlAction, "deskhare.openUrlAction")
 
 namespace Deskhare {
+
+Q_LOGGING_CATEGORY(openUrlAction, "deskhare.openUrlAction")
 
 OpenUrlAction::OpenUrlAction(float score)
 : Action(score)

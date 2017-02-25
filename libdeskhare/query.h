@@ -22,6 +22,8 @@
 #include <QString>
 #include <atomic>
 
+class QRegularExpression;
+
 namespace Deskhare {
 
 class Match;
@@ -45,19 +47,19 @@ public:
 
   Categories getCategories() const { return categories_; }
 
-  bool hasCategories(Categories value) const
+  bool hasCategory(Categories value) const
   {
     return static_cast<int>(categories_) & static_cast<int>(value);
   }
 
   const QString& getSearchString() const { return search_string_; }
-  // Matcher/*List<Regex, MatchScore>*/ getRegexMatchers() const;
-  // Matcher/*List<Regex, MatchScore>*/ getSqlMatchers() const;
 
   void cancel() { canceled_ = true; }
   bool canceled() const volatile { return canceled_; }
 
   const Match* getTarget() const { return target_; }
+
+  QRegularExpression getSearchRegex() const;
 
 private:
   const Categories categories_;

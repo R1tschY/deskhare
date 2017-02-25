@@ -18,11 +18,31 @@
 
 #include "query.h"
 
+#include <QRegularExpression>
+
 namespace Deskhare {
 
 Query::Query(Categories categories, const QString& search_string,
   const Match* target)
 : categories_(categories), search_string_(search_string), target_(target)
 { }
+
+QRegularExpression Query::getSearchRegex() const
+{
+  QStringList escaped_chars;
+  escaped_chars.reserve(search_string_.size());
+  for (auto c : search_string_)
+  {
+    escaped_chars.append(QRegularExpression::escape(QString(c)));
+  }
+
+  QString dotStar = QStringLiteral(".*?");
+  auto regex = QRegularExpression(
+    dotStar + escaped_chars.join(dotStar) + dotStar,
+    QRegularExpression::CaseInsensitiveOption
+  );
+  regex.optimize();
+  return regex;
+}
 
 } // namespace QuickStarter

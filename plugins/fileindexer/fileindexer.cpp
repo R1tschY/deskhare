@@ -207,7 +207,7 @@ FileIndexSource::~FileIndexSource() = default;
 bool FileIndexSource::canHandleQuery(const Query& query)
 {
   return db_->isOpen() && !query.getSearchString().isEmpty()
-    && query.hasCategories(Query::Categories::File);
+    && query.hasCategory(Query::Categories::File);
 }
 
 
