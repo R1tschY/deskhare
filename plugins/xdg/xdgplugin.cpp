@@ -18,33 +18,12 @@
 
 #include "xdgplugin.h"
 
-#include "xdgfileiconprovider.h"
 #include "xdgapplications.h"
 
 namespace Deskhare {
 
 XdgPlugin::XdgPlugin()
-{
-  // TODO Auto-generated constructor stub
-
-}
-
-float XdgPlugin::getFileIconProviderPriorityIndex()
-{
-  return 10;
-}
-
-std::unique_ptr<QFileIconProvider> XdgPlugin::getFileIconProvider()
-{
-  return std::make_unique<XdgFileIconProvider>();
-}
-
-QString XdgPlugin::getFileIconProviderDescription() const
-{
-  return "Xdg file icon provider.\n"
-    "\n"
-    "File icon provider for Freedesktop compatible systems.";
-}
+{ }
 
 std::unique_ptr<Source> XdgPlugin::getSource(const PluginContext& ctx)
 {

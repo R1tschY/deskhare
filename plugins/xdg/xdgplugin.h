@@ -27,20 +27,13 @@ namespace Deskhare {
 /// \brief
 class XdgPlugin :
   public QObject,
-  public FileIconProviderPlugin,
   public SourcePlugin
 {
   Q_OBJECT
-  Q_PLUGIN_METADATA(IID DeskhareFileIconProvider_iid FILE "metadata.json")
   Q_PLUGIN_METADATA(IID DeskhareSource_iid)
-  Q_INTERFACES(Deskhare::FileIconProviderPlugin Deskhare::SourcePlugin)
+  Q_INTERFACES(Deskhare::SourcePlugin)
 public:
   XdgPlugin();
-
-  // FileIconProviderPlugin
-  float getFileIconProviderPriorityIndex() override;
-  std::unique_ptr<QFileIconProvider> getFileIconProvider() override;
-  QString getFileIconProviderDescription() const override;
 
   // SourcePlugin
   std::unique_ptr<Source> getSource(const PluginContext& ctx) override;
