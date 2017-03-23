@@ -79,14 +79,6 @@ public:
   std::vector<std::unique_ptr<Match>> search(const QString& query,
     const FileIconProvider& icon_provider)
   {
-    QSqlQuery caseSensitiveLikeQuery("PRAGMA case_sensitive_like=OFF",
-      dataBase());
-    if (!caseSensitiveLikeQuery.last())
-    {
-      qCCritical(fileIndexer) << "Cannot set LIKE case insensitive:" <<
-        caseSensitiveLikeQuery.lastError().text();
-    }
-
     std::vector<std::unique_ptr<Match>> matches;
 
     QString search_query_string;
@@ -96,9 +88,9 @@ public:
 
     QSqlQuery sqlquery(dataBase());
     sqlquery.prepare(QStringLiteral(
-      "SELECT * FROM files WHERE name LIKE ") + search_query_string);
+      "SELECT * FROM files WHERE LOWER(name) LIKE ") + search_query_string);
     for (QChar c : query)
-      sqlquery.addBindValue(c);
+      sqlquery.addBindValue(c.toCaseFolded());
     if (!sqlquery.exec())
     {
       qCCritical(fileIndexer) << "search file in index failed:"
