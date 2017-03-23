@@ -63,6 +63,8 @@ private:
 
   Controller controller;
 
+  void onNewResultRows();
+
 private slots:
   void toggleVisibility();
   void escapeState();

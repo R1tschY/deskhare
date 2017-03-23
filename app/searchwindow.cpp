@@ -107,6 +107,8 @@ SearchWindow::SearchWindow(QWidget *parent)
   list_->setObjectName("matches");
   connect(list_, &QAbstractItemView::activated,
     this, &SearchWindow::activated);
+  connect(model_, &QAbstractItemModel::rowsInserted,
+    this, &SearchWindow::onNewResultRows);
 
   // window frame
   auto* frame = new QFrame(this);
@@ -252,7 +254,7 @@ void SearchWindow::escapeState()
 void SearchWindow::setVisible(bool visible)
 {
   // Skip if nothing to do
-  if ( (isVisible() && visible) || !(isVisible() || visible) )
+  if (isVisible() == visible)
       return;
 
   QWidget::setVisible(visible);
@@ -283,6 +285,15 @@ bool SearchWindow::event(QEvent* event)
   }
 
   return QWidget::event(event);
+}
+
+void SearchWindow::onNewResultRows()
+{
+  if (list_->currentIndex().isValid())
+    return;
+
+  // if no selection, select first row
+  list_->setCurrentIndex(model_->index(0));
 }
 
 void SearchWindow::activated(const QModelIndex& index)
