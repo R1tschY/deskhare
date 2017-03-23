@@ -60,19 +60,19 @@ void PluginManager::loadPlugin(const QString& filePath)
   if (!QLibrary::isLibrary(filePath))
   {
     if (filePath.length() > 3)
-      qCWarning(pluginManager) << "skipped non-plugin `" << filePath << "`";
+      qCWarning(pluginManager) << "skipped non-plugin" << filePath;
     return;
   }
 
-  qCInfo(pluginManager) << "loading plugin `" << filePath << "`";
+  qCInfo(pluginManager) << "loading plugin" << filePath;
   QPluginLoader pluginLoader(filePath);
   QObject* plugin = pluginLoader.instance();
   if (!plugin)
   {
     qCWarning(pluginManager)
-          << "cannot load plugin `"
+          << "cannot load plugin"
           << filePath
-          << "`:"
+          << ":"
           << pluginLoader.errorString();
     return;
   }
@@ -80,7 +80,7 @@ void PluginManager::loadPlugin(const QString& filePath)
   plugin->setParent(this);
   plugins_.push_back(plugin);
 
-  qCDebug(pluginManager) << "loaded plugin `" << filePath << "`";
+  qCDebug(pluginManager) << "loaded plugin" << filePath;
 }
 
 void PluginManager::loadPlugins()
