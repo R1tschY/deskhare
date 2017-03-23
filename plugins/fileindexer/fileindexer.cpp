@@ -47,6 +47,16 @@ public:
   : SqliteIndex("fileIndex", 1)
   { }
 
+  void clear()
+  {
+    QSqlQuery clearQuery("DELETE FROM files", dataBase());
+    if (!clearQuery.last())
+    {
+      qCCritical(fileIndexer) << "Cannot clear files table:" <<
+        clearQuery.lastError().text();
+    }
+  }
+
   bool addFile(QFileInfo file)
   {
     Q_ASSERT(file.isAbsolute());
@@ -69,6 +79,14 @@ public:
   std::vector<std::unique_ptr<Match>> search(const QString& query,
     const FileIconProvider& icon_provider)
   {
+    QSqlQuery caseSensitiveLikeQuery("PRAGMA case_sensitive_like=OFF",
+      dataBase());
+    if (!caseSensitiveLikeQuery.last())
+    {
+      qCCritical(fileIndexer) << "Cannot set LIKE case insensitive:" <<
+        caseSensitiveLikeQuery.lastError().text();
+    }
+
     std::vector<std::unique_ptr<Match>> matches;
 
     QString search_query_string;
@@ -196,10 +214,7 @@ FileIndexSource::FileIndexSource(const PluginContext& ctx)
     return;
 
   if (db_->getLastIndexing().daysTo(QDateTime::currentDateTime()) > 7)
-  {
     index();
-    db_->setLastIndexing(QDateTime::currentDateTime());
-  }
 }
 
 FileIndexSource::~FileIndexSource() = default;
@@ -222,14 +237,16 @@ void FileIndexSource::search(const Query& query, ResultSet& results)
 
 void FileIndexSource::index()
 {
+  qCInfo(fileIndexer) << "Indexing files ...";
+
   if (!db_->isOpen())
     return;
 
-  qCInfo(fileIndexer) << "Indexing files ...";
+  db_->clear();
 
   int i = 0;
   auto videos = QStandardPaths::standardLocations(
-    QStandardPaths::MoviesLocation);
+    QStandardPaths::MoviesLocation); // TODO: editable list
   foreach (QString dir, videos)
   {
     cpp::for_each(DirRange(dir,
@@ -241,6 +258,8 @@ void FileIndexSource::index()
       db_->addFile(file.fileInfo());
     });
   }
+
+  db_->setLastIndexing(QDateTime::currentDateTime());
 
   qCInfo(fileIndexer) << "Indexed" << i << "files";
 }
