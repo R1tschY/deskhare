@@ -84,7 +84,7 @@ void Controller::search(const QString& query)
   result_model_->setQuery(Query::Categories::All, query);
 }
 
-void Controller::execute(const Match& match) const
+bool Controller::execute(const Match& match) const
 {
   // TODO: add to history
 
@@ -92,16 +92,18 @@ void Controller::execute(const Match& match) const
   if (!action)
   {
     qCCritical(controllerLogger) << "match has no default action";
-    return;
+    return false;
   }
 
   if (!action->canHandleMatch(match))
   {
     qCCritical(controllerLogger) << "default action cannot execute match";
-    return;
+    return false;
   }
 
   action->execute(match);
+
+  return true;
 }
 
 } // namespace QuickStarter

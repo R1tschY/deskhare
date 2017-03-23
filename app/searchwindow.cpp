@@ -305,7 +305,11 @@ void SearchWindow::activated(const QModelIndex& index)
   if (!match)
     return;
 
-  controller.execute(*match);
+  bool success = controller.execute(*match);
+  if (success)
+  {
+    setVisible(false);
+  }
 }
 
 } // namespace Deskhare
