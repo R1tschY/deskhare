@@ -37,12 +37,14 @@
 #include <QFrame>
 #include <QPushButton>
 #include <QAction>
+#include <QStackedWidget>
 
 #include "searchedit.h"
 #include "settingsview.h"
 #include <libdeskhare/match.h>
 #include <libdeskhare/action.h>
 #include <libdeskhare/queryresultmodel.h>
+#include <cpp-utils/down_cast.h>
 
 Q_LOGGING_CATEGORY(searchWindow, "deskhare.app")
 
@@ -96,19 +98,23 @@ SearchWindow::SearchWindow(QWidget *parent)
   connect(edit_, SIGNAL(textChanged(QString)),
     this, SLOT(onEdit()));
 
-  model_ = controller.getQueryResultModel();
+  debounce_timer_ = new QTimer(this);
+  debounce_timer_->setSingleShot(true);
+  debounce_timer_->setTimerType(Qt::CoarseTimer);
+  debounce_timer_->setInterval(200);
+  connect(
+    debounce_timer_, &QTimer::timeout,
+    this, &SearchWindow::onStartSearch);
+
+  model_ = controller_.getQueryResultModel();
   list_ = new QListView();
-  list_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  list_->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  list_->setFocusPolicy(Qt::NoFocus);
   list_->setModel(model_);
-  list_->hide();
-  list_->setFrameShape(QFrame::NoFrame);
-  list_->setObjectName("matches");
-  connect(list_, &QAbstractItemView::activated,
-    this, &SearchWindow::activated);
-  connect(model_, &QAbstractItemModel::rowsInserted,
-    this, &SearchWindow::onNewResultRows);
+  configureResultList(list_);
+
+  actions_model_ = controller_.getActionQueryResultModel();
+  actions_list_ = new QListView();
+  actions_list_->setModel(actions_model_);
+  configureResultList(actions_list_);
 
   // window frame
   auto* frame = new QFrame(this);
@@ -155,10 +161,16 @@ SearchWindow::SearchWindow(QWidget *parent)
   connect(quitAction, &QAction::triggered, qApp, &QApplication::quit);
   menuButton->addAction(quitAction);
 
+  result_lists_ = new QStackedWidget();
+  result_lists_->addWidget(list_);
+  result_lists_->addWidget(actions_list_);
+  result_lists_->setCurrentWidget(list_);
+  result_lists_->hide();
+
   auto* contentLayout = new QVBoxLayout(frame);
   contentLayout->addLayout(headerLine);
   contentLayout->addWidget(edit_);
-  contentLayout->addWidget(list_);
+  contentLayout->addWidget(result_lists_);
   contentLayout->setSpacing(0);
   contentLayout->setMargin(0);
   frame->setLayout(contentLayout);
@@ -175,17 +187,48 @@ SearchWindow::SearchWindow(QWidget *parent)
     "#input {"
     "  border-radius: 3px;"
     "}");
+
+  result_lists_->hide();
+}
+
+void SearchWindow::configureResultList(QListView* list)
+{
+  list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  list->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  list->setFocusPolicy(Qt::NoFocus);
+  list->setFrameShape(QFrame::NoFrame);
+  list->setIconSize(QSize(32, 32));
+
+  connect(list, &QAbstractItemView::activated,
+    this, &SearchWindow::onResultActivated);
+
+  connect(list->model(), &QAbstractItemModel::rowsInserted,
+    [=](const QModelIndex &parent, int first, int last) {
+    if (list->currentIndex().isValid())
+      return;
+
+    // if no selection, select first row
+    list->setCurrentIndex(list->model()->index(0, 0));
+  });
 }
 
 void SearchWindow::onEdit()
 {
-  list_->hide();
+  result_lists_->hide();
 
   if (edit_->text().length())
   {
-    controller.search(edit_->text());
-    list_->show();
-    //list_->setCurrentIndex(model_->index(0));
+    debounce_timer_->start();
+  }
+}
+
+void SearchWindow::onStartSearch()
+{
+  if (edit_->text().length())
+  {
+    qDebug() << "new search:" << edit_->text();
+    controller_.search(edit_->text());
+    result_lists_->show();
   }
 }
 
@@ -202,7 +245,7 @@ void SearchWindow::keyPressEvent(QKeyEvent* evt)
 
 void SearchWindow::hideEvent(QHideEvent* evt)
 {
-  edit_->clear();
+  clearResult();
 }
 
 bool SearchWindow::eventFilter(QObject* watched, QEvent* event)
@@ -220,7 +263,7 @@ bool SearchWindow::eventFilter(QObject* watched, QEvent* event)
       return true;
 
     case Qt::Key_Tab:
-      // TODO: toggle action view
+      toggleResultList();
       return true;
 
     case Qt::Key_Escape:
@@ -240,10 +283,16 @@ void SearchWindow::toggleVisibility()
 
 void SearchWindow::escapeState()
 {
-  // TODO: quit action view
-  if (!edit_->text().isEmpty())
+  if (result_lists_->currentIndex() == 1)
   {
-    edit_->clear();
+    actions_list_->setCurrentIndex(actions_model_->index(0));
+    toggleResultList();
+    return;
+  }
+  else if (!edit_->text().isEmpty())
+  {
+    clearResult();
+    return;
   }
   else
   {
@@ -273,7 +322,7 @@ void SearchWindow::setVisible(bool visible)
   }
   else
   {
-    edit_->clear();
+    clearResult();
   }
 }
 
@@ -287,29 +336,56 @@ bool SearchWindow::event(QEvent* event)
   return QWidget::event(event);
 }
 
-void SearchWindow::onNewResultRows()
+void SearchWindow::onResultActivated(const QModelIndex& index)
 {
-  if (list_->currentIndex().isValid())
-    return;
-
-  // if no selection, select first row
-  list_->setCurrentIndex(model_->index(0));
-}
-
-void SearchWindow::activated(const QModelIndex& index)
-{
-  if (!index.isValid())
-    return;
-
-  auto* match = model_->getMatch(index.row());
+  auto action = getAction();
+  auto match = getMatch();
   if (!match)
     return;
 
-  bool success = controller.execute(*match);
-  if (success)
+  setVisible(false);
+
+  bool success = controller_.execute(*match, action.get());
+  if (!success)
+    qDebug() << "could not start action" << action->getTitle();
+}
+
+std::shared_ptr<Action> SearchWindow::getAction() const
+{
+  auto* match = actions_model_->getMatch(actions_list_->currentIndex().row());
+  if (!match)
+    return {};
+
+  return {
+    match->shared_from_this(), cpp::down_cast<Action>(match)
+  };
+}
+
+std::shared_ptr<Match> SearchWindow::getMatch() const
+{
+  return model_->getMatch(list_->currentIndex().row())->shared_from_this();
+}
+
+void SearchWindow::toggleResultList()
+{
+  if (!list_->currentIndex().isValid())
+    return;
+
+  if (result_lists_->currentIndex() == 0)
   {
-    setVisible(false);
+    result_lists_->setCurrentIndex(1);
   }
+  else
+  {
+    result_lists_->setCurrentIndex(0);
+  }
+}
+
+void SearchWindow::clearResult()
+{
+  edit_->clear();
+  model_->clear();
+  actions_model_->clear();
 }
 
 } // namespace Deskhare
