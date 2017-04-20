@@ -85,7 +85,7 @@ QVariant QueryResultModel::data(const QModelIndex& index, int role) const
   return QVariant();
 }
 
-void QueryResultModel::takeMatches(std::vector<std::unique_ptr<Match>>& entries)
+void QueryResultModel::takeMatches(std::vector<std::shared_ptr<Match>>& entries)
 {
   beginInsertRows(QModelIndex(),
     entries_.size(),
@@ -110,7 +110,7 @@ void QueryResultModel::clear()
 
 Match* QueryResultModel::getMatch(std::size_t row)
 {
-  if (row >= entries_.size())
+  if (row >= entries_.size() || row < 0)
     return nullptr;
 
   return entries_[row].get();
@@ -160,7 +160,7 @@ void QueryResultModel::setQuery(
 
 void QueryResultModel::queryFinished()
 {
-  std::vector<std::unique_ptr<Match>> matches;
+  std::vector<std::shared_ptr<Match>> matches;
   query_results_->recieveMatches(matches);
   std::sort(matches.begin(), matches.end(), MatchScoreComparer());
 

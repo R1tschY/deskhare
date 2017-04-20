@@ -26,23 +26,12 @@ namespace Deskhare {
 Q_LOGGING_CATEGORY(openUrlAction, "deskhare.openUrlAction")
 
 OpenUrlAction::OpenUrlAction(float score)
-: Action(score)
+: Action(
+  tr("Open"),
+  tr("Do system standard operation."),
+  QIcon(),
+  score)
 { }
-
-QString OpenUrlAction::getDescription() const
-{
-  return tr("Do system standard operation.");
-}
-
-QString OpenUrlAction::getTitle() const
-{
-  return tr("Open");
-}
-
-QIcon OpenUrlAction::getIcon() const
-{
-  return QIcon();
-}
 
 bool OpenUrlAction::canHandleMatch(const Match& match) const
 {

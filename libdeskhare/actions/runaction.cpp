@@ -21,32 +21,23 @@
 namespace Deskhare {
 
 RunAction::RunAction(const Action& action)
-: Action(MatchScore::Highest), action_(action)
+: Action(
+    tr("Execute"),
+    tr("Execute action"),
+    QIcon::fromTheme("system-run"),
+    MatchScore::Highest
+  ),
+  action_(action.shared_from_this(), &action)
 { }
 
 bool RunAction::canHandleMatch(const Match& match) const
 {
-  return &match == &action_;
-}
-
-QString RunAction::getDescription() const
-{
-  return tr("Execute action");
-}
-
-QString RunAction::getTitle() const
-{
-  return tr("Execute");
-}
-
-QIcon RunAction::getIcon() const
-{
-  return QIcon::fromTheme("system-run");
+  return &match == action_.get();
 }
 
 void RunAction::execute(const Match& match) const
 {
-  action_.execute(match);
+  action_->execute(match);
 }
 
 } // namespace QuickStarter

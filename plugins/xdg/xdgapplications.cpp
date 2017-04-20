@@ -47,7 +47,7 @@ void XdgApplications::search(const Query& query, ResultSet& results)
 {
   auto regex = query.getSearchRegex();
 
-  std::vector<std::unique_ptr<Match>> matches;
+  std::vector<std::shared_ptr<Match>> matches;
   for (auto& entry : cpp::as_const(index_))
   {
     float score = 0;
@@ -65,7 +65,6 @@ void XdgApplications::search(const Query& query, ResultSet& results)
       continue;
     }
 
-    qCDebug(xdgLogger) << "match" << entry.appname;
     matches.emplace_back(new XdgApplicationMatch(entry.desktopFile, score));
   }
   results.sendMatches(matches);

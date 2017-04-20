@@ -29,6 +29,8 @@ class QListView;
 class QLabel;
 class QxtGlobalShortcut;
 class QModelIndex;
+class QStackedWidget;
+class QTimer;
 
 namespace Deskhare {
 
@@ -46,6 +48,9 @@ public:
 public slots:
   void onEdit();
 
+  std::shared_ptr<Action> getAction() const;
+  std::shared_ptr<Match> getMatch() const;
+
 protected:
   void keyPressEvent(QKeyEvent *) override;
   void hideEvent(QHideEvent *) override;
@@ -57,18 +62,25 @@ protected:
 private:
   QLineEdit* edit_;
   QListView* list_;
+  QListView* actions_list_;
+  QStackedWidget* result_lists_;
   QueryResultModel* model_;
+  QueryResultModel* actions_model_;
   QxtGlobalShortcut* shortcut_;
+  QTimer* debounce_timer_;
   std::unique_ptr<SettingsView> settings_view_;
 
-  Controller controller;
+  Controller controller_;
 
-  void onNewResultRows();
+  void configureResultList(QListView* list);
+  void clearResult();
 
 private slots:
   void toggleVisibility();
+  void toggleResultList();
   void escapeState();
-  void activated(const QModelIndex &index);
+  void onResultActivated(const QModelIndex &index);
+  void onStartSearch();
 };
 
 } // namespace Deskhare

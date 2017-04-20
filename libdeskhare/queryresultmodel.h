@@ -55,11 +55,12 @@ public:
 
   Match* getMatch(std::size_t row);
 
-public:
   void setQuery(Query::Categories categories, const QString& search_string);
 
+  void clear();
+
 private:
-  using Matches = std::vector<std::unique_ptr<Match>>;
+  using Matches = std::vector<std::shared_ptr<Match>>;
 
   Matches entries_;
   QFutureWatcher<Source*>* future_watcher_;
@@ -74,7 +75,6 @@ private:
   QVariant data(const QModelIndex& index, int role) const override;
 
   void takeMatches(Matches& entries);
-  void clear();
 };
 
 } // namespace Deskhare

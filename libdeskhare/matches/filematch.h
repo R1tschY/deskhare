@@ -18,10 +18,11 @@
 
 #pragma once
 
-#include <qfileinfo.h>
-#include <qstring.h>
-
 #include "../match.h"
+#include "../action.h"
+
+class QFileInfo;
+class QString;
 
 namespace Deskhare {
 
@@ -30,19 +31,13 @@ class FileIconProvider;
 class LocalFileMatch : public Match
 {
 public:
-  LocalFileMatch(const QString& filePath, const FileIconProvider& icons, float score);
+  LocalFileMatch(
+    const QString& filePath, const FileIconProvider& icons, float score);
 
-  QString getDescription() const override;
-  QString getTitle() const override;
-  QIcon getIcon() const override;
+  LocalFileMatch(
+    const QFileInfo& fileInfo, const FileIconProvider& icons, float score);
 
-  std::unique_ptr<Action> getDefaultAction() const override;
-
-private:
-  QFileInfo fileInfo_;
-
-  QString description_;
-  QIcon icon_;
+  std::shared_ptr<Action> getDefaultAction() const override;
 };
 
 } // namespace Deskhare

@@ -20,7 +20,11 @@
 
 namespace Deskhare {
 
+Match::Match(const QString& title, const QString& description,
+  const QIcon& icon, const QString& uri, float score)
+: title_(title), description_(description), icon_(icon),
+  score_(score), uri_(uri)
+{ }
 
 } // namespace QuickStarter
-
 

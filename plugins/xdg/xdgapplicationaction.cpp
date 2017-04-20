@@ -26,40 +26,26 @@ namespace Deskhare {
 
 XdgApplicationAction::XdgApplicationAction(const XdgApplicationDesktopFile& app,
   float score)
-: Action(score), app_(app)
-{
-  description_ = tr("Execute application");
-  title_ = tr("Execute");
-  icon_ = QIcon::fromTheme("system-run");
-}
+: Action(
+    tr("Execute"),
+    tr("Execute application"),
+    QIcon::fromTheme("system-run"),
+    score
+  ),
+  app_(app)
+{ }
 
 XdgApplicationAction::XdgApplicationAction(const XdgApplicationDesktopFile& app,
   const QString& url, float score)
-: Action(score), app_(app), url_(url)
-{
-  auto appName = app.robustName();
-
-  description_ = tr("Opens selection with %1").arg(appName);
-  title_ = tr("Open with %1").arg(appName);
-  icon_ = QIcon::fromTheme(app.iconName());
-  if (icon_.isNull())
-    icon_ = QIcon::fromTheme(QStringLiteral("application-x-executable"));
-}
-
-QString XdgApplicationAction::getDescription() const
-{
-  return description_;
-}
-
-QString XdgApplicationAction::getTitle() const
-{
-  return title_;
-}
-
-QIcon XdgApplicationAction::getIcon() const
-{
-  return icon_;
-}
+: Action(
+    tr("Open with %1").arg(app.robustName()),
+    tr("Opens selection with %1").arg(app.robustName()),
+    createIcon(app.iconName()),
+    score
+  ),
+  app_(app),
+  url_(url)
+{ }
 
 bool XdgApplicationAction::canHandleMatch(const Match& match) const
 {
@@ -74,6 +60,14 @@ void XdgApplicationAction::execute(const Match& target) const
     auto args = app_.expandExecString(QStringList(url_));
     qCCritical(xdgLogger) << "starting app failed:" << args;
   }
+}
+
+QIcon XdgApplicationAction::createIcon(const QString& iconName)
+{
+  QIcon icon = QIcon::fromTheme(iconName);
+  if (icon.isNull())
+    icon = QIcon::fromTheme(QStringLiteral("application-x-executable"));
+  return icon;
 }
 
 } // namespace Deskhare

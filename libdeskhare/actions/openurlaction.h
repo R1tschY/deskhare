@@ -30,10 +30,6 @@ class OpenUrlAction: public Action
 public:
   OpenUrlAction(float score);
 
-  QString getDescription() const override;
-  QString getTitle() const override;
-  QIcon getIcon() const override;
-
   bool canHandleMatch(const Match& match) const override;
   void execute(const Match& match) const override;
 

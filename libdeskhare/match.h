@@ -52,36 +52,42 @@ enum MatchScore
 }
 
 /// \brief
-class Match
+class Match : public std::enable_shared_from_this<Match>
 {
 public:
-  Match(const QString& uri, float score)
-  : score_(score), uri_(uri)
-  { }
+  Match(
+    const QString& title,
+    const QString& description,
+    const QIcon& icon,
+    const QString& uri,
+    float score);
 
   virtual ~Match() = default;
 
-  virtual QString getDescription() const = 0;
-  virtual QString getTitle() const = 0;
-  virtual QIcon getIcon() const = 0;
+  QString getDescription() const { return description_; };
+  QString getTitle() const { return title_; };
+  QIcon getIcon() const { return icon_; };
 
   float getScore() const { return score_; }
   void setScore(float score) { score_ = score; }
 
   QString getUri() const { return uri_; }
 
-  virtual std::unique_ptr<Action> getDefaultAction() const = 0;
+  virtual std::shared_ptr<Action> getDefaultAction() const = 0;
 
 private:
   float score_;
   const QString uri_;
+  QString description_;
+  QString title_;
+  QIcon icon_;
 };
 
-using MatchResults = std::vector<std::unique_ptr<Match>>;
+using MatchResults = std::vector<std::shared_ptr<Match>>;
 
 struct MatchScoreComparer
 {
-  bool operator()(const std::unique_ptr<Match>& lhs, const std::unique_ptr<Match>& rhs) const
+  bool operator()(const std::shared_ptr<Match>& lhs, const std::shared_ptr<Match>& rhs) const
   {
     return lhs->getScore() > rhs->getScore();
   }

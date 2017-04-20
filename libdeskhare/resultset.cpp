@@ -31,7 +31,7 @@ ResultSet::ResultSet(const std::shared_ptr<const Query>& query)
 : query_(query)
 { }
 
-void ResultSet::sendMatch(std::unique_ptr<Match> match)
+void ResultSet::sendMatch(std::shared_ptr<Match> match)
 {
   Evaluator evaluator;
   match->setScore(evaluator.evaluate(*query_, *match));
@@ -41,7 +41,7 @@ void ResultSet::sendMatch(std::unique_ptr<Match> match)
   matches_buffer_.push_back(std::move(match));
 }
 
-void ResultSet::sendMatches(std::vector<std::unique_ptr<Match>>& matches)
+void ResultSet::sendMatches(std::vector<std::shared_ptr<Match>>& matches)
 {
   Evaluator evaluator;
 
@@ -58,7 +58,7 @@ void ResultSet::sendMatches(std::vector<std::unique_ptr<Match>>& matches)
   matches.clear();
 }
 
-void ResultSet::recieveMatches(std::vector<std::unique_ptr<Match>>& matches)
+void ResultSet::recieveMatches(std::vector<std::shared_ptr<Match>>& matches)
 {
   QMutexLocker lock(&mutex_);
 

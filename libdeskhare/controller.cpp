@@ -84,20 +84,25 @@ void Controller::search(const QString& query)
   result_model_->setQuery(Query::Categories::All, query);
 }
 
-bool Controller::execute(const Match& match) const
+bool Controller::execute(const Match& match, const Action* action) const
 {
+  std::shared_ptr<Action> _action;
   // TODO: add to history
 
-  auto action = match.getDefaultAction();
   if (!action)
   {
-    qCCritical(controllerLogger) << "match has no default action";
-    return false;
+    _action = match.getDefaultAction();
+    action = _action.get();
+    if (!action)
+    {
+      qCCritical(controllerLogger) << "match has no default action";
+      return false;
+    }
   }
 
   if (!action->canHandleMatch(match))
   {
-    qCCritical(controllerLogger) << "default action cannot execute match";
+    qCCritical(controllerLogger) << "action cannot execute match";
     return false;
   }
 

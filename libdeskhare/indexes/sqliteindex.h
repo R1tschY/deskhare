@@ -39,6 +39,8 @@ public:
   static QString escape(QChar c);
   static QString escapeLike(QChar c, QChar escapeChar);
 
+  static QString createIndexPath(const QString& fileName);
+
 private:
   virtual bool create() = 0;
   virtual bool upgrade(int currentFormatVersion) = 0;

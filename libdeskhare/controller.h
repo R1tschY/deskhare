@@ -45,7 +45,7 @@ public:
   QueryResultModel* getQueryResultModel() { return result_model_; }
   QueryResultModel* getActionQueryResultModel() { return actions_model_; }
 
-  bool execute(const Match& match) const;
+  bool execute(const Match& match, const Action* action = nullptr) const;
 
 public slots:
   void search(const QString& query);

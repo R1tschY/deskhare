@@ -37,13 +37,13 @@ class ResultSet
 public:
   ResultSet(const std::shared_ptr<const Query>& query);
 
-  void sendMatch(std::unique_ptr<Match> match);
-  void sendMatches(std::vector<std::unique_ptr<Match>>& matches);
+  void sendMatch(std::shared_ptr<Match> match);
+  void sendMatches(std::vector<std::shared_ptr<Match>>& matches);
 
-  void recieveMatches(std::vector<std::unique_ptr<Match>>& matches);
+  void recieveMatches(std::vector<std::shared_ptr<Match>>& matches);
 
 private:
-  std::vector<std::unique_ptr<Match>> matches_buffer_;
+  std::vector<std::shared_ptr<Match>> matches_buffer_;
   QMutex mutex_;
   std::shared_ptr<const Query> query_;
 };

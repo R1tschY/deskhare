@@ -22,6 +22,9 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QFile>
+#include <QStandardPaths>
+#include <QFileInfo>
+#include <QDir>
 
 namespace Deskhare {
 
@@ -35,6 +38,19 @@ SqliteIndex::SqliteIndex(const QString& indexName, int formatVersion)
 
 bool SqliteIndex::open(const QString& filePath)
 {
+  QFileInfo filePathInfo(filePath);
+  QDir dirInfo(filePathInfo.path());
+  if (!dirInfo.exists())
+  {
+    bool success = dirInfo.mkpath(".");
+    if (!success)
+    {
+      qCritical() << "Cannot directory for index database"
+        << db_.connectionName() << ":" << filePathInfo.path();
+      return recreate(true);
+    }
+  }
+
   db_.setDatabaseName(filePath);
   if (!db_.open())
   {
@@ -144,7 +160,7 @@ bool SqliteIndex::recreate(bool useFallback)
 
   if (useFallback)
   {
-    qWarning() << "Using in-memory for index" << db_.connectionName() <<
+    qWarning() << "Using in-memory database for index" << db_.connectionName() <<
       "because of too many errors.";
     db_.setDatabaseName(":memory:");
   }
@@ -189,6 +205,12 @@ bool SqliteIndex::doCreate()
   }
 
   return setCurrentFormatVersion();
+}
+
+QString SqliteIndex::createIndexPath(const QString& fileName)
+{
+  auto dir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+  return dir + "/" + fileName;
 }
 
 bool SqliteIndex::isEmpty() const

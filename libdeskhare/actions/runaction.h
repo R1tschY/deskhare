@@ -30,15 +30,11 @@ class RunAction : public Action
 public:
   RunAction(const Action& action);
 
-  QString getDescription() const override;
-  QString getTitle() const override;
-  QIcon getIcon() const override;
-
   bool canHandleMatch(const Match& match) const override;
   void execute(const Match& match) const override;
 
 private:
-  const Action& action_;
+  std::shared_ptr<const Action> action_;
 };
 
 } // namespace QuickStarter

@@ -26,14 +26,18 @@ namespace Deskhare {
 class Action : public Match
 {
 public:
-  Action(float score)
-  : Match(QString(), score)
+  Action(
+    const QString& title,
+    const QString& description,
+    const QIcon& icon,
+    float score)
+  : Match(title, description, icon, QString(), score)
   { }
 
   virtual bool canHandleMatch(const Match& match) const = 0;
   virtual void execute(const Match& target) const = 0;
 
-  std::unique_ptr<Action> getDefaultAction() const override;
+  std::shared_ptr<Action> getDefaultAction() const override;
 };
 
 } // namespace QuickStarter

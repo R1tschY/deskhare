@@ -48,31 +48,24 @@ static QStringList getPathComponents(const QFileInfo& fileInfo)
 }
 
 LocalFileMatch::LocalFileMatch(const QString& filePath, const FileIconProvider& icons, float score)
-: Match("file://" + filePath, score), fileInfo_(filePath), icon_(icons.icon(fileInfo_))
-{
-  Q_ASSERT(fileInfo_.isAbsolute());
+: LocalFileMatch(QFileInfo(filePath), icons, score)
+{ }
 
-  description_ = getPathComponents(fileInfo_).join(QStringLiteral(" › "));
+LocalFileMatch::LocalFileMatch(const QFileInfo& fileInfo, const FileIconProvider& icons, float score)
+: Match(
+    fileInfo.fileName(),
+    getPathComponents(fileInfo).join(QStringLiteral(" › ")),
+    icons.icon(fileInfo),
+    "file://" + fileInfo.path(),
+    score
+  )
+{
+  Q_ASSERT(fileInfo.isAbsolute());
 }
 
-QString LocalFileMatch::getDescription() const
+std::shared_ptr<Action> LocalFileMatch::getDefaultAction() const
 {
-  return description_;
-}
-
-QString LocalFileMatch::getTitle() const
-{
-  return fileInfo_.fileName();
-}
-
-QIcon LocalFileMatch::getIcon() const
-{
-  return icon_;
-}
-
-std::unique_ptr<Action> LocalFileMatch::getDefaultAction() const
-{
-  return std::make_unique<OpenUrlAction>(MatchScore::Highest);
+  return std::make_shared<OpenUrlAction>(MatchScore::Highest);
 }
 
 } // namespace Deskhare

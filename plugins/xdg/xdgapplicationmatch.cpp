@@ -29,36 +29,28 @@ XdgApplicationMatch::XdgApplicationMatch(
   const XdgApplicationDesktopFile& desktopFile,
   float score)
 // TODO: use id: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#desktop-file-id
-: Match("application://" + QFileInfo(desktopFile.fileName()).baseName(), score),
+: Match(
+    desktopFile.localizedValue("Name").toString(),
+    desktopFile.localizedValue("Comment").toString(),
+    createIcon(desktopFile.iconName()),
+    "application://" + QFileInfo(desktopFile.fileName()).baseName(),
+    score
+  ),
   desktopFile_(desktopFile)
-{
-  description_ = desktopFile_.localizedValue("Comment").toString();
-  title_ = desktopFile_.localizedValue("Name").toString();
+{ }
 
-  icon_ = QIcon::fromTheme(desktopFile_.iconName());
-  if (icon_.isNull())
-    icon_ = QIcon::fromTheme(QStringLiteral("application-x-executable"));
-}
-
-QString XdgApplicationMatch::getDescription() const
-{
-  return description_;
-}
-
-QString XdgApplicationMatch::getTitle() const
-{
-  return title_;
-}
-
-QIcon XdgApplicationMatch::getIcon() const
-{
-  return icon_;
-}
-
-std::unique_ptr<Action> XdgApplicationMatch::getDefaultAction() const
+std::shared_ptr<Action> XdgApplicationMatch::getDefaultAction() const
 {
   return std::make_unique<XdgApplicationAction>(
     desktopFile_, MatchScore::Highest);
+}
+
+QIcon XdgApplicationMatch::createIcon(const QString& iconName)
+{
+  QIcon icon = QIcon::fromTheme(iconName);
+  if (icon.isNull())
+    icon = QIcon::fromTheme(QStringLiteral("application-x-executable"));
+  return icon;
 }
 
 } // namespace Deskhare

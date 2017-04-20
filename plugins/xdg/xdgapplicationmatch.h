@@ -33,17 +33,12 @@ class XdgApplicationMatch : public Match
 public:
   XdgApplicationMatch(const XdgApplicationDesktopFile& desktopFile, float score);
 
-  QString getDescription() const override;
-  QString getTitle() const override;
-  QIcon getIcon() const override;
-
-  std::unique_ptr<Action> getDefaultAction() const override;
+  std::shared_ptr<Action> getDefaultAction() const override;
 
 private:
-  QString title_;
-  QString description_;
-  QIcon icon_;
   XdgApplicationDesktopFile desktopFile_;
+
+  static QIcon createIcon(const QString& iconName);
 };
 
 } // namespace Deskhare

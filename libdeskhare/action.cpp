@@ -21,9 +21,9 @@
 
 namespace Deskhare {
 
-std::unique_ptr<Action> Action::getDefaultAction() const
+std::shared_ptr<Action> Action::getDefaultAction() const
 {
-  return std::make_unique<RunAction>(*this);
+  return std::make_shared<RunAction>(*this);
 }
 
 } // namespace QuickStarter

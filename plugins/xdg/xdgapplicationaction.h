@@ -37,20 +37,14 @@ public:
   XdgApplicationAction(const XdgApplicationDesktopFile& app, const QString& url,
     float score);
 
-  QString getDescription() const override;
-  QString getTitle() const override;
-  QIcon getIcon() const override;
-
   bool canHandleMatch(const Match& match) const override;
   void execute(const Match& target) const override;
 
 private:
-  QString description_;
-  QString title_;
-  QIcon icon_;
-
   XdgApplicationDesktopFile app_;
   QString url_;
+
+  static QIcon createIcon(const QString& iconName);
 };
 
 } // namespace Deskhare
