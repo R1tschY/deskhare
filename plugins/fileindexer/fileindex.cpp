@@ -54,9 +54,9 @@ bool FileIndex::addFile(const QFileInfo& file)
 
   QSqlQuery query(dataBase());
   query.prepare(
-    QLatin1String("INSERT INTO files(name, path) VALUES (:name, :path)"));
-  query.bindValue(QLatin1String(":name"), file.fileName());
-  query.bindValue(QLatin1String(":path"), file.filePath());
+    QLatin1String("INSERT INTO files(name, path) VALUES (?, ?)"));
+  query.bindValue(0, file.fileName());
+  query.bindValue(1, file.filePath());
   if (!query.exec())
   {
     qCCritical(fileIndexLogger) << "insert file in index table failed:"
@@ -75,8 +75,8 @@ std::vector<std::shared_ptr<Match>> FileIndex::search(
 
   QSqlQuery sqlquery(dataBase());
   sqlquery.prepare(QLatin1String(
-    "SELECT * FROM files WHERE name MATCH :query"));
-  sqlquery.bindValue(QLatin1String(":query"), query);
+    "SELECT path FROM files WHERE name MATCH ?"));
+  sqlquery.bindValue(0, QString(query + '*'));  // TODO: escape query
   if (!sqlquery.exec())
   {
     qCCritical(fileIndexLogger) << "search file in index failed:"
@@ -87,7 +87,7 @@ std::vector<std::shared_ptr<Match>> FileIndex::search(
   while (sqlquery.next())
   {
     matches.emplace_back(std::make_shared<LocalFileMatch>(
-      sqlquery.value(QLatin1String("path")).toString(),
+      sqlquery.value(0).toString(),
       icon_provider,
       1.0
     ));
@@ -117,8 +117,8 @@ void FileIndex::setLastIndexing(const QDateTime& time)
 {
   QSqlQuery query(dataBase());
   query.prepare(
-    QLatin1String("UPDATE times SET time=:time WHERE id = 'last_indexing'"));
-  query.bindValue(QLatin1String(":time"), time.toMSecsSinceEpoch() / 1000);
+    QLatin1String("UPDATE times SET time=? WHERE id = 'last_indexing'"));
+  query.bindValue(0, time.toMSecsSinceEpoch() / 1000);
   if (!query.exec())
   {
     qCCritical(fileIndexLogger) << "Failed to set last indexing of file index:"
