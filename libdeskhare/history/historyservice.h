@@ -1,5 +1,5 @@
 //
-// deskhare - cross-platform quick launcher
+// deskhare
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,40 +18,29 @@
 
 #pragma once
 
-#include <tuple>
-#include <utility>
+#include <ctime>
+#include <memory>
+
+class QString;
+class QDateTime;
 
 namespace Deskhare {
 
-class FileIconProvider;
-class HistoryService;
+class HistoryIndex;
 
-class PluginContext
+/// \brief
+class HistoryService
 {
 public:
-  using Classes = std::tuple<const FileIconProvider*, HistoryService*>;
+  HistoryService();
 
-  template<typename...Args>
-  PluginContext(Args&&...classes)
-  : classes_(std::forward<Args>(classes)...)
-  { }
+  void update(const QString& uri, const QDateTime& time);
+  void update(const QString& uri, std::time_t time);
 
-  const FileIconProvider* getFileIconProvider() const
-  { return std::get<const FileIconProvider*>(classes_); }
-
-  const HistoryService* getHistoryService() const
-  { return std::get<HistoryService*>(classes_); }
-
-  template<typename T>
-  const T* get() const
-  {
-    return std::get<const T*>(classes_);
-  }
+  float getScore(const QString& uri);
 
 private:
-  Classes classes_;
+  std::unique_ptr<HistoryIndex> index_;
 };
 
 } // namespace Deskhare
-
-

@@ -1,5 +1,5 @@
 //
-// deskhare - cross-platform quick launcher
+// deskhare
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -19,39 +19,25 @@
 #pragma once
 
 #include <tuple>
-#include <utility>
+#include <libdeskhare/indexes/sqliteindex.h>
 
 namespace Deskhare {
 
-class FileIconProvider;
-class HistoryService;
-
-class PluginContext
+/// \brief
+class HistoryIndex : public SqliteIndex
 {
 public:
-  using Classes = std::tuple<const FileIconProvider*, HistoryService*>;
+  HistoryIndex();
 
-  template<typename...Args>
-  PluginContext(Args&&...classes)
-  : classes_(std::forward<Args>(classes)...)
-  { }
+  void update(const QString& uri, time_t time);
 
-  const FileIconProvider* getFileIconProvider() const
-  { return std::get<const FileIconProvider*>(classes_); }
+  void clear();
 
-  const HistoryService* getHistoryService() const
-  { return std::get<HistoryService*>(classes_); }
-
-  template<typename T>
-  const T* get() const
-  {
-    return std::get<const T*>(classes_);
-  }
+  std::tuple<time_t, std::size_t> getStats(const QString& uri);
 
 private:
-  Classes classes_;
+  bool create() override;
+  bool upgrade(int currentFormatVersion) override;
 };
 
 } // namespace Deskhare
-
-

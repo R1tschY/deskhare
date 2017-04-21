@@ -33,19 +33,20 @@
 #include "queryresultmodel.h"
 #include "pluginmanager.h"
 #include "shell/fileiconproviderplugin.h"
+#include "history/historyservice.h"
 
 
 namespace Deskhare {
 
-Q_LOGGING_CATEGORY(controllerLogger, "deskhare.Controller")
+static Q_LOGGING_CATEGORY(logger, "deskhare.Controller")
 
 Controller::Controller(QObject* parent)
-: QObject(parent),
-  file_icon_provider_(),
-  plugin_manager_(new PluginManager(PluginContext(&file_icon_provider_), this)),
-  result_model_(new QueryResultModel(this)),
-  actions_model_(new QueryResultModel(this))
+: QObject(parent)
 {
+  history_service_ = new HistoryService();
+
+  PluginContext plugincontext(&file_icon_provider_, history_service_);
+  plugin_manager_ = new PluginManager(plugincontext, this);
   plugin_manager_->loadPlugins();
 
   file_icon_provider_.updateFromPlugins(
@@ -55,13 +56,14 @@ Controller::Controller(QObject* parent)
   for (auto* source : plugin_manager_->getPlugins<SourcePlugin>())
   {
     sources_.push_back(source->getSource(ctx));
-    qCInfo(controllerLogger) << "got source:" << source->getSourceDescription();
+    qCInfo(logger) << "got source:" << source->getSourceDescription();
   }
   QVector<Source*> sourcesptrs;
   for (auto& source : sources_)
   {
     sourcesptrs.push_back(source.get());
   }
+  result_model_ = new QueryResultModel(this);
   result_model_->setSources(sourcesptrs);
 
 
@@ -74,6 +76,7 @@ Controller::Controller(QObject* parent)
   {
     actionsourcesptrs.push_back(source.get());
   }
+  actions_model_ = new QueryResultModel(this);
   actions_model_->setSources(actionsourcesptrs);
 }
 
@@ -95,14 +98,14 @@ bool Controller::execute(const Match& match, const Action* action) const
     action = _action.get();
     if (!action)
     {
-      qCCritical(controllerLogger) << "match has no default action";
+      qCCritical(logger) << "match has no default action";
       return false;
     }
   }
 
   if (!action->canHandleMatch(match))
   {
-    qCCritical(controllerLogger) << "action cannot execute match";
+    qCCritical(logger) << "action cannot execute match";
     return false;
   }
 

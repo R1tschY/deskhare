@@ -6,6 +6,7 @@ file(GLOB deskhare_SOURCES
     "shell/*.cpp"
     "utils/*.cpp"
     "actions/*.cpp"
+    "history/*.cpp"
     "matches/*.cpp")
     
 if(WIN32)

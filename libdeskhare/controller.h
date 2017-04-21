@@ -34,6 +34,7 @@ class Action;
 class Match;
 class QueryResultModel;
 class PluginManager;
+class HistoryService;
 
 class Controller : QObject
 {
@@ -54,9 +55,10 @@ private:
   std::vector<std::unique_ptr<Source>> sources_;
   std::vector<std::unique_ptr<Source>> action_sources_;
   FileIconProvider file_icon_provider_;
-  PluginManager* plugin_manager_;
-  QueryResultModel* result_model_;
-  QueryResultModel* actions_model_;
+  HistoryService* history_service_;
+  PluginManager* plugin_manager_ = nullptr;
+  QueryResultModel* result_model_ = nullptr;
+  QueryResultModel* actions_model_ = nullptr;
 };
 
 } // namespace QuickStarter
