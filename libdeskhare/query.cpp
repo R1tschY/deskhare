@@ -29,16 +29,8 @@ Query::Query(Categories categories, const QString& search_string,
 
 QRegularExpression Query::getSearchRegex() const
 {
-  QStringList escaped_chars;
-  escaped_chars.reserve(search_string_.size());
-  for (auto c : search_string_)
-  {
-    escaped_chars.append(QRegularExpression::escape(QString(c)));
-  }
-
-  QString dotStar = QStringLiteral(".*?");
   auto regex = QRegularExpression(
-    dotStar + escaped_chars.join(dotStar) + dotStar,
+    "\\b" + QRegularExpression::escape(search_string_),
     QRegularExpression::CaseInsensitiveOption
   );
   regex.optimize();
