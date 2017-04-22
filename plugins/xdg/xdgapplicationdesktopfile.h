@@ -67,6 +67,8 @@ public:
 
   QString robustName() const;
 
+  QString id() const;
+
 private:
   QString localizedKey(const LinuxLocale& locale, const QString& key) const;
   static QIcon iconFallback();

@@ -28,12 +28,11 @@ namespace Deskhare {
 XdgApplicationMatch::XdgApplicationMatch(
   const XdgApplicationDesktopFile& desktopFile,
   float score)
-// TODO: use id: https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#desktop-file-id
 : Match(
     desktopFile.localizedValue("Name").toString(),
     desktopFile.localizedValue("Comment").toString(),
     createIcon(desktopFile.iconName()),
-    "application://" + QFileInfo(desktopFile.fileName()).baseName(),
+    "xdg-app://" + desktopFile.id(),
     score
   ),
   desktopFile_(desktopFile)

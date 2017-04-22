@@ -21,6 +21,11 @@
 #include <libintl.h>
 #include <QFileInfo>
 #include <QIcon>
+#include <QDebug>
+#include <XdgDirs>
+#include <cpp-utils/algorithm/range.h>
+
+#include "xdginfocache.h"
 
 namespace Deskhare {
 
@@ -95,35 +100,41 @@ QVariant XdgApplicationDesktopFile::localizedValue(const LinuxLocale& locale,
 QString XdgApplicationDesktopFile::localizedKey(const LinuxLocale& locale,
   const QString& key) const
 {
+  const auto locKeys = getInfoCache().getLocaleKeys(locale);
+
   QString result;
-
-  if (!locale.modifier().isEmpty() && !locale.country().isEmpty())
+  for (const auto& locKey : locKeys)
   {
-    result = key % '[' % locale.language() % '_' % locale.modifier() % '@'
-      % locale.modifier() % ']';
+    result = key + locKey;
     if (contains(result))
       return result;
   }
 
-  if (!locale.country().isEmpty())
+  return key;
+}
+
+QString XdgApplicationDesktopFile::id() const
+{
+  const QFileInfo f(fileName());
+
+  QString id = f.absoluteFilePath();
+
+  const auto appDirs = getInfoCache().getApplicationDirs();
+  auto appDir = cpp::range::find_if(
+    appDirs,
+    [&](auto& dataDir) { return id.startsWith(dataDir); }
+  );
+  if (!appDir)
   {
-    result = key % '[' % locale.language() % '_' % locale.country() % ']';
-    if (contains(result))
-      return result;
+    return QString();
   }
 
-  if (!locale.modifier().isEmpty())
-  {
-    result = key % '[' % locale.language() % '@' % locale.modifier() % ']';
-    if (contains(result))
-      return result;
-  }
+  // remove data dir and /
+  id.remove(0, appDir.begin()->size() + 1);
 
-  result = key % '[' % locale.language() % ']';
-  if (contains(result))
-    return result;
-
-  return QString();
+  // replace / with -
+  id.replace('/', '-');
+  return id;
 }
 
 } // namespace Deskhare
