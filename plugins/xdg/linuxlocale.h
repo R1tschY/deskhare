@@ -51,6 +51,8 @@ public:
   QLocale toLocale() const;
   QString toString() const;
 
+  bool operator==(const LinuxLocale& other) const;
+
 private:
   QString language_;
   QString modifier_;

@@ -85,4 +85,10 @@ QString LinuxLocale::toString() const
   return result;
 }
 
+bool LinuxLocale::operator==(const LinuxLocale& other) const
+{
+  return std::tie(language_, modifier_, encoding_, country_)
+    == std::tie(other.language_, other.modifier_, other.encoding_, other.country_);
+}
+
 } // namespace Deskhare

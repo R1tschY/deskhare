@@ -19,11 +19,15 @@
 #include "xdgplugin.h"
 
 #include "xdgapplications.h"
+#include "xdginfocache.h"
 
 namespace Deskhare {
 
 XdgPlugin::XdgPlugin()
-{ }
+{
+  // load cache
+  getInfoCache();
+}
 
 std::unique_ptr<Source> XdgPlugin::getSource(const PluginContext& ctx)
 {
