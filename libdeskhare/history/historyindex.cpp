@@ -24,6 +24,11 @@
 #include <QDateTime>
 #include <QSqlError>
 #include <QLoggingCategory>
+#include <QSqlDriver>
+#include <cpp-utils/scope.h>
+
+
+#include "epochtime.h"
 
 
 namespace Deskhare {
@@ -38,17 +43,29 @@ HistoryIndex::HistoryIndex()
 
 void HistoryIndex::update(const QString& uri, time_t time)
 {
+  if (uri.isEmpty())
+    return;
+
+  dataBase().transaction();
+  scope(exit) { dataBase().commit(); };
+
+  auto stats = getStats(uri);
+  auto delta_t = time - std::get<0>(stats);
+  if (delta_t < Epoch::min * 15)
+  {
+    // old event or event not counted, because of near existing event
+    return;
+  }
+
   QSqlQuery query(dataBase());
   query.prepare(QLatin1String(
-    "REPLACE INTO history (last_used, use_count)"
-    "VALUES (?, use_count + 1) "
-    "WHERE uri = ?"));
-  query.bindValue(0, qlonglong(time));
-  query.bindValue(1, uri);
+    "REPLACE INTO history (uri, last_used, use_count) VALUES (?, ?, ?)"));
+  query.addBindValue(uri);
+  query.addBindValue(qlonglong(time));
+  query.addBindValue(qulonglong(std::get<1>(stats) + 1));
   if (!query.exec())
   {
-    qCCritical(logger) << "Failed update:"
-      << query.lastError();
+    qCCritical(logger) << "Update failed:" << query.lastError();
   }
 }
 
@@ -64,6 +81,9 @@ void HistoryIndex::clear()
 
 std::tuple<time_t, std::size_t> HistoryIndex::getStats(const QString& uri)
 {
+  if (uri.isEmpty())
+    return std::tuple<time_t, std::size_t>{ 0, 0 };
+
   QSqlQuery sqlQuery(dataBase());
   sqlQuery.prepare(QStringLiteral(
       "SELECT last_used, use_count FROM history WHERE uri = ?"));
@@ -93,8 +113,7 @@ bool HistoryIndex::create()
     "  use_count INT NOT NULL DEFAULT 0"
     ")")))
   {
-    qCCritical(logger) << "create table failed:"
-      << create_query.lastError();
+    qCCritical(logger) << "create table failed:" << create_query.lastError();
     return false;
   }
 

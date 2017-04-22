@@ -89,9 +89,9 @@ void Controller::search(const QString& query)
 
 bool Controller::execute(const Match& match, const Action* action) const
 {
-  std::shared_ptr<Action> _action;
-  // TODO: add to history
+  history_service_->update(match.getUri());
 
+  std::shared_ptr<Action> _action;
   if (!action)
   {
     _action = match.getDefaultAction();

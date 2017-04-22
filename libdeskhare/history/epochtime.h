@@ -18,29 +18,18 @@
 
 #pragma once
 
-#include <ctime>
-#include <memory>
-
-class QString;
-class QDateTime;
-
 namespace Deskhare {
+namespace Epoch {
 
-class HistoryIndex;
+constexpr time_t s = 1;
+constexpr time_t min = 60;
+constexpr time_t h = 60 * min;
+constexpr time_t d = 24 * h;
+constexpr time_t w = 7 * d;
+constexpr time_t m = 30 * w;
+constexpr time_t y = 365 * d;
 
-/// \brief
-class HistoryService
-{
-public:
-  HistoryService();
-
-  void update(const QString& uri, const QDateTime& time);
-  void update(const QString& uri, std::time_t time = std::time(nullptr));
-
-  float getScore(const QString& uri);
-
-private:
-  std::unique_ptr<HistoryIndex> index_;
-};
-
+} // namespace Epoch
 } // namespace Deskhare
+
+

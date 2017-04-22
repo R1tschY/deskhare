@@ -29,7 +29,7 @@ namespace Deskhare {
 HistoryService::HistoryService()
 : index_(new HistoryIndex())
 {
-  if (!index_->open("history.db"))
+  if (!index_->open(SqliteIndex::createIndexPath("history.db")))
     return;
 }
 
