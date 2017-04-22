@@ -21,19 +21,23 @@
 #include <QDebug>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QSqlDriver>
 #include <QFile>
 #include <QStandardPaths>
 #include <QFileInfo>
 #include <QDir>
+#include <QLoggingCategory>
 
 namespace Deskhare {
+
+static Q_LOGGING_CATEGORY(logger, "deskhare.SqliteIndex")
 
 SqliteIndex::SqliteIndex(const QString& indexName, int formatVersion)
 : formatVersion_(formatVersion)
 {
   db_ = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), indexName);
   if (!db_.isValid())
-    qCritical() << "QSQLITE database driver is invalid.";
+    qCCritical(logger) << "QSQLITE database driver is invalid.";
 }
 
 bool SqliteIndex::open(const QString& filePath)
@@ -45,7 +49,7 @@ bool SqliteIndex::open(const QString& filePath)
     bool success = dirInfo.mkpath(".");
     if (!success)
     {
-      qCritical() << "Cannot directory for index database"
+      qCCritical(logger) << "Cannot directory for index database"
         << db_.connectionName() << ":" << filePathInfo.path();
       return recreate(true);
     }
@@ -54,7 +58,7 @@ bool SqliteIndex::open(const QString& filePath)
   db_.setDatabaseName(filePath);
   if (!db_.open())
   {
-    qCritical() << "Cannot open index database" << db_.connectionName()
+    qCCritical(logger) << "Cannot open index database" << db_.connectionName()
       << ":" << db_.lastError().text();
     return recreate(true);
   }
@@ -70,7 +74,7 @@ bool SqliteIndex::open(const QString& filePath)
 
   if (curVersion > formatVersion_)
   {
-    qCritical() << "Recreate index database" << db_.connectionName()
+    qCCritical(logger) << "Recreate index database" << db_.connectionName()
       << "because database version" << curVersion
       << "is bigger than current version";
     return recreate();
@@ -93,13 +97,13 @@ int SqliteIndex::getCurrentFormatVersion()
   if (!version_query.exec(
     QStringLiteral("SELECT * FROM versions WHERE id == 'format'")))
   {
-    qCritical() << "Getting current database format version failed:"
+    qCCritical(logger) << "Getting current database format version failed:"
       << version_query.lastError().text();
     return -1;
   }
   if (!version_query.first())
   {
-    qCritical() << "Getting current database format version failed:"
+    qCCritical(logger) << "Getting current database format version failed:"
       << version_query.lastError().text();
     return -1;
   }
@@ -116,7 +120,7 @@ bool SqliteIndex::setCurrentFormatVersion()
       "  version INTEGER NOT NULL"
       ")")))
     {
-      qCritical() << "Create database version table failed:"
+      qCCritical(logger) << "Create database version table failed:"
         << create_query.lastError().text();
       return false;
     }
@@ -127,7 +131,7 @@ bool SqliteIndex::setCurrentFormatVersion()
     version_query.bindValue(":version", formatVersion_);
     if (!version_query.exec())
     {
-      qCritical() << "Setting database format version failed:"
+      qCCritical(logger) << "Setting database format version failed:"
         << version_query.lastError().text();
       return false;
     }
@@ -139,7 +143,7 @@ bool SqliteIndex::setCurrentFormatVersion()
   version_query.bindValue(":version", formatVersion_);
   if (!version_query.exec())
   {
-    qCritical() << "Setting database format version failed:"
+    qCCritical(logger) << "Setting database format version failed:"
       << version_query.lastError().text();
     return false;
   }
@@ -153,15 +157,15 @@ bool SqliteIndex::recreate(bool useFallback)
 
   if (db_.databaseName().isEmpty() || db_.databaseName() == ":memory:")
   {
-    qCritical() << "Giving up to open index" << db_.connectionName() <<
+    qCCritical(logger) << "Giving up to open index" << db_.connectionName() <<
       "because of too many errors.";
     return false;
   }
 
   if (useFallback)
   {
-    qWarning() << "Using in-memory database for index" << db_.connectionName() <<
-      "because of too many errors.";
+    qCWarning(logger) << "Using in-memory database for index"
+      << db_.connectionName() << "because of too many errors.";
     db_.setDatabaseName(":memory:");
   }
 
@@ -180,12 +184,12 @@ bool SqliteIndex::recreate(bool useFallback)
 
 bool SqliteIndex::doUpgrade(int currentFormatVersion)
 {
-  qInfo() << "Upgrading index database" << db_.connectionName()
+  qCInfo(logger) << "Upgrading index database" << db_.connectionName()
     << "from" << currentFormatVersion << "to" << formatVersion_;
 
   if (!upgrade(currentFormatVersion))
   {
-    qWarning() << "Upgrade of index database" << db_.connectionName()
+    qCWarning(logger) << "Upgrade of index database" << db_.connectionName()
       << "failed";
     return false;
   }
@@ -195,11 +199,11 @@ bool SqliteIndex::doUpgrade(int currentFormatVersion)
 
 bool SqliteIndex::doCreate()
 {
-  qInfo() << "Creating index database" << db_.connectionName();
+  qCInfo(logger) << "Creating index database" << db_.connectionName();
 
   if (!create())
   {
-    qWarning() << "Creating of index database" << db_.connectionName()
+    qCWarning(logger) << "Creating of index database" << db_.connectionName()
       << "failed";
     return recreate(true);
   }
@@ -213,6 +217,45 @@ QString SqliteIndex::createIndexPath(const QString& fileName)
   return dir + "/" + fileName;
 }
 
+void SqliteIndex::printDbDriverFeatures()
+{
+  auto* driver = db_.driver();
+
+  std::initializer_list<std::pair<QSqlDriver::DriverFeature, const char*>> features = {
+    { QSqlDriver::Transactions, "QSqlDriver::Transactions" },
+    { QSqlDriver::QuerySize, "QSqlDriver::QuerySize" },
+    { QSqlDriver::BLOB, "QSqlDriver::BLOB" },
+    { QSqlDriver::Unicode, "QSqlDriver::Unicode" },
+    { QSqlDriver::PreparedQueries, "QSqlDriver::PreparedQueries" },
+    { QSqlDriver::NamedPlaceholders, "QSqlDriver::NamedPlaceholders" },
+    { QSqlDriver::PositionalPlaceholders, "QSqlDriver::PositionalPlaceholders" },
+    { QSqlDriver::LastInsertId, "QSqlDriver::LastInsertId" },
+    { QSqlDriver::BatchOperations, "QSqlDriver::BatchOperations" },
+    { QSqlDriver::SimpleLocking, "QSqlDriver::SimpleLocking" },
+    { QSqlDriver::LowPrecisionNumbers, "QSqlDriver::LowPrecisionNumbers" },
+    { QSqlDriver::EventNotifications, "QSqlDriver::EventNotifications" },
+    { QSqlDriver::FinishQuery, "QSqlDriver::FinishQuery" },
+    { QSqlDriver::MultipleResultSets, "QSqlDriver::MultipleResultSets" },
+    { QSqlDriver::CancelQuery, "QSqlDriver::CancelQuery" },
+  };
+
+  QSqlQuery query(db_);
+  if (query.exec(QStringLiteral("select sqlite_version()")))
+  {
+    if (query.first())
+      qCDebug(logger) << "Sqlite version =" << query.value(0).toString();
+    else
+      qCDebug(logger) << "Sqlite version = <failure:"
+        << query.lastError() << ">";
+  }
+
+  for (auto& feature : features)
+  {
+    qCDebug(logger)
+      << feature.second << "=" << driver->hasFeature(feature.first);
+  }
+}
+
 bool SqliteIndex::isEmpty() const
 {
   QSqlQuery version_query(db_);
@@ -220,8 +263,9 @@ bool SqliteIndex::isEmpty() const
   if (!version_query.exec(
     QStringLiteral("SELECT name FROM sqlite_master WHERE type='table' AND name='versions'")))
   {
-    qCritical() << "Internal error: cannot read table informations in index " << db_.connectionName()
-      << ":" << version_query.lastError().text();
+    qCCritical(logger)
+      << "Internal error: cannot read table informations in index "
+      << db_.connectionName() << ":" << version_query.lastError().text();
     throw std::runtime_error("Internal error: cannot read table informations");
   }
 
@@ -238,6 +282,7 @@ QString SqliteIndex::escape(QChar c)
   case '\'':
     return QStringLiteral("''");
   }
+  return c;
 }
 
 QString SqliteIndex::escapeLike(QChar c, QChar escapeChar)
@@ -253,6 +298,7 @@ QString SqliteIndex::escapeLike(QChar c, QChar escapeChar)
   case '\'':
     return QStringLiteral("''");
   }
+  return c;
 }
 
 

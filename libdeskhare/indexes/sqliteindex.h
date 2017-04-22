@@ -41,6 +41,8 @@ public:
 
   static QString createIndexPath(const QString& fileName);
 
+  void printDbDriverFeatures();
+
 private:
   virtual bool create() = 0;
   virtual bool upgrade(int currentFormatVersion) = 0;
