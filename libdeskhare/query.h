@@ -32,7 +32,7 @@ class Match;
 class Query
 {
 public:
-  enum class Categories {
+  enum class Category {
     Action   = 1 << 0,
     App      = 1 << 1,
     Location = 1 << 2,
@@ -42,12 +42,12 @@ public:
     All      = 0xFFFF
   };
 
-  Query(Categories categories, const QString& search_string,
+  Query(Category categories, const QString& search_string,
     const Match* target = nullptr);
 
-  Categories getCategories() const { return categories_; }
+  Category getCategories() const { return categories_; }
 
-  bool hasCategory(Categories value) const
+  bool hasCategory(Category value) const
   {
     return static_cast<int>(categories_) & static_cast<int>(value);
   }
@@ -62,7 +62,7 @@ public:
   QRegularExpression getSearchRegex() const;
 
 private:
-  const Categories categories_;
+  const Category categories_;
   const QString search_string_;
   std::atomic<bool> canceled_;
   const Match* target_;

@@ -78,7 +78,7 @@ StartMenuSource::StartMenuSource()
 
 bool StartMenuSource::canHandleQuery(const Query& query)
 {
-  return query.hasCategory(Query::Categories::App); // TODO: db entries > 0
+  return query.hasCategory(Query::Category::App); // TODO: db entries > 0
 }
 
 std::vector<MatchResult> StartMenuSource::search(const Query& query)

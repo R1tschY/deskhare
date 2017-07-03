@@ -22,7 +22,7 @@
 
 namespace Deskhare {
 
-Query::Query(Categories categories, const QString& search_string,
+Query::Query(Category categories, const QString& search_string,
   const Match* target)
 : categories_(categories), search_string_(search_string), target_(target)
 { }

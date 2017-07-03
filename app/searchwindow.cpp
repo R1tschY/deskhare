@@ -227,7 +227,7 @@ void SearchWindow::onStartSearch()
   if (edit_->text().length())
   {
     qDebug() << "new search:" << edit_->text();
-    controller_.search(edit_->text());
+    controller_.search(Query::Category::All, edit_->text());
     result_lists_->show();
   }
 }

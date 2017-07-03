@@ -39,7 +39,7 @@ XdgApplications::XdgApplications(const PluginContext& ctx)
 
 bool XdgApplications::canHandleQuery(const Query& query)
 {
-  return query.hasCategory(Query::Categories::App)
+  return query.hasCategory(Query::Category::App)
     && !query.getSearchString().isEmpty();
 }
 
