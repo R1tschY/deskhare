@@ -131,7 +131,7 @@ bool FileIndex::create()
   QSqlQuery create_query(dataBase());
   if (!create_query.exec(QLatin1String(
     "CREATE VIRTUAL TABLE files USING fts4("
-    "  name, path"
+    "  name, path, notindexed=path"
     ")")))
   {
     qCCritical(fileIndexLogger) << "create file index table failed:"

@@ -63,7 +63,7 @@ FileIndexSource::FileIndexSource(const PluginContext& ctx)
 {
   context_ = ctx;
 
-  if (!db_->open("fileindex.db"))
+  if (!db_->open(SqliteIndex::createIndexPath("fileindex.db")))
     return;
 
   if (db_->getLastIndexing().daysTo(QDateTime::currentDateTime()) > 7)
@@ -75,7 +75,7 @@ FileIndexSource::~FileIndexSource() = default;
 bool FileIndexSource::canHandleQuery(const Query& query)
 {
   return db_->isOpen() && !query.getSearchString().isEmpty()
-    && query.hasCategory(Query::Categories::File);
+    && query.hasCategory(Query::Category::File);
 }
 
 
