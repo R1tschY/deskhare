@@ -1,7 +1,6 @@
 function(deskhare_plugin target)
 
     add_library(${target} SHARED ${ARGN})
-    target_link_libraries(${target} deskhare Qt5::Core)
     message(STATUS "Found plugin: ${target}")
 
 endfunction()
