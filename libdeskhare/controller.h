@@ -23,6 +23,8 @@
 #include <memory>
 
 #include "shell/fileiconservice.h"
+#include "query.h"
+#include "history/historyservice.h"
 
 class QString;
 class QAbstractListModel;
@@ -34,7 +36,7 @@ class Action;
 class Match;
 class QueryResultModel;
 class PluginManager;
-class HistoryService;
+class Evaluator;
 
 class Controller : QObject
 {
@@ -46,16 +48,17 @@ public:
   QueryResultModel* getQueryResultModel() { return result_model_; }
   QueryResultModel* getActionQueryResultModel() { return actions_model_; }
 
-  bool execute(const Match& match, const Action* action = nullptr) const;
+  bool execute(const Match& match, const Action* action = nullptr);
 
 public slots:
-  void search(const QString& query);
+  void search(Query::Category category, const QString& query);
 
 private:
   std::vector<std::unique_ptr<Source>> sources_;
   std::vector<std::unique_ptr<Source>> action_sources_;
   FileIconProvider file_icon_provider_;
-  HistoryService* history_service_;
+  HistoryService history_service_;
+  std::shared_ptr<Evaluator> evaluator_;
   PluginManager* plugin_manager_ = nullptr;
   QueryResultModel* result_model_ = nullptr;
   QueryResultModel* actions_model_ = nullptr;

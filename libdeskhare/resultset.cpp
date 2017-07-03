@@ -27,14 +27,16 @@
 
 namespace Deskhare {
 
-ResultSet::ResultSet(const std::shared_ptr<const Query>& query)
-: query_(query)
+ResultSet::ResultSet(
+  const std::shared_ptr<const Query>& query,
+  const std::shared_ptr<Evaluator>& evaluator
+)
+: query_(query), evaluator_(evaluator)
 { }
 
 void ResultSet::sendMatch(std::shared_ptr<Match> match)
 {
-  Evaluator evaluator;
-  match->setScore(evaluator.evaluate(*query_, *match));
+  match->setScore(evaluator_->evalWhileSend(*query_, *match));
 
   QMutexLocker lock(&mutex_);
 
@@ -43,11 +45,9 @@ void ResultSet::sendMatch(std::shared_ptr<Match> match)
 
 void ResultSet::sendMatches(std::vector<std::shared_ptr<Match>>& matches)
 {
-  Evaluator evaluator;
-
   for (auto& match : matches)
   {
-    match->setScore(evaluator.evaluate(*query_, *match));
+    match->setScore(evaluator_->evalWhileSend(*query_, *match));
   }
 
   QMutexLocker lock(&mutex_);
@@ -66,6 +66,13 @@ void ResultSet::recieveMatches(std::vector<std::shared_ptr<Match>>& matches)
     std::make_move_iterator(matches_buffer_.begin()),
     std::make_move_iterator(matches_buffer_.end()));
   matches_buffer_.clear();
+
+  lock.unlock();
+
+  for (auto& match : matches)
+  {
+    match->setScore(evaluator_->evalWhileRecieve(*query_, *match));
+  }
 }
 
 } // namespace Deskhare

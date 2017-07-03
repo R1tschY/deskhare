@@ -30,12 +30,15 @@ namespace Deskhare {
 
 class Match;
 class Query;
+class Evaluator;
 
 /// \brief
 class ResultSet
 {
 public:
-  ResultSet(const std::shared_ptr<const Query>& query);
+  ResultSet(
+    const std::shared_ptr<const Query>& query,
+    const std::shared_ptr<Evaluator>& evaluator);
 
   void sendMatch(std::shared_ptr<Match> match);
   void sendMatches(std::vector<std::shared_ptr<Match>>& matches);
@@ -46,6 +49,7 @@ private:
   std::vector<std::shared_ptr<Match>> matches_buffer_;
   QMutex mutex_;
   std::shared_ptr<const Query> query_;
+  std::shared_ptr<Evaluator> evaluator_;
 };
 
 } // namespace Deskhare

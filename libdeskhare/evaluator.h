@@ -27,16 +27,19 @@ namespace Deskhare {
 
 class Query;
 class Match;
+class HistoryService;
 
 /// \brief sets score how good match fits to query
 class Evaluator
 {
 public:
-  Evaluator();
+  Evaluator(HistoryService& history);
 
-  float evaluate(const Query& query, const Match& match);
+  float evalWhileSend(const Query& query, const Match& match);
+  float evalWhileRecieve(const Query& query, const Match& match);
 
 private:
+  HistoryService& history_;
 };
 
 } // namespace Deskhare

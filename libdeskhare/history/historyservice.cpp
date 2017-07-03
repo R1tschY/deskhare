@@ -33,6 +33,8 @@ HistoryService::HistoryService()
     return;
 }
 
+HistoryService::~HistoryService() = default;
+
 void HistoryService::update(const QString& uri, const QDateTime& time)
 {
   index_->update(uri, time.toMSecsSinceEpoch() / 1000);

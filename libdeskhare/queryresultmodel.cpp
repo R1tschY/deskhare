@@ -121,41 +121,15 @@ void QueryResultModel::setSources(const QVector<Source*>& sources)
   sources_ = sources;
 }
 
-class SourceSearcher
-{
-public:
-  using result_type = Source*;
-
-  SourceSearcher(const std::shared_ptr<const Query>& query,
-    const std::shared_ptr<ResultSet>& results)
-  : query_(query), results_(results)
-  { }
-
-  Source* operator()(Source* source)
-  {
-    if (source->canHandleQuery(*query_))
-    {
-      source->search(*query_, *results_);
-    }
-
-    return source;
-  }
-
-private:
-  std::shared_ptr<ResultSet> results_;
-  std::shared_ptr<const Query> query_;
-};
-
 void QueryResultModel::setQuery(
-  Query::Categories categories,
-  const QString& search_string)
+  const std::shared_ptr<ResultSet>& result_set,
+  const QFuture<Source*>& future
+)
 {
   clear();
-  query_ = std::make_shared<Query>(categories, search_string);
-  query_results_ = std::make_shared<ResultSet>(query_);
 
-  future_watcher_->setFuture(
-    QtConcurrent::mapped(sources_, SourceSearcher(query_, query_results_)));
+  query_results_ = result_set;
+  future_watcher_->setFuture(future);
 }
 
 void QueryResultModel::queryFinished()

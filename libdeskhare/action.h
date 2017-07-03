@@ -34,6 +34,15 @@ public:
   : Match(title, description, icon, QString(), score)
   { }
 
+  Action(
+    const QString& title,
+    const QString& description,
+    const QIcon& icon,
+    const QString& uri,
+    float score)
+  : Match(title, description, icon, uri, score)
+  { }
+
   virtual bool canHandleMatch(const Match& match) const = 0;
   virtual void execute(const Match& target) const = 0;
 

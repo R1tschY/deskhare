@@ -33,6 +33,7 @@ class HistoryService
 {
 public:
   HistoryService();
+  ~HistoryService();
 
   void update(const QString& uri, const QDateTime& time);
   void update(const QString& uri, std::time_t time = std::time(nullptr));

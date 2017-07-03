@@ -28,6 +28,7 @@
 
 class QAbstractListModel;
 template<typename T> class QFutureWatcher;
+template<typename T> class QFuture;
 
 namespace Deskhare {
 
@@ -55,7 +56,9 @@ public:
 
   Match* getMatch(std::size_t row);
 
-  void setQuery(Query::Categories categories, const QString& search_string);
+  void setQuery(
+    const std::shared_ptr<ResultSet>& result_set,
+    const QFuture<Source*>& future);
 
   void clear();
 

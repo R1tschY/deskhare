@@ -24,6 +24,7 @@
 #include <QVector>
 #include <QDebug>
 #include <QLoggingCategory>
+#include <QtConcurrent>
 
 #include "actions/runaction.h"
 #include "query.h"
@@ -34,18 +35,51 @@
 #include "pluginmanager.h"
 #include "shell/fileiconproviderplugin.h"
 #include "history/historyservice.h"
-
+#include "resultset.h"
+#include "evaluator.h"
 
 namespace Deskhare {
 
 static Q_LOGGING_CATEGORY(logger, "deskhare.Controller")
 
-Controller::Controller(QObject* parent)
-: QObject(parent)
-{
-  history_service_ = new HistoryService();
+namespace {
 
-  PluginContext plugincontext(&file_icon_provider_, history_service_);
+class SourceSearcher
+{
+public:
+  using result_type = Source*;
+
+  SourceSearcher(
+    const std::shared_ptr<const Query>& query,
+    const std::shared_ptr<ResultSet>& results
+  )
+  : query_(query), results_(results)
+  { }
+
+  Source* operator()(Source* source)
+  {
+    if (source->canHandleQuery(*query_))
+    {
+      source->search(*query_, *results_);
+    }
+
+    return source;
+  }
+
+private:
+  std::shared_ptr<ResultSet> results_;
+  std::shared_ptr<const Query> query_;
+};
+
+} // namespace
+
+
+Controller::Controller(QObject* parent)
+: QObject(parent), history_service_()
+{
+  evaluator_ = std::make_shared<Evaluator>(history_service_);
+
+  PluginContext plugincontext(&file_icon_provider_, &history_service_);
   plugin_manager_ = new PluginManager(plugincontext, this);
   plugin_manager_->loadPlugins();
 
@@ -82,14 +116,25 @@ Controller::Controller(QObject* parent)
 
 Controller::~Controller() = default;
 
-void Controller::search(const QString& query)
+void Controller::search(Query::Category category, const QString& query_string)
 {
-  result_model_->setQuery(Query::Categories::All, query);
+  auto query = std::make_shared<Query>(category, query_string);
+  auto query_results = std::make_shared<ResultSet>(query, evaluator_);
+
+  QVector<Source*> sourcesptrs;
+  for (auto& source : sources_)
+  {
+    sourcesptrs.push_back(source.get());
+  }
+  auto future =
+    QtConcurrent::mapped(sourcesptrs, SourceSearcher(query, query_results));
+
+  result_model_->setQuery(query_results, future);
 }
 
-bool Controller::execute(const Match& match, const Action* action) const
+bool Controller::execute(const Match& match, const Action* action)
 {
-  history_service_->update(match.getUri());
+  history_service_.update(match.getUri());
 
   std::shared_ptr<Action> _action;
   if (!action)

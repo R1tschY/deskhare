@@ -26,39 +26,48 @@
 
 #include "query.h"
 #include "match.h"
+#include "history/historyservice.h"
 
 namespace Deskhare {
 
-Evaluator::Evaluator()
-{
+Evaluator::Evaluator(HistoryService& history)
+: history_(history)
+{ }
 
-}
-
-float Evaluator::evaluate(const Query& query, const Match& match)
+float Evaluator::evalWhileSend(const Query& query, const Match& match)
 {
+  // everything must be thread-safe
+
   QString querystr = query.getSearchString();
   QString matched = match.getTitle();
 
+  float init = match.getScore();
+
   if (querystr.length() == 0 || matched.length() == 0)
     // no evaluation possible
-    return 1.0;
+    return 1.0 * init;
 
   if (matched.startsWith(querystr, Qt::CaseInsensitive))
   {
-    return 1.0;
+    return 1.0 * init;
   }
   else if (matched.indexOf(querystr, Qt::CaseInsensitive) != -1)
   {
-    return 0.95;
+    return 0.95 * init;
   }
   else if (matched[0].toLower() == querystr[0].toLower())
   {
-    return 0.75;
+    return 0.75 * init;
   }
   else
   {
-    return 0.5;
+    return 0.5 * init;
   }
+}
+
+float Evaluator::evalWhileRecieve(const Query& query, const Match& match)
+{
+  return match.getScore() + history_.getScore(match.getUri());
 }
 
 } // namespace Deskhare
