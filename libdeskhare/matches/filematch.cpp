@@ -47,6 +47,7 @@ static QStringList getPathComponents(const QFileInfo& fileInfo)
   return pathparts;
 }
 
+
 LocalFileMatch::LocalFileMatch(const QString& filePath, const FileIconProvider& icons, float score)
 : LocalFileMatch(QFileInfo(filePath), icons, score)
 { }
@@ -56,7 +57,7 @@ LocalFileMatch::LocalFileMatch(const QFileInfo& fileInfo, const FileIconProvider
     fileInfo.fileName(),
     getPathComponents(fileInfo).join(QStringLiteral(" › ")),
     icons.icon(fileInfo),
-    "file://" + fileInfo.path(),
+    "file://" + fileInfo.filePath(),
     score
   )
 {

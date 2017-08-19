@@ -31,9 +31,17 @@ class FileIconProvider;
 class LocalFileMatch : public Match
 {
 public:
+  /**
+   * Create match for a file from a file path. The file path must be absolute
+   * and should not contains '.' or '..' elements.
+   */
   LocalFileMatch(
     const QString& filePath, const FileIconProvider& icons, float score);
 
+  /**
+   * Create match for a file from a file info object. The file path must be
+   * absolute and should not contains '.' or '..' elements.
+   */
   LocalFileMatch(
     const QFileInfo& fileInfo, const FileIconProvider& icons, float score);
 
