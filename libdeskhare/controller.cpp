@@ -37,6 +37,7 @@
 #include "history/historyservice.h"
 #include "resultset.h"
 #include "evaluator.h"
+#include "utils/pluginutils.h"
 
 namespace Deskhare {
 
@@ -90,7 +91,8 @@ Controller::Controller(QObject* parent)
   for (auto* source : plugin_manager_->getPlugins<SourcePlugin>())
   {
     sources_.push_back(source->getSource(ctx));
-    qCInfo(logger) << "got source:" << source->getSourceDescription();
+    qCInfo(logger).noquote() << "got source:"
+      << getTitleFromDescription(source->getSourceDescription());
   }
   QVector<Source*> sourcesptrs;
   for (auto& source : sources_)

@@ -23,7 +23,7 @@
 
 namespace Deskhare {
 
-Q_LOGGING_CATEGORY(openUrlAction, "deskhare.openUrlAction")
+static Q_LOGGING_CATEGORY(logger, "deskhare.openUrlAction")
 
 OpenUrlAction::OpenUrlAction(float score)
 : Action(
@@ -40,9 +40,10 @@ bool OpenUrlAction::canHandleMatch(const Match& match) const
 
 void OpenUrlAction::execute(const Match& match) const
 {
+  qCDebug(logger) << "Open URL" << match.getUri();
   if (!QDesktopServices::openUrl(QUrl(match.getUri(), QUrl::TolerantMode)))
   {
-    qCDebug(openUrlAction) << "Failed to open uri:" << match.getUri();
+    qCCritical(logger) << "Failed to open uri:" << match.getUri();
   }
 }
 

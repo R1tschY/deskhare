@@ -22,7 +22,7 @@ namespace Deskhare {
 QString getTitleFromDescription(const QString& description)
 {
   QString result = description;
-  int index = result.indexOf(L'.');
+  int index = result.indexOf('.');
   if (index > 0)
   {
     result.resize(index);
