@@ -1,3 +1,7 @@
 [submodule "3th-party/qxtglobalshortcut5"]
 	path = 3th-party/qxtglobalshortcut5
 	url = https://github.com/R1tschY/qxtglobalshortcut5.git
+
+[submodule "3th-party/cpp-utils"]
+	path = 3th-party/cpp-utils
+	url = https://github.com/R1tschY/cpp-utils.git
