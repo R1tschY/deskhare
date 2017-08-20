@@ -87,6 +87,9 @@ QVariant QueryResultModel::data(const QModelIndex& index, int role) const
 
 void QueryResultModel::takeMatches(std::vector<std::shared_ptr<Match>>& entries)
 {
+  if (entries.size() == 0)
+    return;
+
   beginInsertRows(QModelIndex(),
     entries_.size(),
     entries_.size() + entries.size() - 1);
@@ -102,8 +105,12 @@ void QueryResultModel::takeMatches(std::vector<std::shared_ptr<Match>>& entries)
 
 void QueryResultModel::clear()
 {
+  if (entries_.size() == 0)
+    return;
+
   beginRemoveRows(QModelIndex(), 0, entries_.size() - 1);
-  scope(exit) { endRemoveRows(); };
+  scope(exit)
+  { endRemoveRows();};
 
   entries_.clear();
 }

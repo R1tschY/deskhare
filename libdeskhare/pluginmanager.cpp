@@ -46,6 +46,9 @@ PluginManager::PluginManager(const PluginContext& ctx, QObject* parent)
   plugin_paths_.push_back(appDir + "/plugins");
   foreach(QString dir, dataDirs)
   {
+    if (dir == appDir)
+      continue;
+
     plugin_paths_.push_back(dir + "/plugins");
   }
 }

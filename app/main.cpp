@@ -31,18 +31,22 @@ void logHandler(QtMsgType type, const QMessageLogContext &context, const QString
   case QtDebugMsg:
       fprintf(stderr, "\x1b[37m[DEBUG] %s: %s\x1b[0m\n",
         context.category, localMsg.constData());
+      fflush(stderr);
       break;
   case QtInfoMsg:
       fprintf(stderr, "\x1b[0m[INFO]\x1b[0m %s: %s\x1b[0m\n",
         context.category, localMsg.constData());
+      fflush(stderr);
       break;
   case QtWarningMsg:
       fprintf(stderr, "\x1b[33m[WARN]\x1b[0m %s: %s\n",
         context.category, localMsg.constData());
+      fflush(stderr);
       break;
   case QtCriticalMsg:
       fprintf(stderr, "\x1b[31m[CRIT]\x1b[0m %s: %s\x1b[0m\n",
         context.category, localMsg.constData());
+      fflush(stderr);
       break;
   case QtFatalMsg:
       fprintf(stderr, "\x1b[31m[FATAL]\x1b[0m %s: %s\x1b[0m\n",
@@ -62,13 +66,16 @@ int main(int argc, char *argv[])
 
   SharedLock lock("deskhare");
   if (!lock.hasLock())
+  {
+    qWarning() << "deskhare is already running";
     return 1;
+  }
 
   QApplication a(argc, argv);
 
   //QIcon::setThemeName("gnome");
 //  auto paths = QIcon::themeSearchPaths();
-//  paths.append("/home/richard/.icons");
+//  paths.append("$HOME/.icons");
 //  QIcon::setThemeSearchPaths(paths);
 
   qDebug() << "Icon theme: " << QIcon::themeName();

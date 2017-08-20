@@ -10,7 +10,7 @@ file(GLOB deskhare_SOURCES
     "matches/*.cpp")
     
 if(WIN32)
-  file(GLOB_RECURSE deskhare_PFSOURCES "platforms/windows/*.cpp")
+  #file(GLOB_RECURSE deskhare_PFSOURCES "platforms/windows/*.cpp")
 else()
   file(GLOB_RECURSE deskhare_PFSOURCES "platforms/linux/*.cpp")
 endif()

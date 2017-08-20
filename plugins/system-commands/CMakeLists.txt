@@ -3,6 +3,7 @@ set(deskhare_system_commands_SOURCES
     "plugin.cpp" "systemcommandssource.cpp")
 
 if (WIN32)
+  return()
   list(APPEND deskhare_system_commands_SOURCES "systemcommands_win.cpp")
   
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
