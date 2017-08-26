@@ -24,12 +24,12 @@
 namespace Deskhare {
 
 class FileIconProvider;
-class HistoryService;
+class Signals;
 
 class PluginContext
 {
 public:
-  using Classes = std::tuple<const FileIconProvider*>;
+  using Classes = std::tuple<const FileIconProvider*, const Signals*>;
 
   template<typename...Args>
   PluginContext(Args&&...classes)
@@ -38,6 +38,9 @@ public:
 
   const FileIconProvider* getFileIconProvider() const
   { return std::get<const FileIconProvider*>(classes_); }
+
+  const Signals* getSignals() const
+  { return std::get<const Signals*>(classes_); }
 
   template<typename T>
   const T* get() const

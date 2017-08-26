@@ -80,7 +80,7 @@ Controller::Controller(QObject* parent)
 {
   evaluation_service_ = std::make_shared<EvaluationService>(history_service_);
 
-  PluginContext plugincontext(&file_icon_provider_);
+  PluginContext plugincontext(&file_icon_provider_, &signals_);
   plugin_manager_ = new PluginManager(plugincontext, this);
   plugin_manager_->loadPlugins();
 
@@ -132,6 +132,7 @@ void Controller::search(Query::Category category, const QString& query_string)
     QtConcurrent::mapped(sourcesptrs, SourceSearcher(query, query_results));
 
   result_model_->setQuery(query_results, future);
+  signals_.emitSearch(*query);
 }
 
 bool Controller::execute(const Match& match, const Action* action)
@@ -157,6 +158,7 @@ bool Controller::execute(const Match& match, const Action* action)
   }
 
   action->execute(match);
+  signals_.emitExecute(match, *action);
 
   return true;
 }

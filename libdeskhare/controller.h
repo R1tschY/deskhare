@@ -24,6 +24,7 @@
 
 #include "shell/fileiconservice.h"
 #include "query.h"
+#include "signals.h"
 #include "history/historyservice.h"
 
 class QString;
@@ -59,6 +60,7 @@ private:
   FileIconProvider file_icon_provider_;
   HistoryService history_service_;
   std::shared_ptr<EvaluationService> evaluation_service_;
+  Signals signals_;
   PluginManager* plugin_manager_ = nullptr;
   QueryResultModel* result_model_ = nullptr;
   QueryResultModel* actions_model_ = nullptr;
