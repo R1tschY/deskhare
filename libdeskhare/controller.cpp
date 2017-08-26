@@ -30,13 +30,13 @@
 #include "query.h"
 #include "sourceplugin.h"
 #include "actionsourceplugin.h"
+#include "evaluationservice.h"
 #include "source.h"
 #include "queryresultmodel.h"
 #include "pluginmanager.h"
 #include "shell/fileiconproviderplugin.h"
 #include "history/historyservice.h"
 #include "resultset.h"
-#include "evaluator.h"
 #include "utils/pluginutils.h"
 
 namespace Deskhare {
@@ -78,9 +78,9 @@ private:
 Controller::Controller(QObject* parent)
 : QObject(parent), history_service_()
 {
-  evaluator_ = std::make_shared<Evaluator>(history_service_);
+  evaluation_service_ = std::make_shared<EvaluationService>(history_service_);
 
-  PluginContext plugincontext(&file_icon_provider_, &history_service_);
+  PluginContext plugincontext(&file_icon_provider_);
   plugin_manager_ = new PluginManager(plugincontext, this);
   plugin_manager_->loadPlugins();
 
@@ -121,7 +121,7 @@ Controller::~Controller() = default;
 void Controller::search(Query::Category category, const QString& query_string)
 {
   auto query = std::make_shared<Query>(category, query_string);
-  auto query_results = std::make_shared<ResultSet>(query, evaluator_);
+  auto query_results = std::make_shared<ResultSet>(query, evaluation_service_);
 
   QVector<Source*> sourcesptrs;
   for (auto& source : sources_)

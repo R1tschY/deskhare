@@ -29,7 +29,7 @@ class HistoryService;
 class PluginContext
 {
 public:
-  using Classes = std::tuple<const FileIconProvider*, HistoryService*>;
+  using Classes = std::tuple<const FileIconProvider*>;
 
   template<typename...Args>
   PluginContext(Args&&...classes)
@@ -38,9 +38,6 @@ public:
 
   const FileIconProvider* getFileIconProvider() const
   { return std::get<const FileIconProvider*>(classes_); }
-
-  const HistoryService* getHistoryService() const
-  { return std::get<HistoryService*>(classes_); }
 
   template<typename T>
   const T* get() const

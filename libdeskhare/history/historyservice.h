@@ -21,15 +21,19 @@
 #include <ctime>
 #include <memory>
 
+#include "../evaluator.h"
+
 class QString;
 class QDateTime;
 
 namespace Deskhare {
 
 class HistoryIndex;
+class Query;
+class Match;
 
 /// \brief
-class HistoryService
+class HistoryService : public Evaluator
 {
 public:
   HistoryService();
@@ -38,7 +42,7 @@ public:
   void update(const QString& uri, const QDateTime& time);
   void update(const QString& uri, std::time_t time = std::time(nullptr));
 
-  float getScore(const QString& uri);
+  float eval(const Query& query, const Match& match) override;
 
 private:
   std::unique_ptr<HistoryIndex> index_;

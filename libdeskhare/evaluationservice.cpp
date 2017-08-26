@@ -20,7 +20,7 @@
 /// IN THE SOFTWARE.
 ///
 
-#include "evaluator.h"
+#include "evaluationservice.h"
 
 #include <QString>
 
@@ -30,11 +30,11 @@
 
 namespace Deskhare {
 
-Evaluator::Evaluator(HistoryService& history)
+EvaluationService::EvaluationService(HistoryService& history)
 : history_(history)
 { }
 
-float Evaluator::evalWhileSend(const Query& query, const Match& match)
+float EvaluationService::evalWhileSend(const Query& query, const Match& match)
 {
   // everything must be thread-safe
 
@@ -65,9 +65,9 @@ float Evaluator::evalWhileSend(const Query& query, const Match& match)
   }
 }
 
-float Evaluator::evalWhileRecieve(const Query& query, const Match& match)
+float EvaluationService::evalWhileRecieve(const Query& query, const Match& match)
 {
-  return match.getScore() + history_.getScore(match.getUri());
+  return match.getScore() + history_.eval(query, match);
 }
 
 } // namespace Deskhare

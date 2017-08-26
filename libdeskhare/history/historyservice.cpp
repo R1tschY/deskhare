@@ -23,6 +23,7 @@
 #include <QDateTime>
 
 #include "historyindex.h"
+#include "../match.h"
 
 namespace Deskhare {
 
@@ -45,9 +46,9 @@ void HistoryService::update(const QString& uri, time_t time)
   index_->update(uri, time);
 }
 
-float HistoryService::getScore(const QString& uri)
+float HistoryService::eval(const Query& query, const Match& match)
 {
-  auto stats = index_->getStats(uri);
+  auto stats = index_->getStats(match.getUri());
   auto delta_t = std::min(
     std::time_t(24 * 3600),
     std::time(nullptr) - std::get<0>(stats)
