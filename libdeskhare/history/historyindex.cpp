@@ -47,7 +47,7 @@ void HistoryIndex::update(const QString& uri, time_t time)
     return;
 
   dataBase().transaction();
-  scope(exit) { dataBase().commit(); };
+  auto guard = cpp::finally([&](){ dataBase().commit(); });
 
   auto stats = getStats(uri);
   auto delta_t = time - std::get<0>(stats);

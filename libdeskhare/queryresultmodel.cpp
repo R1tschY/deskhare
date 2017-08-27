@@ -93,7 +93,7 @@ void QueryResultModel::takeMatches(std::vector<std::shared_ptr<Match>>& entries)
   beginInsertRows(QModelIndex(),
     entries_.size(),
     entries_.size() + entries.size() - 1);
-  scope(exit) { endInsertRows(); };
+  auto guard = cpp::finally([&](){ endInsertRows(); });
 
   entries_.insert(
     entries_.end(),
@@ -109,8 +109,7 @@ void QueryResultModel::clear()
     return;
 
   beginRemoveRows(QModelIndex(), 0, entries_.size() - 1);
-  scope(exit)
-  { endRemoveRows();};
+  auto guard = cpp::finally([&](){ endRemoveRows();});
 
   entries_.clear();
 }
