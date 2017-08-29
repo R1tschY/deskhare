@@ -112,6 +112,8 @@ int SqliteIndex::getCurrentFormatVersion()
 
 bool SqliteIndex::setCurrentFormatVersion()
 {
+  auto transaction = createTransaction();
+
   if (isEmpty())
   {
     QSqlQuery create_query(db_);

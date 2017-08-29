@@ -128,6 +128,8 @@ void FileIndex::setLastIndexing(const QDateTime& time)
 
 bool FileIndex::create()
 {
+  auto transaction = createTransactionGuard();
+
   QSqlQuery create_query(dataBase());
   if (!create_query.exec(QLatin1String(
     "CREATE VIRTUAL TABLE files USING fts4("
@@ -136,6 +138,7 @@ bool FileIndex::create()
   {
     qCCritical(fileIndexLogger) << "create file index table failed:"
       << create_query.lastError();
+    transaction.rollback();
     return false;
   }
 
@@ -147,6 +150,7 @@ bool FileIndex::create()
   {
     qCCritical(fileIndexLogger) << "create file index times table failed:"
       << create_query.lastError();
+    transaction.rollback();
     return false;
   }
   if (!create_query.exec(QLatin1String(
@@ -154,6 +158,7 @@ bool FileIndex::create()
   {
     qCCritical(fileIndexLogger) << "inserting last indexing in file index table failed:"
       << create_query.lastError();
+    transaction.rollback();
     return false;
   }
 

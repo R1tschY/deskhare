@@ -95,13 +95,15 @@ void FileIndexSource::index()
   if (!db_->isOpen())
     return;
 
+  auto transaction = db_->createTransaction();
   db_->clear();
 
   int i = 0;
   auto videos = QStandardPaths::standardLocations(
-    QStandardPaths::MoviesLocation); // TODO: editable list
+    QStandardPaths::DocumentsLocation); // TODO: editable list
   foreach (QString dir, videos)
   {
+    // TODO: improve performance: create addFiles and use on batches of files
     cpp::for_each(DirRange(dir,
       QDir::Files | QDir::Readable,
       QDirIterator::Subdirectories),
@@ -110,6 +112,11 @@ void FileIndexSource::index()
       i += 1;
       db_->addFile(file.fileInfo());
     });
+
+    if (i & 0x3FF == 0)
+    {
+      qCInfo(fileIndexer) << "Indexed" << i << "files so far ...";
+    }
   }
 
   db_->setLastIndexing(QDateTime::currentDateTime());

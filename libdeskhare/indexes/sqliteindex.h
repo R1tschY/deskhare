@@ -20,6 +20,7 @@
 
 #include <QSqlDatabase>
 #include <QObject>
+#include <cpp-utils/scope.h>
 
 namespace Deskhare {
 
@@ -34,6 +35,24 @@ public:
 
   QSqlDatabase& dataBase() { return db_; }
   bool isOpen() const { return db_.isOpen(); }
+
+  auto createTransaction() __attribute__((warn_unused_result))
+  {
+    db_.transaction();
+    return cpp::make_transaction(
+      [&](){ db_.commit(); },
+      [&](){ db_.rollback(); }
+    );
+  }
+
+  auto createTransactionGuard() __attribute__((warn_unused_result))
+  {
+    db_.transaction();
+    return cpp::make_transaction_guard(
+      [&](){ db_.commit(); },
+      [&](){ db_.rollback(); }
+    );
+  }
 
   static QString escape(QString string);
   static QString escape(QChar c);
