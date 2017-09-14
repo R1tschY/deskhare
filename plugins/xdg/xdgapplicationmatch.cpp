@@ -46,9 +46,14 @@ std::shared_ptr<Action> XdgApplicationMatch::getDefaultAction() const
 
 QIcon XdgApplicationMatch::createIcon(const QString& iconName)
 {
-  QIcon icon = QIcon::fromTheme(iconName);
+  QIcon icon;
+
+  if (!iconName.isEmpty())
+    icon = QIcon::fromTheme(iconName);
+
   if (icon.isNull())
     icon = QIcon::fromTheme(QStringLiteral("application-x-executable"));
+
   return icon;
 }
 
