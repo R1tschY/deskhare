@@ -54,6 +54,7 @@ public:
 private:
   std::unique_ptr<FileIndex> db_;
   PluginContext context_;
+  QStringList locations_;
 
   void index();
 };
@@ -62,6 +63,25 @@ FileIndexSource::FileIndexSource(const PluginContext& ctx)
 : db_(std::make_unique<FileIndex>())
 {
   context_ = ctx;
+
+  locations_ += QStandardPaths::standardLocations(
+    QStandardPaths::DocumentsLocation
+  );
+  locations_ += QStandardPaths::standardLocations(
+    QStandardPaths::MoviesLocation
+  );
+  locations_ += QStandardPaths::standardLocations(
+    QStandardPaths::MusicLocation
+  );
+  locations_ += QStandardPaths::standardLocations(
+    QStandardPaths::DownloadLocation
+  );
+  locations_ += QStandardPaths::standardLocations(
+    QStandardPaths::DesktopLocation
+  );
+  locations_ += QStandardPaths::standardLocations(
+    QStandardPaths::PicturesLocation
+  );
 
   if (!db_->open(SqliteIndex::createIndexPath("fileindex.db")))
     return;
@@ -99,9 +119,7 @@ void FileIndexSource::index()
   db_->clear();
 
   int i = 0;
-  auto videos = QStandardPaths::standardLocations(
-    QStandardPaths::DocumentsLocation); // TODO: editable list
-  foreach (QString dir, videos)
+  foreach (QString dir, locations_)
   {
     // TODO: improve performance: create addFiles and use on batches of files
     cpp::for_each(DirRange(dir,
