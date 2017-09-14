@@ -101,7 +101,7 @@ SearchWindow::SearchWindow(QWidget *parent)
   debounce_timer_ = new QTimer(this);
   debounce_timer_->setSingleShot(true);
   debounce_timer_->setTimerType(Qt::CoarseTimer);
-  debounce_timer_->setInterval(200);
+  debounce_timer_->setInterval(20);
   connect(
     debounce_timer_, &QTimer::timeout,
     this, &SearchWindow::onStartSearch);
@@ -214,11 +214,13 @@ void SearchWindow::configureResultList(QListView* list)
 
 void SearchWindow::onEdit()
 {
-  result_lists_->hide();
-
   if (edit_->text().length())
   {
     debounce_timer_->start();
+  }
+  else
+  {
+    result_lists_->hide();
   }
 }
 
@@ -368,16 +370,16 @@ std::shared_ptr<Match> SearchWindow::getMatch() const
 
 void SearchWindow::toggleResultList()
 {
-  if (!list_->currentIndex().isValid())
-    return;
+  if (result_lists_->currentIndex() == MatchViewIndex)
+  {
+    if (!list_->currentIndex().isValid())
+      return;
 
-  if (result_lists_->currentIndex() == 0)
-  {
-    result_lists_->setCurrentIndex(1);
+    result_lists_->setCurrentIndex(ActionViewIndex);
   }
-  else
+  else if (result_lists_->currentIndex() == ActionViewIndex)
   {
-    result_lists_->setCurrentIndex(0);
+    result_lists_->setCurrentIndex(MatchViewIndex);
   }
 }
 

@@ -60,6 +60,11 @@ protected:
   bool event(QEvent *event) override;
 
 private:
+  enum ViewIndexes {
+    MatchViewIndex,
+    ActionViewIndex
+  };
+
   QLineEdit* edit_;
   QListView* list_;
   QListView* actions_list_;
