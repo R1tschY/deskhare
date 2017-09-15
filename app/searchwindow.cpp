@@ -365,7 +365,8 @@ std::shared_ptr<Action> SearchWindow::getAction() const
 
 std::shared_ptr<Match> SearchWindow::getMatch() const
 {
-  return model_->getMatch(list_->currentIndex().row())->shared_from_this();
+  auto* match = model_->getMatch(list_->currentIndex().row());
+  return match ? match->shared_from_this() : nullptr;
 }
 
 void SearchWindow::toggleResultList()
