@@ -35,12 +35,18 @@ class Signals: public QObject
   Q_OBJECT
 signals:
   void search(const Query& query);
+  void searchAction(const Query& query);
   void execute(const Match& match, const Action& action);
 
 private:
   void emitSearch(const Query& query)
   {
     emit search(query);
+  }
+
+  void emitSearchAction(const Query& query)
+  {
+    emit searchAction(query);
   }
 
   void emitExecute(const Match& match, const Action& action)

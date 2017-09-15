@@ -53,6 +53,7 @@ public:
 
 public slots:
   void search(Query::Category category, const QString& query);
+  void searchAction(const Match& match, const QString& query);
 
 private:
   std::vector<std::unique_ptr<Source>> sources_;

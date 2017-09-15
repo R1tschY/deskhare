@@ -126,13 +126,37 @@ void Controller::search(Query::Category category, const QString& query_string)
   QVector<Source*> sourcesptrs;
   for (auto& source : sources_)
   {
-    sourcesptrs.push_back(source.get());
+    if (source->canHandleQuery(*query))
+    {
+      sourcesptrs.push_back(source.get());
+    }
   }
   auto future =
     QtConcurrent::mapped(sourcesptrs, SourceSearcher(query, query_results));
 
   result_model_->setQuery(query_results, future);
   signals_.emitSearch(*query);
+}
+
+void Controller::searchAction(const Match& match, const QString& query_string)
+{
+  auto query = std::make_shared<Query>(Query::Category::All, query_string);
+  auto query_results = std::make_shared<ResultSet>(query, evaluation_service_);
+
+  QVector<Source*> sourcesptrs;
+  for (auto& source : action_sources_)
+  {
+    if (source->canHandleQuery(*query))
+    {
+      sourcesptrs.push_back(source.get());
+    }
+  }
+  // TODO: really use threads?
+  auto future =
+    QtConcurrent::mapped(sourcesptrs, SourceSearcher(query, query_results));
+
+  actions_model_->setQuery(query_results, future);
+  signals_.emitSearchAction(*query);
 }
 
 bool Controller::execute(const Match& match, const Action* action)
