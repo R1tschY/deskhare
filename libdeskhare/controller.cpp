@@ -30,7 +30,7 @@
 #include "query.h"
 #include "sourceplugin.h"
 #include "actionsourceplugin.h"
-#include "evaluationservice.h"
+#include "evaluation/evaluationservice.h"
 #include "source.h"
 #include "queryresultmodel.h"
 #include "pluginmanager.h"
@@ -76,9 +76,9 @@ private:
 
 
 Controller::Controller(QObject* parent)
-: QObject(parent), history_service_()
+: QObject(parent), history_service_(std::make_shared<HistoryService>())
 {
-  evaluation_service_ = std::make_shared<EvaluationService>(history_service_);
+  evaluation_service_registry_.registerEvaluator(history_service_);
 
   PluginContext plugincontext(&file_icon_provider_, &signals_);
   plugin_manager_ = new PluginManager(plugincontext, this);
@@ -121,7 +121,10 @@ Controller::~Controller() = default;
 void Controller::search(Query::Category category, const QString& query_string)
 {
   auto query = std::make_shared<Query>(category, query_string);
-  auto query_results = std::make_shared<ResultSet>(query, evaluation_service_);
+  auto query_results = std::make_shared<ResultSet>(
+    query,
+    evaluation_service_registry_.getEvaluationService()
+  );
 
   QVector<Source*> sourcesptrs;
   for (auto& source : sources_)
@@ -141,7 +144,10 @@ void Controller::search(Query::Category category, const QString& query_string)
 void Controller::searchAction(const Match& match, const QString& query_string)
 {
   auto query = std::make_shared<Query>(Query::Category::All, query_string);
-  auto query_results = std::make_shared<ResultSet>(query, evaluation_service_);
+  auto query_results = std::make_shared<ResultSet>(
+    query,
+    evaluation_service_registry_.getEvaluationService()
+  );
 
   QVector<Source*> sourcesptrs;
   for (auto& source : action_sources_)
@@ -161,7 +167,7 @@ void Controller::searchAction(const Match& match, const QString& query_string)
 
 bool Controller::execute(const Match& match, const Action* action)
 {
-  history_service_.update(match.getUri());
+  history_service_->update(match.getUri());
 
   std::shared_ptr<Action> _action;
   if (!action)

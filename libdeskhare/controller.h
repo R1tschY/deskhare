@@ -59,8 +59,8 @@ private:
   std::vector<std::unique_ptr<Source>> sources_;
   std::vector<std::unique_ptr<Source>> action_sources_;
   FileIconProvider file_icon_provider_;
-  HistoryService history_service_;
-  std::shared_ptr<EvaluationService> evaluation_service_;
+  std::shared_ptr<HistoryService> history_service_;
+  EvaluationServiceRegistry evaluation_service_registry_;
   Signals signals_;
   PluginManager* plugin_manager_ = nullptr;
   QueryResultModel* result_model_ = nullptr;

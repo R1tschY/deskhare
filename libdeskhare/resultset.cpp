@@ -22,14 +22,14 @@
 
 #include "resultset.h"
 
-#include "evaluationservice.h"
+#include "evaluation/evaluationservice.h"
 #include "match.h"
 
 namespace Deskhare {
 
 ResultSet::ResultSet(
   const std::shared_ptr<const Query>& query,
-  const std::shared_ptr<EvaluationService>& evaluator
+  const std::shared_ptr<const EvaluationService>& evaluator
 )
 : query_(query), evaluation_service_(evaluator)
 { }

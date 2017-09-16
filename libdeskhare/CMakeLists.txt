@@ -7,7 +7,9 @@ file(GLOB deskhare_SOURCES
     "utils/*.cpp"
     "actions/*.cpp"
     "history/*.cpp"
-    "matches/*.cpp")
+    "matches/*.cpp"
+    "evaluation/*.cpp"
+)
     
 if(WIN32)
   #file(GLOB_RECURSE deskhare_PFSOURCES "platforms/windows/*.cpp")

@@ -18,35 +18,16 @@
 
 #pragma once
 
-#include <ctime>
-#include <memory>
-
-#include "../evaluation/evaluationservice.h"
-
-class QString;
-class QDateTime;
+#include "evaluationservice.h"
 
 namespace Deskhare {
 
-class HistoryIndex;
-class Query;
-class Match;
-
 /// \brief
-class HistoryService : public Evaluator
+class SimilarityEvaluator: public Evaluator
 {
 public:
-  HistoryService();
-  ~HistoryService();
-
-  void update(const QString& uri, const QDateTime& time);
-  void update(const QString& uri, std::time_t time = std::time(nullptr));
-
   float eval(const Query& query, const Match& match) const override;
-  bool isThreadSafe() const override { return false; }
-
-private:
-  std::unique_ptr<HistoryIndex> index_;
+  bool isThreadSafe() const override { return true; }
 };
 
 } // namespace Deskhare

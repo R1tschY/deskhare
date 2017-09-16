@@ -20,54 +20,59 @@
 /// IN THE SOFTWARE.
 ///
 
-#include "evaluationservice.h"
+#pragma once
 
-#include <QString>
-
-#include "query.h"
-#include "match.h"
-#include "history/historyservice.h"
+#include <memory>
+#include <QVector>
 
 namespace Deskhare {
 
-EvaluationService::EvaluationService(HistoryService& history)
-: history_(history)
-{ }
+class Query;
+class Match;
+class HistoryService;
 
-float EvaluationService::evalWhileSend(const Query& query, const Match& match)
+class Evaluator
 {
-  // everything must be thread-safe
+public:
+  virtual ~Evaluator() = default;
 
-  QString querystr = query.getSearchString();
-  QString matched = match.getTitle();
+  virtual float eval(const Query& query, const Match& match) const = 0;
+  virtual bool isThreadSafe() const = 0;
+};
 
-  float init = match.getScore();
 
-  if (querystr.length() == 0 || matched.length() == 0)
-    // no evaluation possible
-    return 1.0 * init;
-
-  if (matched.startsWith(querystr, Qt::CaseInsensitive))
-  {
-    return 1.0 * init;
-  }
-  else if (matched.indexOf(querystr, Qt::CaseInsensitive) != -1)
-  {
-    return 0.95 * init;
-  }
-  else if (matched[0].toLower() == querystr[0].toLower())
-  {
-    return 0.75 * init;
-  }
-  else
-  {
-    return 0.5 * init;
-  }
-}
-
-float EvaluationService::evalWhileRecieve(const Query& query, const Match& match)
+/// \brief sets score how good match fits to query
+class EvaluationService
 {
-  return match.getScore() + history_.eval(query, match);
-}
+public:
+  EvaluationService();
+
+  float evalWhileSend(const Query& query, const Match& match) const;
+  float evalWhileRecieve(const Query& query, const Match& match) const;
+
+  void addEvaluator(const std::shared_ptr<const Evaluator>& evaluator);
+  void removeEvaluator(const std::shared_ptr<const Evaluator>& evaluator);
+
+private:
+  QVector<std::shared_ptr<const Evaluator>> ts_evaluators_;
+  QVector<std::shared_ptr<const Evaluator>> evaluators_;
+};
+
+class EvaluationServiceRegistry
+{
+public:
+  EvaluationServiceRegistry();
+
+  void registerEvaluator(const std::shared_ptr<Evaluator>& evaluator);
+  void unregisterEvaluator(const std::shared_ptr<Evaluator>& evaluator);
+
+  std::shared_ptr<const EvaluationService> getEvaluationService() const
+  {
+    return service_;
+  }
+
+private:
+  std::shared_ptr<const EvaluationService> service_;
+};
 
 } // namespace Deskhare

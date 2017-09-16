@@ -16,37 +16,40 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#pragma once
+#include "similarityevaluator.h"
 
-#include <ctime>
-#include <memory>
-
-#include "../evaluation/evaluationservice.h"
-
-class QString;
-class QDateTime;
+#include "../query.h"
+#include "../match.h"
 
 namespace Deskhare {
 
-class HistoryIndex;
-class Query;
-class Match;
-
-/// \brief
-class HistoryService : public Evaluator
+float Deskhare::SimilarityEvaluator::eval(
+  const Query& query,
+  const Match& match) const
 {
-public:
-  HistoryService();
-  ~HistoryService();
+  // everything must be thread-safe
 
-  void update(const QString& uri, const QDateTime& time);
-  void update(const QString& uri, std::time_t time = std::time(nullptr));
+  QString querystr = query.getSearchString();
+  QString matched = match.getTitle();
 
-  float eval(const Query& query, const Match& match) const override;
-  bool isThreadSafe() const override { return false; }
+  if (querystr.length() == 0 || matched.length() == 0)
+    // no evaluation possible
+    return 1.0;
 
-private:
-  std::unique_ptr<HistoryIndex> index_;
-};
+  if (matched.startsWith(querystr, Qt::CaseInsensitive))
+  {
+    return 1.0;
+  }
+  else if (matched.indexOf(querystr, Qt::CaseInsensitive) != -1)
+  {
+    return 0.95;
+  }
+  else if (matched[0].toLower() == querystr[0].toLower())
+  {
+    return 0.75;
+  }
+
+  return 0.5;
+}
 
 } // namespace Deskhare

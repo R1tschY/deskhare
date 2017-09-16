@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <QString>
 #include <QDateTime>
+#include <cpp-utils/algorithm/clamp.h>
 
 #include "historyindex.h"
 #include "../match.h"
@@ -46,7 +47,7 @@ void HistoryService::update(const QString& uri, time_t time)
   index_->update(uri, time);
 }
 
-float HistoryService::eval(const Query& query, const Match& match)
+float HistoryService::eval(const Query& query, const Match& match) const
 {
   auto stats = index_->getStats(match.getUri());
   auto delta_t = std::min(
@@ -54,9 +55,12 @@ float HistoryService::eval(const Query& query, const Match& match)
     std::time(nullptr) - std::get<0>(stats)
   );
   if (delta_t > 0)
-    return std::min(1.5f, ((24.f * 3600.f) / delta_t) * std::get<1>(stats));
+    return std::min(
+      1.f + ((24.f * 3600.f) / delta_t) * std::get<1>(stats),
+      1.5f
+    );
   else
-    return 0.f;
+    return 1.f;
 }
 
 } // namespace Deskhare
