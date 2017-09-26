@@ -18,6 +18,10 @@
 
 #include "similarityevaluator.h"
 
+#include <cmath>
+#include <algorithm>
+#include <QDebug>
+
 #include "../query.h"
 #include "../match.h"
 
@@ -36,13 +40,10 @@ float Deskhare::SimilarityEvaluator::eval(
     // no evaluation possible
     return 1.0;
 
-  if (matched.startsWith(querystr, Qt::CaseInsensitive))
+  int index = matched.indexOf(querystr, 0, Qt::CaseInsensitive);
+  if (index != -1)
   {
-    return 1.0;
-  }
-  else if (matched.indexOf(querystr, Qt::CaseInsensitive) != -1)
-  {
-    return 0.95;
+    return std::max(std::exp(-index / 50.f), 0.8f);
   }
   else if (matched[0].toLower() == querystr[0].toLower())
   {
