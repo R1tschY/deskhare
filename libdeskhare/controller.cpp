@@ -31,6 +31,7 @@
 #include "sourceplugin.h"
 #include "actionsourceplugin.h"
 #include "evaluation/evaluationservice.h"
+#include "evaluation/similarityevaluator.h"
 #include "source.h"
 #include "queryresultmodel.h"
 #include "pluginmanager.h"
@@ -41,7 +42,7 @@
 
 namespace Deskhare {
 
-static Q_LOGGING_CATEGORY(logger, "deskhare.Controller")
+static Q_LOGGING_CATEGORY(logger, "deskhare.controller")
 
 namespace {
 
@@ -79,10 +80,11 @@ Controller::Controller(QObject* parent)
 : QObject(parent), history_service_(std::make_shared<HistoryService>())
 {
   evaluation_service_registry_.registerEvaluator(history_service_);
+  evaluation_service_registry_.registerEvaluator(
+    std::make_shared<SimilarityEvaluator>());
 
   PluginContext plugincontext(&file_icon_provider_, &signals_);
   plugin_manager_ = new PluginManager(plugincontext, this);
-  plugin_manager_->loadPlugins();
 
   file_icon_provider_.updateFromPlugins(
     plugin_manager_->getPlugins<FileIconProviderPlugin>());

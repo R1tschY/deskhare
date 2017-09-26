@@ -19,10 +19,13 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <QObject>
 #include <QString>
 
 #include "plugincontext.h"
+
+class QPluginLoader;
 
 namespace Deskhare {
 
@@ -31,21 +34,34 @@ class PluginManager : public QObject
 {
   Q_OBJECT
 public:
-  PluginManager(const PluginContext& ctx, QObject* parent = 0);
+  struct Entry
+  {
+    Entry() = default;
+    Entry(Entry&&) = default;
+    ~Entry();
 
-  void loadPlugins();
+    Entry& operator=(Entry&& __u) noexcept = default;
+
+    std::unique_ptr<QPluginLoader> loader;
+    QObject* instance = nullptr;
+  };
+
+  PluginManager(const PluginContext& ctx, QObject* parent = 0);
 
   template<typename Plugin>
   std::vector<Plugin*> getPlugins();
+
+  const std::vector<Entry>& getTopLevelPlugins() const { return plugins_; }
 
   std::vector<QString> getSearchPaths() const;
   const PluginContext& getContext() const { return ctx_; }
 
 private:
-  std::vector<QObject*> plugins_;
+  std::vector<Entry> plugins_;
   std::vector<QString> plugin_paths_;
   PluginContext ctx_;
 
+  void loadPlugins();
   void loadPlugin(const QString& filePath);
 };
 
@@ -55,9 +71,9 @@ inline std::vector<Plugin*> PluginManager::getPlugins()
   std::vector<Plugin*> result;
   result.reserve(plugins_.size());
 
-  for (QObject* plugin : plugins_)
+  for (const Entry& plugin : plugins_)
   {
-    auto* source = qobject_cast<Plugin*>(plugin);
+    auto* source = qobject_cast<Plugin*>(plugin.instance);
     if (source)
       result.push_back(source);
   }

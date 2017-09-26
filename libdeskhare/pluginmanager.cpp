@@ -36,6 +36,8 @@ namespace Deskhare {
 
 Q_LOGGING_CATEGORY(pluginManager, "deskhare.pluginmanager")
 
+PluginManager::Entry::~Entry() = default;
+
 PluginManager::PluginManager(const PluginContext& ctx, QObject* parent)
 : QObject(parent), ctx_(ctx)
 {
@@ -51,6 +53,8 @@ PluginManager::PluginManager(const PluginContext& ctx, QObject* parent)
 
     plugin_paths_.push_back(dir + "/plugins");
   }
+
+  loadPlugins();
 }
 
 std::vector<QString> PluginManager::getSearchPaths() const
@@ -68,20 +72,20 @@ void PluginManager::loadPlugin(const QString& filePath)
   }
 
   qCInfo(pluginManager) << "loading plugin" << filePath;
-  QPluginLoader pluginLoader(filePath);
-  QObject* plugin = pluginLoader.instance();
-  if (!plugin)
+  plugins_.emplace_back();
+
+  auto& plugin = plugins_.back();
+  plugin.loader.reset(new QPluginLoader(filePath));
+  plugin.instance = plugin.loader->instance();
+  if (!plugin.instance)
   {
     qCWarning(pluginManager)
           << "cannot load plugin"
           << filePath
           << ":"
-          << pluginLoader.errorString();
+          << plugin.loader->errorString();
     return;
   }
-
-  plugin->setParent(this);
-  plugins_.push_back(plugin);
 
   qCDebug(pluginManager) << "loaded plugin" << filePath;
 }

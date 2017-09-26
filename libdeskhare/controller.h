@@ -49,6 +49,8 @@ public:
   QueryResultModel* getQueryResultModel() { return result_model_; }
   QueryResultModel* getActionQueryResultModel() { return actions_model_; }
 
+  const PluginManager* getPluginManager() const { return plugin_manager_; }
+
   bool execute(const Match& match, const Action* action = nullptr);
 
 public slots:
