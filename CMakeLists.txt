@@ -2,6 +2,23 @@ cmake_minimum_required(VERSION 3.0)
 
 project(deskhare CXX)
 
+## CMake
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+include(AddConfig)
+
+add_config(
+  Debug 
+  CXX_FLAGS "-Og -g -DDEBUG -D_DEBUG" 
+  LINKER_FLAGS "-Og -g"
+)
+
+add_config(
+  Release 
+  CXX_FLAGS "-O2 -DNDEBUG" 
+  LINKER_FLAGS "-O2 -g"
+)
+
 ## C++
 
 set(CMAKE_CXX_STANDARD 14)

@@ -5,3 +5,6 @@
 [submodule "3th-party/cpp-utils"]
 	path = 3th-party/cpp-utils
 	url = https://github.com/R1tschY/cpp-utils.git
+[submodule "cmake/modules"]
+	path = cmake/modules
+	url = https://github.com/R1tschY/cmake-modules
