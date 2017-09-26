@@ -40,7 +40,7 @@
 #include <QStackedWidget>
 
 #include "searchedit.h"
-#include "settingsview.h"
+#include "settings/settingswindow.h"
 #include <libdeskhare/match.h>
 #include <libdeskhare/action.h>
 #include <libdeskhare/queryresultmodel.h>
@@ -127,7 +127,7 @@ SearchWindow::SearchWindow(QWidget *parent)
   frameLayout->setMargin(0);
   setLayout(frameLayout);
 
-  settings_view_ = std::make_unique<SettingsView>();
+  settings_window_ = std::make_unique<SettingsWindow>(&controller_);
 
   auto* headerLine = new QHBoxLayout();
   headerLine->addWidget(new QLabel(tr("All")), 1.0, Qt::AlignCenter);
@@ -142,7 +142,8 @@ SearchWindow::SearchWindow(QWidget *parent)
   headerLine->addWidget(menuButton, 0.0, Qt::AlignRight);
   connect(
     menuButton, &QPushButton::clicked,
-    settings_view_.get(), &SettingsView::show);
+    settings_window_.get(), &SettingsWindow::show
+  );
 
 //  auto* settingsAction = new QAction("Settings", menuButton);
 //  settingsAction->setShortcuts({QKeySequence("Ctrl+,"), QKeySequence("Alt+,")});

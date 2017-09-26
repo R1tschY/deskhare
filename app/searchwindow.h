@@ -36,7 +36,7 @@ namespace Deskhare {
 
 class SearchEdit;
 class MatchesModel;
-class SettingsView;
+class SettingsWindow;
 
 class SearchWindow : public QWidget
 {
@@ -73,7 +73,7 @@ private:
   QueryResultModel* actions_model_;
   QxtGlobalShortcut* shortcut_;
   QTimer* debounce_timer_;
-  std::unique_ptr<SettingsView> settings_view_;
+  std::unique_ptr<SettingsWindow> settings_window_;
 
   Controller controller_;
 
