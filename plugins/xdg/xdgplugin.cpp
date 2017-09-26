@@ -1,5 +1,5 @@
 //
-// deskhare - cross-platform quick launcher
+  // deskhare - cross-platform quick launcher
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 
 #include "xdgapplications.h"
 #include "xdginfocache.h"
+#include "xdgfileiconprovider.h"
 
 namespace Deskhare {
 
@@ -38,7 +39,25 @@ QString XdgPlugin::getSourceDescription()
 {
   return "Xdg applications.\n"
     "\n"
-    "Search for applications in Freedesktop compatible systems.";
+    "Search for applications in Freedesktop.org compatible systems.";
+}
+
+float XdgPlugin::getFileIconProviderPriorityIndex()
+{
+  return 10;
+}
+
+std::unique_ptr<QFileIconProvider> XdgPlugin::getFileIconProvider()
+{
+  return std::make_unique<XdgFileIconProvider>();
+}
+
+QString XdgPlugin::getFileIconProviderDescription() const
+{
+  return "Xdg file icon provider.\n"
+    "\n"
+    "Search for thumbnails and get file icon based on MIME information in "
+    "Freedesktop.org compatible systems.";
 }
 
 } // namespace Deskhare

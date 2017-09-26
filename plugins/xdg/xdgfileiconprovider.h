@@ -1,5 +1,5 @@
 //
-// deskhare - cross-platform quick launcher
+// deskhare
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,33 +18,20 @@
 
 #pragma once
 
-#include <memory>
-#include <libdeskhare/shell/fileiconproviderplugin.h>
-#include <libdeskhare/sourceplugin.h>
+#include <qfileiconprovider.h>
+#include <qmimedatabase.h>
+
+class QFileInfo;
 
 namespace Deskhare {
 
-/// \brief
-class XdgPlugin :
-  public QObject,
-  public SourcePlugin,
-  public FileIconProviderPlugin
+class XdgFileIconProvider: public QFileIconProvider
 {
-  Q_OBJECT
-  Q_PLUGIN_METADATA(IID DeskhareSource_iid)
-  Q_INTERFACES(Deskhare::SourcePlugin Deskhare::FileIconProviderPlugin)
 public:
-  XdgPlugin();
-
-  // SourcePlugin
-  std::unique_ptr<Source> getSource(const PluginContext& ctx) override;
-  QString getSourceDescription() override;
-
-  float getFileIconProviderPriorityIndex() override;
-  std::unique_ptr<QFileIconProvider> getFileIconProvider() override;
-  QString getFileIconProviderDescription() const override;
+  QIcon icon(const QFileInfo &info) const override;
 
 private:
+  QMimeDatabase mimeDb_;
 };
 
 } // namespace Deskhare
