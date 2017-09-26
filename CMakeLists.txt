@@ -36,6 +36,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 add_subdirectory(3th-party/cpp-utils)
 add_subdirectory(3th-party/qxtglobalshortcut5)
+add_subdirectory(3th-party/xdg-thumbnails-qt)
 add_subdirectory(libdeskhare)
 
 add_subdirectory(plugins)
