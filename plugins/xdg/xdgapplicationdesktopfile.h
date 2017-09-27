@@ -21,6 +21,7 @@
 #include "linuxlocale.h"
 
 #include <QString>
+#include <QByteArray>
 #include <xdgdesktopfile.h>
 
 namespace Deskhare {
@@ -32,13 +33,14 @@ public:
   XdgApplicationDesktopFile();
   XdgApplicationDesktopFile(const XdgDesktopFile& other);
 
-  using XdgDesktopFile::load;
   using XdgDesktopFile::value;
   using XdgDesktopFile::contains;
   using XdgDesktopFile::fileName;
   using XdgDesktopFile::isSuitable;
   using XdgDesktopFile::startDetached;
   using XdgDesktopFile::expandExecString;
+
+  bool load(const QString& fileName) override;
 
   QVariant localizedValue(const QString& key, const QVariant& defaultValue = QVariant()) const
   {
@@ -70,6 +72,8 @@ public:
   QString id() const;
 
 private:
+  QByteArray gettextDomain_;
+
   QString localizedKey(const LinuxLocale& locale, const QString& key) const;
   static QIcon iconFallback();
 };

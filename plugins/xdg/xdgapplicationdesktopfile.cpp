@@ -34,8 +34,20 @@ XdgApplicationDesktopFile::XdgApplicationDesktopFile()
 
 XdgApplicationDesktopFile::XdgApplicationDesktopFile(
   const XdgDesktopFile& other)
-: XdgDesktopFile(other)
+: XdgDesktopFile(other), gettextDomain_(
+  other.value("X-Ubuntu-Gettext-Domain").toString().toUtf8()
+)
 { }
+
+bool XdgApplicationDesktopFile::load(const QString& fileName)
+{
+  bool result = XdgDesktopFile::load(fileName);
+
+  gettextDomain_ = value("X-Ubuntu-Gettext-Domain").toString().toUtf8();
+  ::bind_textdomain_codeset(gettextDomain_.data(), "UTF-8");
+
+  return result;
+}
 
 QString XdgApplicationDesktopFile::robustName() const
 {
@@ -74,25 +86,19 @@ QIcon XdgApplicationDesktopFile::iconFallback()
 QVariant XdgApplicationDesktopFile::localizedValue(const LinuxLocale& locale,
   const QString& key, const QVariant& defaultValue) const
 {
-  QString lKey = localizedKey(locale, key);
-
-  if (!lKey.isEmpty())
-    return value(lKey);
-
   QVariant v = value(key);
-  if (v.type() != QVariant::String)
-    return v;
 
   // Ubuntu extention
-  QVariant domain = value("X-Ubuntu-Gettext-Domain");
-  if (!domain.isNull())
+  if (!gettextDomain_.isEmpty() && v.type() == QVariant::String)
   {
-    auto domainUtf8 = domain.toString().toUtf8();
-    ::bind_textdomain_codeset(domainUtf8.data(), "UTF-8");
     return QString::fromUtf8(
-      ::dgettext(domainUtf8.data(), v.toString().toUtf8().data())
+      ::dgettext(gettextDomain_.data(), v.toString().toUtf8().data())
     );
   }
+
+  QString lKey = localizedKey(locale, key);
+  if (!lKey.isEmpty())
+    return value(lKey);
 
   return v;
 }
