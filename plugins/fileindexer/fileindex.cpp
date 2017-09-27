@@ -89,7 +89,7 @@ std::vector<std::shared_ptr<Match>> FileIndex::search(
     matches.emplace_back(std::make_shared<LocalFileMatch>(
       sqlquery.value(0).toString(),
       icon_provider,
-      1.0
+      MatchScore::Good
     ));
   }
 

@@ -43,7 +43,7 @@ float Deskhare::SimilarityEvaluator::eval(
   int index = matched.indexOf(querystr, 0, Qt::CaseInsensitive);
   if (index != -1)
   {
-    return std::max(std::exp(-index / 50.f), 0.8f);
+    return std::max(std::exp(-index / 100.f), 0.8f);
   }
   else if (matched[0].toLower() == querystr[0].toLower())
   {

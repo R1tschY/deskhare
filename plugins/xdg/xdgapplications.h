@@ -42,7 +42,7 @@ private:
 
     QString title;
     QString genericName;
-    QString description;
+    QString keywords;
     QString appname;
     XdgApplicationDesktopFile desktopFile;
     float score = 0;

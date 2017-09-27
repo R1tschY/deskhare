@@ -23,6 +23,7 @@
 #include <cpp-utils/algorithm/container.h>
 #include <xdgdesktopfile.h>
 #include <QFileInfo>
+#include <QDebug>
 #include <QRegularExpression>
 #include <libdeskhare/query.h>
 #include <libdeskhare/resultset.h>
@@ -56,7 +57,7 @@ void XdgApplications::search(const Query& query, ResultSet& results)
     {
       score = entry.score;
     }
-    else if (regex.match(entry.description).hasMatch())
+    else if (regex.match(entry.keywords).hasMatch())
     {
       score = entry.score - MatchScore::IncrementMedium;
     }
@@ -103,14 +104,14 @@ XdgApplications::IndexEntry::IndexEntry(
   genericName = desktopFile.localizedValue(
     QStringLiteral("GenericName")).toString();
 
-  description = desktopFile.localizedValue(
-    QStringLiteral("Comment")).toString();
+  keywords = desktopFile.localizedValue(
+    QStringLiteral("Keywords")).toString();
 
-  if (desktopFile.value(QStringLiteral("NoDisplay")).toBool())
+  if (!desktopFile.isSuitable(false))
   {
     score = MatchScore::Poor;
   }
-  else if (!desktopFile.isSuitable(false))
+  else if (desktopFile.value(QStringLiteral("NoDisplay")).toBool())
   {
     score = MatchScore::Average;
   }
