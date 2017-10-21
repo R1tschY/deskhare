@@ -30,11 +30,6 @@ add_definitions(
  -DQT_DISABLE_DEPRECATED_BEFORE=0x050500
  -DQT_USE_QSTRINGBUILDER)
 
-# Find includes in corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
-
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Sql REQUIRED)

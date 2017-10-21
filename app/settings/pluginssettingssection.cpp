@@ -24,9 +24,27 @@
 #include <QHBoxLayout>
 #include <QListView>
 #include <QDebug>
+#include <QGridLayout>
+#include <QLabel>
 #include <cpp-utils/algorithm/between.h>
 
+#include "../widgets/gridlayoututils.h"
+
 namespace Deskhare {
+
+class PluginsSettingsModel : public QAbstractListModel
+{
+public:
+  PluginsSettingsModel(const PluginManager* plugin_manager, QObject* parent);
+
+  int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+  QVariant data(const QModelIndex &index, int role) const override;
+  Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+private:
+  const PluginManager* plugin_manager_;
+};
 
 PluginsSettingsModel::PluginsSettingsModel(
   const PluginManager* plugin_manager,
@@ -73,18 +91,50 @@ Qt::ItemFlags PluginsSettingsModel::flags(const QModelIndex& index) const
 PluginsSettingsSection::PluginsSettingsSection(
   const PluginManager* plugin_manager
 )
-: SettingsSection(tr("Plugins"), QIcon())
+: SettingsSection(tr("Plugins"), QIcon(":/deskhare/app/puzzle-piece")),
+  plugin_manager_(plugin_manager)
 {
   auto* layout = new QHBoxLayout();
 
   view_ = new QListView();
-  layout->addWidget(view_);
-
   model_ = new PluginsSettingsModel(plugin_manager, this);
   view_->setModel(model_);
 
+  auto* dummy = new QWidget(this);
+  auto* gridLayout = new QGridLayout(this);
+  dummy->setLayout(gridLayout);
+  gridLayout->setColumnMinimumWidth(0, 50);
+  gridLayout->setColumnMinimumWidth(1, 100);
+
+  gridLayout->addWidget(new QLabel(tr("Name:")), 0, 0);
+  name_label_ = new QLabel("-");
+  gridLayout->addWidget(name_label_, 0, 1);
+
+  gridLayout->addWidget(new QLabel(tr("Id:")), 1, 0);
+  id_label_ = new QLabel("-");
+  gridLayout->addWidget(id_label_, 1, 1);
+
+  // last spacer row
+  GridLayoutUtils::addFillerRow(gridLayout);
+
+  connect(
+    view_, &QAbstractItemView::clicked,
+    this, &PluginsSettingsSection::activated);
+
+  layout->addWidget(view_, 1);
+  layout->addWidget(dummy, 2);
   setLayout(layout);
 }
 
+void PluginsSettingsSection::activated(const QModelIndex& index)
+{
+  int row = index.row();
+  auto& plugins = plugin_manager_->getTopLevelPlugins();
+  QJsonObject metaData = plugins[row].loader->metaData();
+  QJsonObject pluginMeta = metaData.value(QLatin1String("MetaData")).toObject();
+
+  name_label_->setText(pluginMeta.value("name").toString(tr("<Unknown>")));
+  id_label_->setText(pluginMeta.value("id").toString(tr("-")));
+}
 
 } // namespace Deskhare

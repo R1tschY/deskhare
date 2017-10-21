@@ -41,6 +41,7 @@
 
 #include "searchedit.h"
 #include "settings/settingswindow.h"
+#include "listitemdelegate.h"
 #include <libdeskhare/match.h>
 #include <libdeskhare/action.h>
 #include <libdeskhare/queryresultmodel.h>
@@ -106,14 +107,18 @@ SearchWindow::SearchWindow(QWidget *parent)
     debounce_timer_, &QTimer::timeout,
     this, &SearchWindow::onStartSearch);
 
+  item_delegate_ = new ListItemDelegate(this);
+
   model_ = controller_.getQueryResultModel();
   list_ = new QListView();
   list_->setModel(model_);
+  list_->setItemDelegate(item_delegate_);
   configureResultList(list_);
 
   actions_model_ = controller_.getActionQueryResultModel();
   actions_list_ = new QListView();
   actions_list_->setModel(actions_model_);
+  actions_list_->setItemDelegate(item_delegate_);
   configureResultList(actions_list_);
 
   // window frame
@@ -176,7 +181,7 @@ SearchWindow::SearchWindow(QWidget *parent)
   contentLayout->setMargin(0);
   frame->setLayout(contentLayout);
 
-  setStyleSheet(""
+  setStyleSheet(
     "#frame {"
     "  background-color: #ccc; "
     "  border-radius: 10px;"

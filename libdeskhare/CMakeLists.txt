@@ -1,22 +1,14 @@
-# Sources
-file(GLOB deskhare_SOURCES 
-    "*.cpp"
-    "filesystem/*.cpp"
-    "indexes/*.cpp"
-    "shell/*.cpp"
-    "utils/*.cpp"
-    "actions/*.cpp"
-    "history/*.cpp"
-    "matches/*.cpp"
-    "evaluation/*.cpp"
-)
-    
-if(WIN32)
-  #file(GLOB_RECURSE deskhare_PFSOURCES "platforms/windows/*.cpp")
-else()
-  file(GLOB_RECURSE deskhare_PFSOURCES "platforms/linux/*.cpp")
-endif()
 
+# Qt
+
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
+
+# Sources
+file(GLOB_RECURSE deskhare_SOURCES "*.cpp")
+    
 # Target
 add_library(deskhare SHARED ${deskhare_SOURCES} ${deskhare_PFSOURCES})
 target_include_directories(deskhare PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")

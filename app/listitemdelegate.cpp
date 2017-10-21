@@ -16,37 +16,25 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#pragma once
+#include <listitemdelegate.h>
 
-#include "settingswindow.h"
-
-#include <QAbstractListModel>
-
-#include <libdeskhare/pluginmanager.h>
-
-
-class QListView;
-class QLabel;
+#include <QStyleOptionViewItem>
 
 namespace Deskhare {
 
-class PluginsSettingsModel;
-
-/// \brief
-class PluginsSettingsSection: public SettingsSection
+void ListItemDelegate::paint(QPainter* painter,
+  const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-public:
-  PluginsSettingsSection(const PluginManager* plugin_manager);
+  return QStyledItemDelegate::paint(painter, option, index);
+}
 
-private:
-  QListView* view_;
-  PluginsSettingsModel* model_;
-  const PluginManager* plugin_manager_;
-
-  QLabel* name_label_;
-  QLabel* id_label_;
-
-  void activated(const QModelIndex& index);
-};
+QSize ListItemDelegate::sizeHint(const QStyleOptionViewItem& option,
+  const QModelIndex& index) const
+{
+  auto result = QStyledItemDelegate::sizeHint(option, index);
+  result.setHeight(50); // TODO: DPI?
+  return result;
+}
 
 } // namespace Deskhare
+

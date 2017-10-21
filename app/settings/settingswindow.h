@@ -78,7 +78,7 @@ private:
   SettingsSectionsModel* sections_model_;
   QStackedWidget* settings_stack_;
 
-  void selectSection(const QModelIndex& index);
+  void selectSection(const QModelIndex& index, const QModelIndex& old);
 };
 
 } // namespace Deskhare

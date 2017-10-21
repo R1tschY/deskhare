@@ -18,35 +18,28 @@
 
 #pragma once
 
-#include "settingswindow.h"
-
-#include <QAbstractListModel>
-
-#include <libdeskhare/pluginmanager.h>
-
-
-class QListView;
-class QLabel;
+#include <qstyleditemdelegate.h>
 
 namespace Deskhare {
 
-class PluginsSettingsModel;
-
 /// \brief
-class PluginsSettingsSection: public SettingsSection
+class ListItemDelegate: public QStyledItemDelegate
 {
 public:
-  PluginsSettingsSection(const PluginManager* plugin_manager);
+  using QStyledItemDelegate::QStyledItemDelegate;
+
+  void paint(
+    QPainter *painter,
+    const QStyleOptionViewItem &option,
+    const QModelIndex &index
+  ) const override;
+
+  QSize sizeHint(
+    const QStyleOptionViewItem &option,
+    const QModelIndex &index
+  ) const override;
 
 private:
-  QListView* view_;
-  PluginsSettingsModel* model_;
-  const PluginManager* plugin_manager_;
-
-  QLabel* name_label_;
-  QLabel* id_label_;
-
-  void activated(const QModelIndex& index);
 };
 
 } // namespace Deskhare

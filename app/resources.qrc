@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/deskhare/app">
+        <file alias="browser">res/browser.svg</file>
+        <file alias="cog">res/cog.svg</file>
+        <file alias="puzzle-piece">res/puzzle-piece.svg</file>
+    </qresource>   
+</RCC>

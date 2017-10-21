@@ -21,11 +21,13 @@
 #include <QListView>
 #include <QStackedWidget>
 #include <QHBoxLayout>
+#include <QProxyStyle>
 #include <cpp-utils/algorithm/between.h>
 #include <cpp-utils/to.h>
 #include <libdeskhare/controller.h>
 
 #include "pluginssettingssection.h"
+#include "appsettings.h"
 
 namespace Deskhare {
 
@@ -78,24 +80,42 @@ void SettingsSectionsModel::append(SettingsSection* section)
 SettingsWindow::SettingsWindow(Controller* controller)
 {
   auto* layout = new QHBoxLayout();
+  layout->setMargin(0);
+  layout->setSpacing(1);
 
   sections_view_ = new QListView();
-  layout->addWidget(sections_view_);
-  connect(
-    sections_view_, &QListView::activated,
-    this, &SettingsWindow::selectSection
-  );
+  sections_view_->setFrameStyle(QFrame::NoFrame);
+  sections_view_->setIconSize(QSize(16, 16));
+  sections_view_->setSelectionMode(QAbstractItemView::SingleSelection);
+  sections_view_->setSelectionBehavior(QAbstractItemView::SelectRows);
+  sections_view_->setStyleSheet(QLatin1String(
+    "QListView::item {"
+    "  padding: 10px;"
+    "  font-size: 12pt;"
+    "}"
+  ));
+  layout->addWidget(sections_view_, 1);
 
   settings_stack_ = new QStackedWidget();
-  layout->addWidget(settings_stack_);
+  layout->addWidget(settings_stack_, 3);
 
   sections_model_ = new SettingsSectionsModel(this);
+  addSettingsSection(new AppSettings());
   addSettingsSection(new PluginsSettingsSection(
     controller->getPluginManager()
   ));
   sections_view_->setModel(sections_model_);
 
+  auto* selectionModel = new QItemSelectionModel(sections_model_);
+  sections_view_->setSelectionModel(selectionModel);
+  connect(
+    selectionModel, &QItemSelectionModel::currentChanged,
+    this, &SettingsWindow::selectSection
+  );
+  sections_view_->setCurrentIndex(sections_model_->index(0));
+
   setLayout(layout);
+  resize(600, 400);
 }
 
 void SettingsWindow::addSettingsSection(SettingsSection* section)
@@ -104,7 +124,8 @@ void SettingsWindow::addSettingsSection(SettingsSection* section)
   settings_stack_->addWidget(section);
 }
 
-void SettingsWindow::selectSection(const QModelIndex& index)
+void SettingsWindow::selectSection(
+  const QModelIndex& index, const QModelIndex& old)
 {
   if (index.isValid())
     settings_stack_->setCurrentIndex(index.row());

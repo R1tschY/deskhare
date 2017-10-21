@@ -20,33 +20,23 @@
 
 #include "settingswindow.h"
 
-#include <QAbstractListModel>
-
-#include <libdeskhare/pluginmanager.h>
-
-
-class QListView;
-class QLabel;
+class QGridLayout;
+class QString;
+class QFont;
+class QWidget;
 
 namespace Deskhare {
 
-class PluginsSettingsModel;
-
 /// \brief
-class PluginsSettingsSection: public SettingsSection
+class AppSettings: public SettingsSection
 {
 public:
-  PluginsSettingsSection(const PluginManager* plugin_manager);
+  AppSettings();
 
 private:
-  QListView* view_;
-  PluginsSettingsModel* model_;
-  const PluginManager* plugin_manager_;
-
-  QLabel* name_label_;
-  QLabel* id_label_;
-
-  void activated(const QModelIndex& index);
+  void addGroupHeader(
+    QGridLayout* layout, const QString& name, const QFont& font);
+  void addRow(QGridLayout* layout, const QString& name, QWidget* widget);
 };
 
 } // namespace Deskhare

@@ -16,37 +16,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#pragma once
+#include "gridlayoututils.h"
 
-#include "settingswindow.h"
-
-#include <QAbstractListModel>
-
-#include <libdeskhare/pluginmanager.h>
-
-
-class QListView;
-class QLabel;
+#include <QGridLayout>
+#include <QSpacerItem>
 
 namespace Deskhare {
+namespace GridLayoutUtils {
 
-class PluginsSettingsModel;
-
-/// \brief
-class PluginsSettingsSection: public SettingsSection
+void addFillerRow(QGridLayout* grid_layout)
 {
-public:
-  PluginsSettingsSection(const PluginManager* plugin_manager);
+  int lastRow = grid_layout->rowCount();
+  grid_layout->addItem(
+    new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Ignored),
+    lastRow, 0, 2, 1);
+  grid_layout->setRowStretch(lastRow, 1);
+}
 
-private:
-  QListView* view_;
-  PluginsSettingsModel* model_;
-  const PluginManager* plugin_manager_;
-
-  QLabel* name_label_;
-  QLabel* id_label_;
-
-  void activated(const QModelIndex& index);
-};
-
-} // namespace Deskhare
+}} // namespace Deskhare::GridLayoutUtils

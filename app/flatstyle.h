@@ -18,35 +18,16 @@
 
 #pragma once
 
-#include "settingswindow.h"
-
-#include <QAbstractListModel>
-
-#include <libdeskhare/pluginmanager.h>
-
-
-class QListView;
-class QLabel;
+#include <qproxystyle.h>
 
 namespace Deskhare {
 
-class PluginsSettingsModel;
-
 /// \brief
-class PluginsSettingsSection: public SettingsSection
+class FlatStyle : public QProxyStyle
 {
 public:
-  PluginsSettingsSection(const PluginManager* plugin_manager);
-
-private:
-  QListView* view_;
-  PluginsSettingsModel* model_;
-  const PluginManager* plugin_manager_;
-
-  QLabel* name_label_;
-  QLabel* id_label_;
-
-  void activated(const QModelIndex& index);
+  void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
+    QPainter *painter, const QWidget *widget) const override;
 };
 
 } // namespace Deskhare

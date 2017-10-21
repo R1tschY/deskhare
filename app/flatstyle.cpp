@@ -16,37 +16,19 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#pragma once
-
-#include "settingswindow.h"
-
-#include <QAbstractListModel>
-
-#include <libdeskhare/pluginmanager.h>
-
-
-class QListView;
-class QLabel;
+#include "flatstyle.h"
 
 namespace Deskhare {
 
-class PluginsSettingsModel;
-
-/// \brief
-class PluginsSettingsSection: public SettingsSection
+void FlatStyle::drawPrimitive(PrimitiveElement element,
+  const QStyleOption* option, QPainter* painter, const QWidget* widget) const
 {
-public:
-  PluginsSettingsSection(const PluginManager* plugin_manager);
+  /* do not draw focus rectangles - this permits modern styling */
+  if (element == QStyle::PE_FrameFocusRect)
+    return;
 
-private:
-  QListView* view_;
-  PluginsSettingsModel* model_;
-  const PluginManager* plugin_manager_;
-
-  QLabel* name_label_;
-  QLabel* id_label_;
-
-  void activated(const QModelIndex& index);
-};
+  QProxyStyle::drawPrimitive(element, option, painter, widget);
+}
 
 } // namespace Deskhare
+

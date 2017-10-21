@@ -31,6 +31,7 @@ class QxtGlobalShortcut;
 class QModelIndex;
 class QStackedWidget;
 class QTimer;
+class QStyledItemDelegate;
 
 namespace Deskhare {
 
@@ -68,6 +69,7 @@ private:
   QLineEdit* edit_;
   QListView* list_;
   QListView* actions_list_;
+  QStyledItemDelegate* item_delegate_;
   QStackedWidget* result_lists_;
   QueryResultModel* model_;
   QueryResultModel* actions_model_;

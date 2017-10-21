@@ -19,8 +19,10 @@
 #include <QApplication>
 #include <QDebug>
 
-#include "searchwindow.h"
 #include <libdeskhare/utils/sharedlock.h>
+
+#include "searchwindow.h"
+#include "flatstyle.h"
 
 namespace Deskhare {
 
@@ -73,13 +75,12 @@ int main(int argc, char *argv[])
 
   QApplication a(argc, argv);
 
+  a.setStyle(new FlatStyle());
+
   //QIcon::setThemeName("gnome");
 //  auto paths = QIcon::themeSearchPaths();
 //  paths.append("$HOME/.icons");
 //  QIcon::setThemeSearchPaths(paths);
-
-  qDebug() << "Icon theme: " << QIcon::themeName();
-  qDebug() << "Icon theme search paths: " << QIcon::themeSearchPaths();
 
   Deskhare::SearchWindow w;
   w.show();

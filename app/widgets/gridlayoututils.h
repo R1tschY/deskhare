@@ -18,35 +18,11 @@
 
 #pragma once
 
-#include "settingswindow.h"
-
-#include <QAbstractListModel>
-
-#include <libdeskhare/pluginmanager.h>
-
-
-class QListView;
-class QLabel;
+class QGridLayout;
 
 namespace Deskhare {
+namespace GridLayoutUtils {
 
-class PluginsSettingsModel;
+void addFillerRow(QGridLayout* grid_layout);
 
-/// \brief
-class PluginsSettingsSection: public SettingsSection
-{
-public:
-  PluginsSettingsSection(const PluginManager* plugin_manager);
-
-private:
-  QListView* view_;
-  PluginsSettingsModel* model_;
-  const PluginManager* plugin_manager_;
-
-  QLabel* name_label_;
-  QLabel* id_label_;
-
-  void activated(const QModelIndex& index);
-};
-
-} // namespace Deskhare
+}} // namespace Deskhare::GridLayoutUtils
