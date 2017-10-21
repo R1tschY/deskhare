@@ -20,31 +20,19 @@
 
 #include <memory>
 #include <libdeskhare/shell/fileiconproviderplugin.h>
-#include <libdeskhare/sourceplugin.h>
+#include <libdeskhare/plugin.h>
 
 namespace Deskhare {
 
 /// \brief
-class XdgPlugin :
-  public QObject,
-  public SourcePlugin,
-  public FileIconProviderPlugin
+class XdgPlugin : public QObject, public Plugin
 {
   Q_OBJECT
-  Q_PLUGIN_METADATA(IID DeskhareSource_iid)
-  Q_INTERFACES(Deskhare::SourcePlugin Deskhare::FileIconProviderPlugin)
+  Q_PLUGIN_METADATA(IID DeskharePlugin_iid)
+  Q_INTERFACES(Deskhare::Plugin)
 public:
-  XdgPlugin();
-
-  // SourcePlugin
-  std::unique_ptr<Source> getSource(const PluginContext& ctx) override;
-  QString getSourceDescription() override;
-
-  float getFileIconProviderPriorityIndex() override;
-  std::unique_ptr<QFileIconProvider> getFileIconProvider() override;
-  QString getFileIconProviderDescription() const override;
-
-private:
+  void initialize(const PluginContext& ctx) override;
+  QString getDescription() override;
 };
 
 } // namespace Deskhare

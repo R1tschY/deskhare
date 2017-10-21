@@ -54,6 +54,20 @@ void SystemCommandsSource::search(const Query& query,
   results.sendMatches(matches);
 }
 
+QString SystemCommandsSource::getDescription() const
+{
+  return QString(
+    "System commands.\n"
+    "\n"
+    "Execute commands to the system and the user session such as:\n"
+    "\n"
+    " * Shutdown\n"
+    " * Reboot\n"
+    " * Suspend\n"
+    " * Hibernate\n"
+    " * Logout\n"
+    " * Lock\n"
+  );
+}
+
 } // namespace Deskhare
-
-

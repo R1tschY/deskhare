@@ -33,6 +33,7 @@ public:
 private:
   bool canHandleQuery(const Query& query) override;
   void search(const Query& query, ResultSet& results) override;
+  QString getDescription() const override;
 
   void index();
 

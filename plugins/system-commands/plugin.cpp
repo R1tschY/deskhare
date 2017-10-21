@@ -30,23 +30,25 @@
 #include <libdeskhare/query.h>
 #include <libdeskhare/source.h>
 #include <libdeskhare/resultset.h>
+#include <libdeskhare/registry.h>
 
 #include "plugin.h"
 #include "systemcommandssource.h"
 
 namespace Deskhare {
 
-std::unique_ptr<Source> SystemCommandsPlugin::getSource(const PluginContext& ctx)
+void SystemCommandsPlugin::initialize(const PluginContext& ctx)
 {
-  return std::make_unique<SystemCommandsSource>(ctx);
+  auto& registry = ctx.getRegistry();
+  registry.registerSource(std::make_shared<SystemCommandsSource>(ctx));
 }
 
-QString SystemCommandsPlugin::getSourceDescription()
+QString SystemCommandsPlugin::getDescription()
 {
   return QString(
     "System commands plugin.\n"
     "\n"
-    "Execute commands to the system and the user session as:\n"
+    "Execute commands to the system and the user session such as:\n"
     "\n"
     " * Shutdown\n"
     " * Reboot\n"

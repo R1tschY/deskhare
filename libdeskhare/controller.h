@@ -26,6 +26,7 @@
 #include "query.h"
 #include "signals.h"
 #include "history/historyservice.h"
+#include "sourceregistry.h"
 
 class QString;
 class QAbstractListModel;
@@ -58,8 +59,7 @@ public slots:
   void searchAction(const Match& match, const QString& query);
 
 private:
-  std::vector<std::unique_ptr<Source>> sources_;
-  std::vector<std::unique_ptr<Source>> action_sources_;
+  SourceRegistry sources_;
   FileIconProvider file_icon_provider_;
   std::shared_ptr<HistoryService> history_service_;
   EvaluationServiceRegistry evaluation_service_registry_;

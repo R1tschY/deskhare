@@ -30,10 +30,41 @@
 
 namespace Deskhare {
 
+namespace {
+
+class SourceSearcher
+{
+public:
+  using result_type = int;
+
+  SourceSearcher(
+    const std::shared_ptr<const Query>& query,
+    const std::shared_ptr<ResultSet>& results
+  )
+  : query_(query), results_(results)
+  { }
+
+  int operator()(std::shared_ptr<Source> source)
+  {
+    if (source->canHandleQuery(*query_))
+    {
+      source->search(*query_, *results_);
+    }
+
+    return 0;
+  }
+
+private:
+  std::shared_ptr<ResultSet> results_;
+  std::shared_ptr<const Query> query_;
+};
+
+} // namespace
+
 QueryResultModel::QueryResultModel(QObject* parent)
 : QAbstractListModel(parent)
 {
-  future_watcher_ = new QFutureWatcher<Source*>(this);
+  future_watcher_ = new QFutureWatcher<int>(this);
 
   connect(
     future_watcher_, &QFutureWatcher<Source*>::finished,
@@ -122,17 +153,30 @@ Match* QueryResultModel::getMatch(std::size_t row)
   return entries_[row].get();
 }
 
-void QueryResultModel::setSources(const QVector<Source*>& sources)
+void QueryResultModel::setSources(
+  const QVector<std::shared_ptr<Source>>& sources)
 {
   sources_ = sources;
 }
 
 void QueryResultModel::setQuery(
-  const std::shared_ptr<ResultSet>& result_set,
-  const QFuture<Source*>& future
-)
+  const std::shared_ptr<Query>& query,
+  const std::shared_ptr<ResultSet>& result_set)
 {
   clear();
+
+  QVector<std::shared_ptr<Source>> sourcesptrs;
+  for (auto& source : sources_)
+  {
+    if (source->canHandleQuery(*query))
+    {
+      sourcesptrs.push_back(source);
+    }
+  }
+
+  // TODO: really use threads everytime?
+  QFuture<int> future =
+    QtConcurrent::mapped(sourcesptrs, SourceSearcher(query, result_set));
 
   query_results_ = result_set;
   future_watcher_->setFuture(future);

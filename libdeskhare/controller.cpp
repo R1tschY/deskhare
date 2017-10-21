@@ -28,8 +28,6 @@
 
 #include "actions/runaction.h"
 #include "query.h"
-#include "sourceplugin.h"
-#include "actionsourceplugin.h"
 #include "evaluation/evaluationservice.h"
 #include "evaluation/similarityevaluator.h"
 #include "source.h"
@@ -44,38 +42,6 @@ namespace Deskhare {
 
 static Q_LOGGING_CATEGORY(logger, "deskhare.controller")
 
-namespace {
-
-class SourceSearcher
-{
-public:
-  using result_type = Source*;
-
-  SourceSearcher(
-    const std::shared_ptr<const Query>& query,
-    const std::shared_ptr<ResultSet>& results
-  )
-  : query_(query), results_(results)
-  { }
-
-  Source* operator()(Source* source)
-  {
-    if (source->canHandleQuery(*query_))
-    {
-      source->search(*query_, *results_);
-    }
-
-    return source;
-  }
-
-private:
-  std::shared_ptr<ResultSet> results_;
-  std::shared_ptr<const Query> query_;
-};
-
-} // namespace
-
-
 Controller::Controller(QObject* parent)
 : QObject(parent), history_service_(std::make_shared<HistoryService>())
 {
@@ -83,39 +49,17 @@ Controller::Controller(QObject* parent)
   evaluation_service_registry_.registerEvaluator(
     std::make_shared<SimilarityEvaluator>());
 
-  PluginContext plugincontext(&file_icon_provider_, &signals_);
+  PluginContext plugincontext(&file_icon_provider_, &signals_, &sources_);
   plugin_manager_ = new PluginManager(plugincontext, this);
 
-  file_icon_provider_.updateFromPlugins(
-    plugin_manager_->getPlugins<FileIconProviderPlugin>());
+  file_icon_provider_.setPlugin(sources_.getBestFileIconProvider());
 
-  auto& ctx = plugin_manager_->getContext();
-  for (auto* source : plugin_manager_->getPlugins<SourcePlugin>())
-  {
-    sources_.push_back(source->getSource(ctx));
-    qCInfo(logger).noquote() << "got source:"
-      << getTitleFromDescription(source->getSourceDescription());
-  }
-  QVector<Source*> sourcesptrs;
-  for (auto& source : sources_)
-  {
-    sourcesptrs.push_back(source.get());
-  }
   result_model_ = new QueryResultModel(this);
-  result_model_->setSources(sourcesptrs);
+  result_model_->setSources(sources_.getSources());
+  qCDebug(logger) << sources_.getSources().length();
 
-
-  for (auto* source : plugin_manager_->getPlugins<ActionSourcePlugin>())
-  {
-    action_sources_.push_back(source->getActionSource(ctx));
-  }
-  QVector<Source*> actionsourcesptrs;
-  for (auto& source : action_sources_)
-  {
-    actionsourcesptrs.push_back(source.get());
-  }
   actions_model_ = new QueryResultModel(this);
-  actions_model_->setSources(actionsourcesptrs);
+  actions_model_->setSources(sources_.getActionSources());
 }
 
 Controller::~Controller() = default;
@@ -128,18 +72,7 @@ void Controller::search(Query::Category category, const QString& query_string)
     evaluation_service_registry_.getEvaluationService()
   );
 
-  QVector<Source*> sourcesptrs;
-  for (auto& source : sources_)
-  {
-    if (source->canHandleQuery(*query))
-    {
-      sourcesptrs.push_back(source.get());
-    }
-  }
-  auto future =
-    QtConcurrent::mapped(sourcesptrs, SourceSearcher(query, query_results));
-
-  result_model_->setQuery(query_results, future);
+  result_model_->setQuery(query, query_results);
   signals_.emitSearch(*query);
 }
 
@@ -151,19 +84,7 @@ void Controller::searchAction(const Match& match, const QString& query_string)
     evaluation_service_registry_.getEvaluationService()
   );
 
-  QVector<Source*> sourcesptrs;
-  for (auto& source : action_sources_)
-  {
-    if (source->canHandleQuery(*query))
-    {
-      sourcesptrs.push_back(source.get());
-    }
-  }
-  // TODO: really use threads?
-  auto future =
-    QtConcurrent::mapped(sourcesptrs, SourceSearcher(query, query_results));
-
-  actions_model_->setQuery(query_results, future);
+  actions_model_->setQuery(query, query_results);
   signals_.emitSearchAction(*query);
 }
 

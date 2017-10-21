@@ -20,21 +20,21 @@
 
 #include <QObject>
 
-#include <libdeskhare/sourceplugin.h>
+#include <libdeskhare/plugin.h>
 
 namespace Deskhare {
 
 class FileIndexerPlugin:
   public QObject,
-  public SourcePlugin
+  public Plugin
 {
   Q_OBJECT
-  Q_PLUGIN_METADATA(IID DeskhareSource_iid FILE "metadata.json")
-  Q_INTERFACES(Deskhare::SourcePlugin)
+  Q_PLUGIN_METADATA(IID DeskharePlugin_iid FILE "metadata.json")
+  Q_INTERFACES(Deskhare::Plugin)
 
 public:
-  std::unique_ptr<Source> getSource(const PluginContext& ctx) override;
-  QString getSourceDescription() override;
+  void initialize(const PluginContext& ctx) override;
+  QString getDescription() override;
 };
 
 } // namespace Deskhare

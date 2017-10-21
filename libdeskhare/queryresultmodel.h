@@ -52,13 +52,13 @@ public:
   QueryResultModel(QObject* parent = 0);
   ~QueryResultModel();
 
-  void setSources(const QVector<Source*>& sources);
+  void setSources(const QVector<std::shared_ptr<Source>>& sources);
 
   Match* getMatch(std::size_t row);
 
   void setQuery(
-    const std::shared_ptr<ResultSet>& result_set,
-    const QFuture<Source*>& future);
+    const std::shared_ptr<Query>& query,
+    const std::shared_ptr<ResultSet>& result_set);
 
   void clear();
 
@@ -66,8 +66,8 @@ private:
   using Matches = std::vector<std::shared_ptr<Match>>;
 
   Matches entries_;
-  QFutureWatcher<Source*>* future_watcher_;
-  QVector<Source*> sources_;
+  QFutureWatcher<int>* future_watcher_;
+  QVector<std::shared_ptr<Source>> sources_;
 
   std::shared_ptr<ResultSet> query_results_;
   std::shared_ptr<const Query> query_;

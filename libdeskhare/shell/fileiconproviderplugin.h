@@ -46,7 +46,4 @@ public:
 
 } // namespace Deskhare
 
-#define DeskhareFileIconProvider_iid "deskhare.FileIconProvider"
-Q_DECLARE_INTERFACE(Deskhare::FileIconProviderPlugin, DeskhareFileIconProvider_iid)
-
 

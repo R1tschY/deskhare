@@ -38,7 +38,7 @@ public:
   void setProvider(std::unique_ptr<QFileIconProvider> provider);
   QFileIconProvider* getProvider() { return provider_.get(); }
 
-  void updateFromPlugins(const std::vector<FileIconProviderPlugin*>& plugins);
+  void setPlugin(const std::shared_ptr<FileIconProviderPlugin>& plugin);
 
 private:
   std::unique_ptr<QFileIconProvider> provider_;

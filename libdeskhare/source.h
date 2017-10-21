@@ -27,6 +27,8 @@
 #include "match.h"
 #include "plugincontext.h"
 
+class QString;
+
 namespace Deskhare {
 
 class Query;
@@ -42,6 +44,8 @@ public:
 
   virtual bool canHandleQuery(const Query& query) = 0;
   virtual void search(const Query& query, ResultSet& results) = 0;
+
+  virtual QString getDescription() const = 0;
 };
 
 } // namespace QuickStarter

@@ -24,6 +24,7 @@
 #include <QString>
 
 #include "plugincontext.h"
+#include "plugin.h"
 
 class QPluginLoader;
 
@@ -51,14 +52,17 @@ public:
   template<typename Plugin>
   std::vector<Plugin*> getPlugins();
 
-  const std::vector<Entry>& getTopLevelPlugins() const { return plugins_; }
+  const std::vector<Entry>& getTopLevelPlugins() const
+  { return plugin_loaders_; }
 
   std::vector<QString> getSearchPaths() const;
   const PluginContext& getContext() const { return ctx_; }
 
 private:
-  std::vector<Entry> plugins_;
   std::vector<QString> plugin_paths_;
+  std::vector<Entry> plugin_loaders_;
+  std::vector<Plugin*> plugins_;
+
   PluginContext ctx_;
 
   void loadPlugins();
@@ -69,9 +73,9 @@ template<typename Plugin>
 inline std::vector<Plugin*> PluginManager::getPlugins()
 {
   std::vector<Plugin*> result;
-  result.reserve(plugins_.size());
+  result.reserve(plugin_loaders_.size());
 
-  for (const Entry& plugin : plugins_)
+  for (const Entry& plugin : plugin_loaders_)
   {
     auto* source = qobject_cast<Plugin*>(plugin.instance);
     if (source)

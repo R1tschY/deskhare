@@ -18,20 +18,16 @@
 
 #pragma once
 
-#include <qfileiconprovider.h>
-#include <qmimedatabase.h>
-
-class QFileInfo;
+#include <libdeskhare/shell/fileiconproviderplugin.h>
 
 namespace Deskhare {
 
-class XdgFileIconProvider: public QFileIconProvider
+class XdgFileIconProviderPlugin : public FileIconProviderPlugin
 {
 public:
-  QIcon icon(const QFileInfo &info) const override;
-
-private:
-  QMimeDatabase mimeDb_;
+  float getFileIconProviderPriorityIndex() override;
+  std::unique_ptr<QFileIconProvider> getFileIconProvider() override;
+  QString getFileIconProviderDescription() const override;
 };
 
 } // namespace Deskhare

@@ -59,17 +59,14 @@ void FileIconProvider::setProvider(std::unique_ptr<QFileIconProvider> provider)
   }
 }
 
-void FileIconProvider::updateFromPlugins(
-  const std::vector<FileIconProviderPlugin*>& plugins)
+void FileIconProvider::setPlugin(
+  const std::shared_ptr<FileIconProviderPlugin>& plugin)
 {
-  auto iter = cpp::max_element_by(plugins,
-    lambda_(_->getFileIconProviderPriorityIndex()));
-
-  if (iter != plugins.end())
+  if (plugin)
   {
     qDebug() << "Setting file icon provider to"
-      << getTitleFromDescription((*iter)->getFileIconProviderDescription());
-    setProvider((*iter)->getFileIconProvider());
+      << getTitleFromDescription(plugin->getFileIconProviderDescription());
+    setProvider(plugin->getFileIconProvider());
   }
   else
   {

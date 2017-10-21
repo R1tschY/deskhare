@@ -18,10 +18,21 @@
 
 #include "xdgfileiconprovider.h"
 
+#include <qfileiconprovider.h>
+#include <qmimedatabase.h>
 #include <QFileInfo>
 #include <xdgthumbnails.h>
 
 namespace Deskhare {
+
+class XdgFileIconProvider: public QFileIconProvider
+{
+public:
+  QIcon icon(const QFileInfo &info) const override;
+
+private:
+  QMimeDatabase mimeDb_;
+};
 
 QIcon XdgFileIconProvider::icon(const QFileInfo& info) const
 {
@@ -46,6 +57,26 @@ QIcon XdgFileIconProvider::icon(const QFileInfo& info) const
   }
 
   return QFileIconProvider::icon(info);
+}
+
+
+float XdgFileIconProviderPlugin::getFileIconProviderPriorityIndex()
+{
+  return 10;
+}
+
+std::unique_ptr<QFileIconProvider>
+XdgFileIconProviderPlugin::getFileIconProvider()
+{
+  return std::make_unique<XdgFileIconProvider>();
+}
+
+QString XdgFileIconProviderPlugin::getFileIconProviderDescription() const
+{
+  return "Xdg file icon provider.\n"
+    "\n"
+    "Search for thumbnails and get file icon based on MIME information in "
+    "Freedesktop.org compatible systems.";
 }
 
 } // namespace Deskhare

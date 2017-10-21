@@ -71,6 +71,13 @@ void XdgApplications::search(const Query& query, ResultSet& results)
   results.sendMatches(matches);
 }
 
+QString XdgApplications::getDescription() const
+{
+  return QLatin1String("Xdg applications.\n"
+    "\n"
+    "Search for applications in Freedesktop.org compatible systems.");
+}
+
 void XdgApplications::index()
 {
   qCDebug(xdgLogger) << "start indexing ...";

@@ -27,14 +27,14 @@
 #include <QPluginLoader>
 #include <QStandardPaths>
 #include <vector>
+#include <tuple>
 
 #include "filesystem/diriterator.h"
-#include "sourceplugin.h"
 #include "shell/fileiconproviderplugin.h"
 
 namespace Deskhare {
 
-Q_LOGGING_CATEGORY(pluginManager, "deskhare.pluginmanager")
+static Q_LOGGING_CATEGORY(logger, "deskhare.pluginmanager")
 
 PluginManager::Entry::~Entry() = default;
 
@@ -67,27 +67,38 @@ void PluginManager::loadPlugin(const QString& filePath)
   if (!QLibrary::isLibrary(filePath))
   {
     if (filePath.length() > 3)
-      qCWarning(pluginManager) << "skipped non-plugin" << filePath;
+      qCWarning(logger) << "skipped non-plugin" << filePath;
     return;
   }
 
-  qCInfo(pluginManager) << "loading plugin" << filePath;
-  plugins_.emplace_back();
+  qCInfo(logger) << "loading plugin" << filePath;
+  plugin_loaders_.emplace_back();
 
-  auto& plugin = plugins_.back();
-  plugin.loader.reset(new QPluginLoader(filePath));
-  plugin.instance = plugin.loader->instance();
-  if (!plugin.instance)
+  auto& rawplugin = plugin_loaders_.back();
+  rawplugin.loader.reset(new QPluginLoader(filePath));
+  rawplugin.instance = rawplugin.loader->instance();
+  if (!rawplugin.instance)
   {
-    qCWarning(pluginManager)
+    qCWarning(logger)
           << "cannot load plugin"
           << filePath
           << ":"
-          << plugin.loader->errorString();
+          << rawplugin.loader->errorString();
     return;
   }
 
-  qCDebug(pluginManager) << "loaded plugin" << filePath;
+  auto* plugin = qobject_cast<Plugin*>(rawplugin.instance);
+  if (plugin)
+  {
+    plugin->initialize(ctx_);
+    plugins_.push_back(plugin);
+    qCDebug(logger) << "loaded plugin" << filePath;
+  }
+  else
+  {
+    plugin_loaders_.pop_back();
+    qCWarning(logger) << "non-plugin ignored:" << filePath;
+  }
 }
 
 void PluginManager::loadPlugins()
@@ -102,4 +113,3 @@ void PluginManager::loadPlugins()
 }
 
 } // namespace Deskhare
-

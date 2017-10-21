@@ -35,6 +35,7 @@
 #include <libdeskhare/query.h>
 #include <libdeskhare/source.h>
 #include <libdeskhare/resultset.h>
+#include <libdeskhare/registry.h>
 
 #include "fileindex.h"
 
@@ -50,6 +51,8 @@ public:
 
   bool canHandleQuery(const Query& query) override;
   void search(const Query& query, ResultSet& results) override;
+
+  QString getDescription() const override;
 
 private:
   std::unique_ptr<FileIndex> db_;
@@ -108,6 +111,15 @@ void FileIndexSource::search(const Query& query, ResultSet& results)
   results.sendMatches(matches);
 }
 
+QString FileIndexSource::getDescription() const
+{
+  return QString(
+    "File system source.\n"
+    "\n"
+    "Search files in folders."
+  );
+}
+
 void FileIndexSource::index()
 {
   qCInfo(fileIndexer) << "Indexing files ...";
@@ -144,17 +156,18 @@ void FileIndexSource::index()
 
 // FileIndexerPlugin
 
-std::unique_ptr<Source> FileIndexerPlugin::getSource(const PluginContext& ctx)
+void FileIndexerPlugin::initialize(const PluginContext& ctx)
 {
-  return std::make_unique<FileIndexSource>(ctx);
+  auto& registry = ctx.getRegistry();
+  registry.registerSource(std::make_shared<FileIndexSource>(ctx));
 }
 
-QString FileIndexerPlugin::getSourceDescription()
+QString FileIndexerPlugin::getDescription()
 {
   return QString(
     "File indexer plugin.\n"
     "\n"
-    "Index files in local folders."
+    "Index files in folders."
   );
 }
 

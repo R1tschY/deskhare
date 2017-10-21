@@ -1,5 +1,5 @@
 //
-  // deskhare - cross-platform quick launcher
+// deskhare
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,33 +16,28 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "xdgplugin.h"
+#pragma once
 
-#include <libdeskhare/registry.h>
+#include <QtPlugin>
 
-#include "xdgapplications.h"
-#include "xdginfocache.h"
-#include "xdgfileiconprovider.h"
+class QString;
 
 namespace Deskhare {
 
-void XdgPlugin::initialize(const PluginContext& ctx)
+class PluginContext;
+
+class Plugin
 {
-  // load cache
-  getInfoCache();
+public:
+  virtual ~Plugin() = default;
 
-  auto& registry = ctx.getRegistry();
-
-  registry.registerSource(
-    std::make_shared<XdgApplications>(ctx));
-
-  registry.registerFileIconProvider(
-    std::make_shared<XdgFileIconProviderPlugin>());
-}
-
-QString XdgPlugin::getDescription()
-{
-  return QLatin1String("integration for freedesktop compatible unix systems");
-}
+  virtual void initialize(const PluginContext& ctx) = 0;
+  virtual QString getDescription() = 0;
+};
 
 } // namespace Deskhare
+
+#define DeskharePlugin_iid "deskhare.Plugin"
+Q_DECLARE_INTERFACE(Deskhare::Plugin, DeskharePlugin_iid)
+
+
