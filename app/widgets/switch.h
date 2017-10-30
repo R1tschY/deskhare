@@ -20,8 +20,8 @@
 
 #include <QObject>
 #include <QAbstractButton>
-#include <QBrush>
-#include <QPropertyAnimation>
+
+class QPropertyAnimation;
 
 namespace Deskhare {
 namespace Widgets {
@@ -31,42 +31,30 @@ class Switch: public QAbstractButton
 {
   Q_OBJECT
   Q_PROPERTY(int offset READ offset WRITE setOffset)
-  Q_PROPERTY(QBrush brush READ brush WRITE setBrush)
 
 public:
   Switch(QWidget* parent = nullptr);
-  Switch(const QBrush& brush, QWidget* parent = nullptr);
 
   QSize sizeHint() const override;
 
-  QBrush brush() const
-  {
-    return _brush;
-  }
-  void setBrush(const QBrush &brsh)
-  {
-    _brush = brsh;
-  }
-
   int offset() const
   {
-    return _x;
+    return x_;
   }
   void setOffset(int o)
   {
-    _x = o;
+    x_ = o;
     update();
   }
 
 protected:
   void paintEvent(QPaintEvent*) override;
-  void mouseReleaseEvent(QMouseEvent*) override;
+
+  void nextCheckState() override;
+  void checkStateSet() override;
 
 private:
-  bool state_;
-  qreal opacity_;
-  int _x, y_, height_, margin_;
-  QBrush thumb_, _track, _brush;
+  int x_, height_, margin_;
   QPropertyAnimation *animation_ = nullptr;
 };
 

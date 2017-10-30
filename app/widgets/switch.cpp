@@ -20,101 +20,85 @@
 
 #include <QPainter>
 #include <QMouseEvent>
+#include <QDebug>
+#include <QPalette>
+#include <QPropertyAnimation>
 
 namespace Deskhare {
 namespace Widgets {
 
 Switch::Switch(QWidget *parent)
 : QAbstractButton(parent),
-  height_(16),
-  opacity_(0.000),
-  state_(false),
-  margin_(3),
-  thumb_("#d5d5d5"),
+  height_(22),
+  margin_(-2),
   animation_(new QPropertyAnimation(this, "offset", this))
 {
   setOffset(height_ / 2);
-  y_ = height_ / 2;
-  setBrush(QColor("#009688"));
+
   setCursor(Qt::PointingHandCursor);
   setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-}
-
-Switch::Switch(const QBrush &brush, QWidget *parent)
-  :
-    QAbstractButton(parent),
-    height_(16),
-    state_(false),
-    opacity_(0.000),
-    margin_(3),
-    thumb_(Qt::green), // "#d5d5d5"),
-    animation_(new QPropertyAnimation(this, "offset", this))
-{
-  setOffset(height_ / 2);
-  y_ = height_ / 2;
-  setBrush(brush);
+  setCheckable(true);
 }
 
 void Switch::paintEvent(QPaintEvent *e)
 {
+  bool state = isChecked();
+
+  auto& colors = palette();
+  auto back_cr = state ? QPalette::Highlight : QPalette::Dark;
+  auto thumb_cr = state ? QPalette::Light : QPalette::Light;
+  auto color_group = isEnabled() ? QPalette::Normal : QPalette::Disabled;
+
   QPainter p(this);
   p.setPen(Qt::NoPen);
-  if (isEnabled())
+  p.setRenderHint(QPainter::Antialiasing, true);
+
+  p.setBrush(colors.color(color_group, back_cr));
+  p.drawChord(
+    QRectF(0, 0, height_, height_),
+    90 * 16, 180 * 16);
+  p.drawChord(
+    QRectF(height_, 0, height_, height_),
+    -90 * 16, 180 * 16);
+  p.drawRect(
+    QRectF(height_ / 2, 0, height_, height_));
+
+  p.setBrush(colors.color(color_group, thumb_cr));
+  p.drawEllipse(
+    QRectF(
+      offset() - (height_ / 2) - margin_, -margin_,
+      height_ + 2 * margin_, height_ + 2 * margin_));
+}
+
+void Switch::nextCheckState()
+{
+  QAbstractButton::nextCheckState();
+  Switch::checkStateSet();
+}
+
+void Switch::checkStateSet()
+{
+  QAbstractButton::checkStateSet();
+
+  bool state = isChecked();
+  if (state)
   {
-    p.setBrush(state_ ? brush() : Qt::black);
-    p.setOpacity(state_ ? 0.5 : 0.38);
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.drawRoundedRect(
-      QRect(margin_, margin_, width() - 2 * margin_, height() - 2 * margin_),
-      8.0,
-      8.0);
-    p.setBrush(thumb_);
-    p.setOpacity(1.0);
-    p.drawEllipse(
-      QRectF(offset() - (height_ / 2), y_ - (height_ / 2), height(), height()));
+    animation_->setStartValue(offset());
+    animation_->setEndValue(height_ * 2 - height_ / 2);
   }
   else
   {
-    p.setBrush(Qt::black);
-    p.setOpacity(0.12);
-    p.drawRoundedRect(
-      QRect(margin_, margin_, width() - 2 * margin_, height() - 2 * margin_),
-      8.0,
-      8.0);
-    p.setOpacity(1.0);
-    p.setBrush(Qt::red);//QColor("#BDBDBD"));
-    p.drawEllipse(
-      QRectF(offset() - (height_ / 2), y_ - (height_ / 2), height(), height()));
+    animation_->setStartValue(offset());
+    animation_->setEndValue(height_ / 2);
   }
-}
 
-void Switch::mouseReleaseEvent(QMouseEvent *e)
-{
-  if (e->button() & Qt::LeftButton)
-  {
-    state_ = !state_;
-    thumb_ = state_ ? _brush : QBrush("#d5d5d5");
-    if (state_)
-    {
-      animation_->setStartValue(height_ / 2);
-      animation_->setEndValue(width() - height_);
-      animation_->setDuration(120);
-      animation_->start();
-    }
-    else
-    {
-      animation_->setStartValue(offset());
-      animation_->setEndValue(height_ / 2);
-      animation_->setDuration(120);
-      animation_->start();
-    }
-  }
-  QAbstractButton::mouseReleaseEvent(e);
+  animation_->setDuration(120);
+  animation_->start();
 }
 
 QSize Switch::sizeHint() const
 {
-  return QSize(2 * (height_ + margin_), height_ + 2 * margin_);
+  return QSize(2 * height_, height_);
 }
 
 } // namespace Widgets
