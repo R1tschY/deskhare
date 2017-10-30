@@ -74,6 +74,10 @@ int main(int argc, char *argv[])
   }
 
   QApplication a(argc, argv);
+  a.setApplicationName(QLatin1String("deskhare"));
+  a.setApplicationDisplayName(
+    QCoreApplication::translate("Deskhare::App", "Deskhare"));
+  a.setQuitOnLastWindowClosed(false);
 
   a.setStyle(new FlatStyle());
 

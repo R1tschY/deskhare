@@ -18,6 +18,7 @@
 
 #include "settingswindow.h"
 
+#include <QSplitter>
 #include <QListView>
 #include <QStackedWidget>
 #include <QHBoxLayout>
@@ -79,9 +80,7 @@ void SettingsSectionsModel::append(SettingsSection* section)
 
 SettingsWindow::SettingsWindow(Controller* controller)
 {
-  auto* layout = new QHBoxLayout();
-  layout->setMargin(0);
-  layout->setSpacing(1);
+  auto* splitter = new QSplitter();
 
   sections_view_ = new QListView();
   sections_view_->setFrameStyle(QFrame::NoFrame);
@@ -94,10 +93,16 @@ SettingsWindow::SettingsWindow(Controller* controller)
     "  font-size: 12pt;"
     "}"
   ));
-  layout->addWidget(sections_view_, 1);
+//  auto sizePolicy = sections_view_->sizePolicy();
+//  sizePolicy.setHorizontalStretch(0);
+//  sections_view_->setSizePolicy(sizePolicy);
+  splitter->addWidget(sections_view_);
 
   settings_stack_ = new QStackedWidget();
-  layout->addWidget(settings_stack_, 3);
+  auto sizePolicy = settings_stack_->sizePolicy();
+  sizePolicy.setHorizontalStretch(1);
+  settings_stack_->setSizePolicy(sizePolicy);
+  splitter->addWidget(settings_stack_);
 
   sections_model_ = new SettingsSectionsModel(this);
   addSettingsSection(new AppSettings());
@@ -114,8 +119,12 @@ SettingsWindow::SettingsWindow(Controller* controller)
   );
   sections_view_->setCurrentIndex(sections_model_->index(0));
 
+  auto* layout = new QHBoxLayout();
+  layout->addWidget(splitter);
   setLayout(layout);
+
   resize(600, 400);
+  splitter->setSizes({150, 450});
 }
 
 void SettingsWindow::addSettingsSection(SettingsSection* section)

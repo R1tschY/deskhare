@@ -37,6 +37,8 @@ private:
   void addGroupHeader(
     QGridLayout* layout, const QString& name, const QFont& font);
   void addRow(QGridLayout* layout, const QString& name, QWidget* widget);
+
+  void setAutostartOption(bool active);
 };
 
 } // namespace Deskhare

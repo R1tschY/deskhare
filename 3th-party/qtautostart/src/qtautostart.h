@@ -18,8 +18,7 @@
 
 #pragma once
 
-
-class QString;
+#include <QString>
 
 namespace QtAutostart {
 
@@ -38,12 +37,12 @@ namespace QtAutostart {
 /// Icon entry is set to @c <appname>.
 /// Name entry is set to @c QCoreApplication::applicationName().
 ///
-void addToAutostart(const QString& appName);
+bool addToAutostart(const QString& appName = QString());
 
 /// @brief removes application from autostart
-void removeFromAutostart(const QString& appName);
+void removeFromAutostart(const QString& appName = QString());
 
 /// @brief detects if application is in autostart
-bool isInAutostart(const QString& appName);
+bool isInAutostart(const QString& appName = QString());
 
 } // namespace QtAutostart

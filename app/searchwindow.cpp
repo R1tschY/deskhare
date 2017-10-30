@@ -323,10 +323,10 @@ void SearchWindow::setVisible(bool visible)
     int screen = desktop->screenNumber(QCursor::pos());
     QSize windowSize = size();
     move(desktop->availableGeometry(screen).center()
-      - QPoint(windowSize.width()/2, windowSize.height()/2));
+      - QPoint(windowSize.width() / 2, windowSize.height() / 2));
 
-    raise();
     activateWindow();
+    raise();
   }
   else
   {

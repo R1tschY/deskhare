@@ -23,6 +23,7 @@
 #include <QLoggingCategory>
 #include <QFileInfo>
 #include <QDir>
+#include <QGuiApplication>
 
 namespace QtAutostart {
 
@@ -39,9 +40,10 @@ Q_LOGGING_CATEGORY(logger, "qtautostart")
 
 } // namespace
 
-bool QtAutostart::addToAutostart(const QString& appName)
+bool addToAutostart(const QString& appName)
 {
-  QFileInfo autostartFilePath = getAutostartDesktopFilePath(appName);
+  QFileInfo autostartFilePath = getAutostartDesktopFilePath(
+    appName.isEmpty() ? QCoreApplication::applicationName() : appName);
 
   if (!autostartFilePath.dir().mkpath("."))
   {
@@ -49,13 +51,18 @@ bool QtAutostart::addToAutostart(const QString& appName)
     return false;
   }
 
-  QFile fp(autostartFilePath.path());
+  QFile fp(autostartFilePath.filePath());
   if (!fp.open(QIODevice::WriteOnly))
   {
     qCWarning(logger)
-      << "Could not open autostart entry:" << fp.errorString();
+      << "Could not open autostart entry:"
+      << fp.fileName()
+      << "message ="
+      << fp.errorString();
     return false;
   }
+
+  qCDebug(logger) << "Writing" << fp.fileName() << "...";
 
   QTextStream ts(&fp);
   ts.setCodec("UTF-8");
@@ -69,32 +76,39 @@ bool QtAutostart::addToAutostart(const QString& appName)
     "StartupNotify=false\n"
     "X-GNOME-Autostart-enabled=true\n"
   ).arg(
-    QCoreApplication::applicationName(),
-    QCoreApplication::applicationFilePath(),
-    appName.toLower()
+    QGuiApplication::applicationDisplayName(),
+    QGuiApplication::applicationFilePath(),
+    appName.isEmpty()
+    ? QCoreApplication::applicationName().toLower()
+    : appName.toLower()
   );
 
   if (ts.status())
   {
     qCWarning(logger)
-      << "Could not write autostart entry:" << fp.errorString();
+      << "Could not write autostart entry:"
+      << fp.fileName()
+      << "message ="
+      << fp.errorString();
     return false;
   }
 
   return true;
 }
 
-void QtAutostart::removeFromAutostart(const QString& appName)
+void removeFromAutostart(const QString& appName)
 {
-  if (!QFile::remove(getAutostartDesktopFilePath(appName)))
+  if (!QFile::remove(getAutostartDesktopFilePath(
+    appName.isEmpty() ? QCoreApplication::applicationName() : appName)))
   {
     qCWarning(logger) << "Could not remove autostart desktop file";
   }
 }
 
-bool QtAutostart::isInAutostart(const QString& appName)
+bool isInAutostart(const QString& appName)
 {
-  return QFileInfo::exists(getAutostartDesktopFilePath(appName));
+  return QFileInfo::exists(getAutostartDesktopFilePath(
+    appName.isEmpty() ? QCoreApplication::applicationName() : appName));
 }
 
 } // namespace QtAutostart

@@ -22,6 +22,7 @@
 #include <QWidgetItemV2>
 #include <QLabel>
 #include <QFont>
+#include <qtautostart.h>
 
 #include "../widgets/switch.h"
 #include "../widgets/gridlayoututils.h"
@@ -45,6 +46,10 @@ AppSettings::AppSettings()
 
   auto* autostartSwitch = new Widgets::Switch();
   addRow(layout, tr("Startup on login"), autostartSwitch);
+  autostartSwitch->setChecked(QtAutostart::isInAutostart());
+  connect(
+    autostartSwitch, &Widgets::Switch::toggled,
+    this, &AppSettings::setAutostartOption);
 
   GridLayoutUtils::addFillerRow(layout);
 
@@ -68,6 +73,18 @@ void AppSettings::addRow(
 
   layout->addWidget(new QLabel(name), rowCount, 1);
   layout->addWidget(widget, rowCount, 2);
+}
+
+void AppSettings::setAutostartOption(bool active)
+{
+  if (active)
+  {
+    QtAutostart::addToAutostart();
+  }
+  else
+  {
+    QtAutostart::removeFromAutostart();
+  }
 }
 
 } // namespace Deskhare

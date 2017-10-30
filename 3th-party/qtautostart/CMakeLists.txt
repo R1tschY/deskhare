@@ -19,13 +19,9 @@ find_package(Qt5Gui REQUIRED)
 
 ## Build
 
-file(GLOB_RECURSE thumbnails_SOURCES "src/*.cpp")
-file(GLOB_RECURSE thumbnails_HEADER "src/*.h")
+file(GLOB_RECURSE qtautostart_SOURCES "src/*.cpp")
+file(GLOB_RECURSE qtautostart_HEADER "src/*.h")
 
-add_library(qtautostart ${thumbnails_SOURCES})
+add_library(qtautostart STATIC ${qtautostart_SOURCES})
 target_link_libraries(qtautostart Qt5::Gui)
-target_include_directories(qtautostart
-    INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/src"
-)
-
-add_subdirectory(tests)
+target_include_directories(qtautostart PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
