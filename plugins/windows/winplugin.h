@@ -2,25 +2,24 @@
 
 #pragma once
 
-#include <libdeskhare/sourceplugin.h>
+#include <QObject>
+
+#include <libdeskhare/plugin.h>
 #include <winqt/common/comcontext.h>
 
 namespace Deskhare {
 
 /// \brief
-class WinPlugin :
-  public QObject,
-  public SourcePlugin
+class WinPlugin : public QObject, public Plugin
 {
   Q_OBJECT
-  Q_PLUGIN_METADATA(IID DeskhareSource_iid)
-  Q_INTERFACES(Deskhare::SourcePlugin)
+  Q_PLUGIN_METADATA(IID DeskharePlugin_iid)
+  Q_INTERFACES(Deskhare::Plugin)
 public:
   WinPlugin();
 
-  // SourcePlugin
-  std::unique_ptr<Source> getSource(const PluginContext& ctx) override;
-  QString getSourceDescription() override;
+  void initialize(const PluginContext& ctx) override;
+  QString getDescription() override;
 
 private:
   WinQt::ComContext context_;

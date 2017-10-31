@@ -69,6 +69,13 @@ void StartMenuSource::search(const Query& query, ResultSet& results)
   );
 }
 
+QString StartMenuSource::getDescription() const
+{
+  return QLatin1String("Windows start menu applications.\n"
+    "\n"
+    "Access to applications in the start menu and on the desktop.");
+}
+
 void StartMenuSource::index()
 {
   qCInfo(logger) << "Indexing applications ...";

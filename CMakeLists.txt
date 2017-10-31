@@ -62,11 +62,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 add_subdirectory(3th-party/cpp-utils)
 add_subdirectory(3th-party/qxtglobalshortcut5)
 add_subdirectory(3th-party/xdg-thumbnails-qt)
-<<<<<<< HEAD
 add_subdirectory(3th-party/qtautostart)
-=======
 add_subdirectory(3th-party/winqt-shell)
->>>>>>> [win] applications source
 add_subdirectory(libdeskhare)
 
 add_subdirectory(plugins)

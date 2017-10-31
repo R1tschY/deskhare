@@ -1,5 +1,7 @@
 #include "winplugin.h"
 
+#include <libdeskhare/registry.h>
+
 #include "applications/startmenusource.h"
 
 namespace Deskhare {
@@ -9,16 +11,19 @@ WinPlugin::WinPlugin()
 : context_(COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)
 { }
 
-std::unique_ptr<Source> WinPlugin::getSource(const PluginContext& ctx)
+void WinPlugin::initialize(const PluginContext& ctx)
 {
-  return std::make_unique<StartMenuSource>(ctx);
+  auto& registry = ctx.getRegistry();
+
+  registry.registerSource(
+    std::make_shared<StartMenuSource>(ctx));
 }
 
-QString WinPlugin::getSourceDescription()
+QString WinPlugin::getDescription()
 {
-  return QLatin1String("Windows applications.\n"
+  return QLatin1String("Windows integration.\n"
     "\n"
-    "Access to applications in the start menu and on the desktop.");
+    "Access to applications.");
 }
 
 } // namespace Deskhare
