@@ -7,12 +7,15 @@ set(CMAKE_AUTOMOC ON)
 function(deskhare_plugin target)
 
     add_library(${target} SHARED ${ARGN})
+    set_target_properties(
+        ${target} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/plugins"
+        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/plugins"
+    )
     message(STATUS "Found plugin: ${target}")
 
 endfunction()
 
-
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin/plugins)
 
 # include all subdirectories
 

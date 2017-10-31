@@ -42,6 +42,7 @@ public:
 
   void sendMatch(std::shared_ptr<Match> match);
   void sendMatches(std::vector<std::shared_ptr<Match>>& matches);
+  void sendMatches(std::vector<std::shared_ptr<Match>>&& matches);
 
   void recieveMatches(std::vector<std::shared_ptr<Match>>& matches);
 

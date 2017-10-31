@@ -66,7 +66,7 @@ QIcon XdgApplicationAction::createIcon(const QString& iconName)
 {
   QIcon icon = QIcon::fromTheme(iconName);
   if (icon.isNull())
-    icon = QIcon::fromTheme(QStringLiteral("application-x-executable"));
+    icon = QIcon::fromTheme(QLatin1String("application-x-executable"));
   return icon;
 }
 

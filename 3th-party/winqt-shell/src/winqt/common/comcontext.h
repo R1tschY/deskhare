@@ -1,5 +1,5 @@
 //
-// deskhare
+// deskhare - cross-platform quick launcher
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,32 +18,22 @@
 
 #pragma once
 
-#include "libdeskhare/action.h"
+#include <objbase.h>
 
-#include <QString>
-#include <QCoreApplication>
+namespace WinQt {
 
-#include "xdgapplicationdesktopfile.h"
-
-namespace Deskhare {
-
-/// \brief
-class XdgApplicationAction : public Action
+class ComContext
 {
-  Q_DECLARE_TR_FUNCTIONS(XdgApplicationAction)
 public:
-  XdgApplicationAction(const XdgApplicationDesktopFile& app, float score);
-  XdgApplicationAction(const XdgApplicationDesktopFile& app, const QString& url,
-    float score);
+  ComContext(unsigned coinit = 0)
+  {
+    CoInitializeEx(nullptr, coinit);
+  }
 
-  bool canHandleMatch(const Match& match) const override;
-  void execute(const Match& target) const override;
-
-private:
-  XdgApplicationDesktopFile app_;
-  QString url_;
-
-  static QIcon createIcon(const QString& iconName);
+  ~ComContext()
+  {
+    CoUninitialize();
+  }
 };
 
-} // namespace Deskhare
+} // namespace WinQt

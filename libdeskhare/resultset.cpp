@@ -58,6 +58,20 @@ void ResultSet::sendMatches(std::vector<std::shared_ptr<Match>>& matches)
   matches.clear();
 }
 
+void ResultSet::sendMatches(std::vector<std::shared_ptr<Match>>&& matches)
+{
+  for (auto& match : matches)
+  {
+    match->setScore(evaluation_service_->evalWhileSend(*query_, *match));
+  }
+
+  QMutexLocker lock(&mutex_);
+
+  matches_buffer_.insert(matches_buffer_.end(),
+    std::make_move_iterator(matches.begin()),
+    std::make_move_iterator(matches.end()));
+}
+
 void ResultSet::recieveMatches(std::vector<std::shared_ptr<Match>>& matches)
 {
   QMutexLocker lock(&mutex_);

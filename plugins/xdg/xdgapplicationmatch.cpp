@@ -29,8 +29,8 @@ XdgApplicationMatch::XdgApplicationMatch(
   const XdgApplicationDesktopFile& desktopFile,
   float score)
 : Match(
-    desktopFile.localizedValue("Name").toString(),
-    desktopFile.localizedValue("Comment").toString(),
+    desktopFile.localizedValue(QLatin1String("Name")).toString(),
+    desktopFile.localizedValue(QLatin1String("Comment")).toString(),
     createIcon(desktopFile.iconName()),
     "xdg-app://" + desktopFile.id(),
     score
@@ -40,7 +40,7 @@ XdgApplicationMatch::XdgApplicationMatch(
 
 std::shared_ptr<Action> XdgApplicationMatch::getDefaultAction() const
 {
-  return std::make_unique<XdgApplicationAction>(
+  return std::make_shared<XdgApplicationAction>(
     desktopFile_, MatchScore::Highest);
 }
 
@@ -52,7 +52,7 @@ QIcon XdgApplicationMatch::createIcon(const QString& iconName)
     icon = QIcon::fromTheme(iconName);
 
   if (icon.isNull())
-    icon = QIcon::fromTheme(QStringLiteral("application-x-executable"));
+    icon = QIcon::fromTheme(QLatin1String("application-x-executable"));
 
   return icon;
 }

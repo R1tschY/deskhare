@@ -1,5 +1,5 @@
 //
-// deskhare
+// deskhare - cross-platform quick launcher
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,32 +18,47 @@
 
 #pragma once
 
-#include "libdeskhare/action.h"
+#include <winbase.h>
+#include <memory>
 
-#include <QString>
-#include <QCoreApplication>
+namespace WinQt {
 
-#include "xdgapplicationdesktopfile.h"
+//
+// Local memory
 
-namespace Deskhare {
+namespace Detail {
+struct LocalDeleter {
+  void operator()(void* ptr) {
+    LocalFree(ptr);
+  }
+};
+} // namespace Detail
 
-/// \brief
-class XdgApplicationAction : public Action
-{
-  Q_DECLARE_TR_FUNCTIONS(XdgApplicationAction)
-public:
-  XdgApplicationAction(const XdgApplicationDesktopFile& app, float score);
-  XdgApplicationAction(const XdgApplicationDesktopFile& app, const QString& url,
-    float score);
+template<typename T>
+using LocalPtr = std::unique_ptr<T, Detail::LocalDeleter>;
 
-  bool canHandleMatch(const Match& match) const override;
-  void execute(const Match& target) const override;
+// OLE
 
-private:
-  XdgApplicationDesktopFile app_;
-  QString url_;
-
-  static QIcon createIcon(const QString& iconName);
+struct OLEDeleter {
+  template<typename T>
+  void operator()(T* ptr) {
+    CoTaskMemFree(ptr);
+  }
 };
 
-} // namespace Deskhare
+template<typename T>
+using OLEPtr = std::unique_ptr<T, OLEDeleter>;
+
+// COM
+
+struct COMDeleter {
+  template<typename T>
+  void operator()(T* ptr) {
+    ptr->Release();
+  }
+};
+
+template<typename T>
+using COMPtr = std::unique_ptr<T, COMDeleter>;
+
+} // namespace WinQt

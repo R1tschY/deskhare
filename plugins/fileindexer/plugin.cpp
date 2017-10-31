@@ -107,8 +107,9 @@ void FileIndexSource::search(const Query& query, ResultSet& results)
   Q_ASSERT(!query.getSearchString().isEmpty());
   Q_ASSERT(db_->isOpen());
 
-  auto matches = db_->search(query.getSearchString(), *context_.getFileIconProvider());
-  results.sendMatches(matches);
+  results.sendMatches(
+    db_->search(query.getSearchString(), *context_.getFileIconProvider())
+  );
 }
 
 QString FileIndexSource::getDescription() const
@@ -140,13 +141,13 @@ void FileIndexSource::index()
     [&](const QDirIterator& file)
     {
       i += 1;
+      if (i & 0x3FF == 0)
+      {
+        qCInfo(fileIndexer) << "Indexed" << i << "files so far ...";
+      }
+
       db_->addFile(file.fileInfo());
     });
-
-    if (i & 0x3FF == 0)
-    {
-      qCInfo(fileIndexer) << "Indexed" << i << "files so far ...";
-    }
   }
 
   db_->setLastIndexing(QDateTime::currentDateTime());

@@ -29,6 +29,19 @@ add_definitions(
  -DQT_DEPRECATED_WARNINGS
  -DQT_DISABLE_DEPRECATED_BEFORE=0x050500
  -DQT_USE_QSTRINGBUILDER)
+ 
+## Windows
+
+if (WIN32)
+    # compile for 7
+    add_definitions(
+        -DUNICODE -D_UNICODE
+        -DNTDDI_VERSION=0x06010000
+        -D_WIN32_WINNT=0x0601
+        -DWINVER=0x0601
+        -D_WIN32_IE=0x0A00
+    )
+endif()
 
 # Find the QtWidgets library
 find_package(Qt5Widgets REQUIRED)
@@ -49,7 +62,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 add_subdirectory(3th-party/cpp-utils)
 add_subdirectory(3th-party/qxtglobalshortcut5)
 add_subdirectory(3th-party/xdg-thumbnails-qt)
+<<<<<<< HEAD
 add_subdirectory(3th-party/qtautostart)
+=======
+add_subdirectory(3th-party/winqt-shell)
+>>>>>>> [win] applications source
 add_subdirectory(libdeskhare)
 
 add_subdirectory(plugins)

@@ -16,29 +16,50 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#ifndef APP_PLUGINS_QUICKSTARTER_STARTMENUSOURCE_H_
-#define APP_PLUGINS_QUICKSTARTER_STARTMENUSOURCE_H_
+#ifndef HOOKLIB_WINDOWS_COM_SHELLLINK_H_
+#define HOOKLIB_WINDOWS_COM_SHELLLINK_H_
 
-#include <libdeskhare/source.h>
-#include "winapplicationsindex.h"
+#include <memory>
 
-namespace Deskhare {
+class IShellLinkW;
+class IPersistFile;
+class QString;
+class QIcon;
+class QKeySequence;
 
-/// \brief
-class StartMenuSource : public Source
+namespace WinQt {
+
+struct ShellLinkPrivate;
+class IconLocation;
+class Result;
+
+class ShellLink
 {
 public:
-  StartMenuSource(const PluginContext& ctx);
+  ShellLink();
+  ~ShellLink();
 
-  bool canHandleQuery(const Query& query) override;
-  void search(const Query& query, ResultSet& results) override;
+  bool okay() const;
+
+  // IPersistFile::Load
+  Result load(const QString& filename);
+
+  // IShellLink::GetDescription
+  QString description() const;
+
+  // IShellLink::GetPath
+  QString path() const;
+
+  // IShellLink::GetIconLocation
+  IconLocation iconLocation() const;
+  QIcon icon() const;
+
+  Result lastResult();
 
 private:
-  WinApplicationsIndex index_;
-
-  void index();
+  const std::unique_ptr<ShellLinkPrivate> d_;
 };
 
-} // namespace QuickStarter
+} // namespace WinQt
 
-#endif /* APP_PLUGINS_QUICKSTARTER_STARTMENUSOURCE_H_ */
+#endif /* HOOKLIB_WINDOWS_COM_SHELLLINK_H_ */
