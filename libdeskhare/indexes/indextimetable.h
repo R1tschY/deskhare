@@ -18,45 +18,25 @@
 
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <QDateTime>
+class QDateTime;
 
-#include <libdeskhare/indexes/sqliteindex.h>
-#include <libdeskhare/indexes/indextimetable.h>
-
-class QFileInfo;
-class QString;
 
 namespace Deskhare {
 
-class Match;
-class FileIconProvider;
+class SqliteIndex;
 
-class FileIndex : public SqliteIndex
+/// \brief
+class IndexTimeTable
 {
 public:
-  FileIndex();
+  IndexTimeTable(SqliteIndex& index);
 
-  bool addFile(const QFileInfo& file);
-
-  void clear();
-
-  std::vector<std::shared_ptr<Match>> search(
-    const QString& query,
-    const FileIconProvider& icon_provider);
-
-  QDateTime getLastIndexing()
-  { return index_time_table_.getLastIndexing(); }
-
-  void setLastIndexing(const QDateTime& time)
-  { index_time_table_.setLastIndexing(time); }
+  bool create();
+  QDateTime getLastIndexing();
+  void setLastIndexing(const QDateTime& time);
 
 private:
-  bool create() override;
-  bool upgrade(int currentFormatVersion) override;
-
-  IndexTimeTable index_time_table_;
+  SqliteIndex& index_;
 };
 
 } // namespace Deskhare

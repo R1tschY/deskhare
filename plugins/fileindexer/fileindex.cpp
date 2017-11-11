@@ -35,13 +35,14 @@
 namespace Deskhare {
 
 FileIndex::FileIndex()
-: SqliteIndex(QLatin1String("fileIndex"), 2)
+: SqliteIndex(QLatin1String("fileIndex"), 2),
+  index_time_table_(*this)
 { }
 
 void FileIndex::clear()
 {
-  QSqlQuery clearQuery(QLatin1String("DELETE FROM files"), dataBase());
-  if (!clearQuery.last())
+  QSqlQuery clearQuery(dataBase());
+  if (!clearQuery.exec(QLatin1String("DELETE FROM executables")))
   {
     qCCritical(fileIndexLogger) << "Cannot clear files table:" <<
       clearQuery.lastError().text();
@@ -96,36 +97,6 @@ std::vector<std::shared_ptr<Match>> FileIndex::search(
   return matches;
 }
 
-QDateTime FileIndex::getLastIndexing()
-{
-  QSqlQuery query(dataBase());
-  query.prepare(
-    QLatin1String("SELECT time FROM times WHERE id = 'last_indexing'"));
-  if (!query.exec())
-  {
-    qCCritical(fileIndexLogger) << "Failed to read last indexing of file index:"
-      << query.lastError();
-    return QDateTime();
-  }
-  if (!query.next())
-    return QDateTime();
-
-  return QDateTime::fromMSecsSinceEpoch(query.value(0).toLongLong() * 1000);
-}
-
-void FileIndex::setLastIndexing(const QDateTime& time)
-{
-  QSqlQuery query(dataBase());
-  query.prepare(
-    QLatin1String("UPDATE times SET time=? WHERE id = 'last_indexing'"));
-  query.bindValue(0, time.toMSecsSinceEpoch() / 1000);
-  if (!query.exec())
-  {
-    qCCritical(fileIndexLogger) << "Failed to set last indexing of file index:"
-      << query.lastError();
-  }
-}
-
 bool FileIndex::create()
 {
   auto transaction = createTransactionGuard();
@@ -142,27 +113,7 @@ bool FileIndex::create()
     return false;
   }
 
-  if (!create_query.exec(QLatin1String(
-    "CREATE TABLE times ("
-    "  id   TEXT NOT NULL,"
-    "  time INTEGER NOT NULL"
-    ")")))
-  {
-    qCCritical(fileIndexLogger) << "create file index times table failed:"
-      << create_query.lastError();
-    transaction.rollback();
-    return false;
-  }
-  if (!create_query.exec(QLatin1String(
-    "INSERT INTO times VALUES ('last_indexing', 0)")))
-  {
-    qCCritical(fileIndexLogger) << "inserting last indexing in file index table failed:"
-      << create_query.lastError();
-    transaction.rollback();
-    return false;
-  }
-
-  return true;
+  return index_time_table_.create();
 }
 
 bool FileIndex::upgrade(int currentFormatVersion)
