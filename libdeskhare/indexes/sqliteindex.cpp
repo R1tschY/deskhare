@@ -49,7 +49,7 @@ bool SqliteIndex::open(const QString& filePath)
     bool success = dirInfo.mkpath(".");
     if (!success)
     {
-      qCCritical(logger) << "Cannot directory for index database"
+      qCCritical(logger) << "Cannot create directory for index database"
         << db_.connectionName() << ":" << filePathInfo.path();
       return recreate(true);
     }
@@ -256,6 +256,11 @@ void SqliteIndex::printDbDriverFeatures()
     qCDebug(logger)
       << feature.second << "=" << driver->hasFeature(feature.first);
   }
+}
+
+bool SqliteIndex::upgrade(int currentFormatVersion)
+{
+  return false;
 }
 
 bool SqliteIndex::isEmpty() const
