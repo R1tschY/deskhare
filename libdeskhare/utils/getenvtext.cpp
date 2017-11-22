@@ -31,7 +31,8 @@ QString getEnvText(const char* name, const QString& default_)
     const QString utf18name = QString::fromLatin1(name);
 
     std::size_t resultSize = 0;
-    _wgetenv_s(&resultSize, 0, 0, utf18name.utf16());
+    _wgetenv_s(&resultSize, 0, 0,
+      reinterpret_cast<const wchar_t*>(utf18name.utf16()));
     if (resultSize == 0)
         return default_;
 
@@ -39,7 +40,7 @@ QString getEnvText(const char* name, const QString& default_)
     result.resize(int(resultSize));
     _wgetenv_s(
       &resultSize, reinterpret_cast<wchar_t *>(result.data()), resultSize,
-      utf18name.utf16());
+      reinterpret_cast<const wchar_t*>(utf18name.utf16()));
 
     // requiredSize includes the terminating null, which we don't want.
     Q_ASSERT(result.endsWith(QLatin1Char('\0')));

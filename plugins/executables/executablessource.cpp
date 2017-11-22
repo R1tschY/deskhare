@@ -26,6 +26,7 @@
 #include <libdeskhare/filesystem/diriterator.h>
 #include <libdeskhare/utils/getenvtext.h>
 #include <cpp-utils/algorithm/container.h>
+#include <cpp-utils/algorithm/erase.h>
 
 namespace Deskhare {
 
@@ -67,7 +68,8 @@ QStringList getSearchExtensions()
   }
 
   cpp::erase_if(
-    pathExt, [](const QString& ext){ return ext.length() < 2 || !ext.startsWith('.'); })
+    pathExt,
+    [](const QString& ext){ return ext.length() < 2 || !ext.startsWith('.'); });
 
   return pathExt;
 #else
