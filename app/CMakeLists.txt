@@ -14,3 +14,16 @@ qt5_add_resources(deskhare_RES ${deskhare_RESOURCES})
 add_executable(deskhare-app WIN32 ${deskhare_SOURCES} ${deskhare_RES})
 target_link_libraries(deskhare-app 
  cpp-utils deskhare Qt5::Widgets qxtglobalshortcut5 qtautostart)
+ 
+ 
+# Install
+ 
+if (WIN32)
+    install(TARGETS deskhare-app
+        RUNTIME DESTINATION . 
+        COMPONENT Runtime)
+elseif(UNIX AND NOT APPLE)
+    install(TARGETS deskhare-app
+        RUNTIME DESTINATION bin 
+        COMPONENT Runtime)
+endif()

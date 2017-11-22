@@ -1,0 +1,171 @@
+#
+#  This file is part of deskhare.
+#
+#  Copyright (C) 2017 Richard Liebscher <r1tschy@yahoo.de>
+#
+#  deskhare is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  deskhare is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+!define NAME "@CPACK_NSIS_PACKAGE_NAME@"
+!define VERSION "@CPACK_PACKAGE_VERSION@"
+!define PATCH  "@CPACK_PACKAGE_VERSION_PATCH@"
+!define INST_DIR "@CPACK_TEMPORARY_DIRECTORY@"
+
+Name "@CPACK_NSIS_PACKAGE_NAME@"
+OutFile "@CPACK_TOPLEVEL_DIRECTORY@/@CPACK_OUTPUT_FILE_NAME@"
+
+SetCompressor @CPACK_NSIS_COMPRESSOR@
+
+RequestExecutionLevel admin
+
+# General Symbol Definitions
+!define REGKEY "SOFTWARE\${NAME}"
+
+# MUI Symbol Definitions
+!define MUI_ICON "@CPACK_PACKAGE_ICON@"
+!define MUI_UNICON "@CPACK_PACKAGE_ICON@"
+!define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_LICENSEPAGE_CHECKBOX
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
+!define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
+!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME STARTMENU_FOLDER
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "${NAME}"
+@CPACK_NSIS_INSTALLER_MUI_FINISHPAGE_RUN_CODE@
+@CPACK_NSIS_INSTALLER_ICON_CODE@
+@CPACK_NSIS_INSTALLER_MUI_COMPONENTS_DESC@  
+
+@CPACK_NSIS_DEFINES@
+
+# Included files
+!include Sections.nsh
+!include MUI2.nsh
+
+# Variables
+Var STARTMENU_FOLDER
+
+# Installer pages
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_LICENSE "@CPACK_RESOURCE_FILE_LICENSE@"
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_STARTMENU Application $STARTMENU_FOLDER
+
+@CPACK_NSIS_PAGE_COMPONENTS@
+
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+
+# Installer languages
+!insertmacro MUI_LANGUAGE English
+!insertmacro MUI_LANGUAGE German
+
+# Installer attributes
+InstallDir "@CPACK_NSIS_INSTALL_ROOT@\@CPACK_PACKAGE_INSTALL_DIRECTORY@"
+CRCCheck on
+XPStyle on
+ShowInstDetails show
+VIProductVersion ${VERSION}.${PATCH}
+InstallDirRegKey HKLM "${REGKEY}" Path
+ShowUninstDetails show
+
+# Installer sections
+Section -Main SEC0000
+    SetOutPath $INSTDIR
+    SetOverwrite on
+    @CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS@
+    @CPACK_NSIS_FULL_INSTALL@
+    WriteRegStr HKLM "${REGKEY}\Components" Main 1
+SectionEnd
+
+Section -post SEC0001
+    WriteRegStr HKLM "${REGKEY}" Path $INSTDIR
+    SetOutPath $INSTDIR
+    WriteUninstaller $INSTDIR\uninstall.exe
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    SetOutPath "$SMPROGRAMS\$STARTMENU_FOLDER"
+    @CPACK_NSIS_CREATE_ICONS@
+    @CPACK_NSIS_CREATE_ICONS_EXTRA@
+    CreateShortcut "$SMPROGRAMS\$STARTMENU_FOLDER\$(^UninstallLink).lnk" $INSTDIR\uninstall.exe
+    !insertmacro MUI_STARTMENU_WRITE_END
+    
+    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" DisplayName "@CPACK_NSIS_DISPLAY_NAME@"
+    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" DisplayVersion "@CPACK_PACKAGE_VERSION@"
+    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" Publisher "@CPACK_PACKAGE_VENDOR@"
+    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" URLInfoAbout "@CPACK_NSIS_URL_INFO_ABOUT@"
+    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" DisplayIcon "$INSTDIR\@CPACK_NSIS_INSTALLED_ICON_NAME@"
+    WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" UninstallString $INSTDIR\uninstall.exe
+    WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" NoModify 1
+    WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" NoRepair 1
+    
+    @CPACK_NSIS_EXTRA_INSTALL_COMMANDS@
+SectionEnd
+
+# Macro for selecting uninstaller sections
+!macro SELECT_UNSECTION SECTION_NAME UNSECTION_ID
+    Push $R0
+    ReadRegStr $R0 HKLM "${REGKEY}\Components" "${SECTION_NAME}"
+    StrCmp $R0 1 0 next${UNSECTION_ID}
+    !insertmacro SelectSection "${UNSECTION_ID}"
+    GoTo done${UNSECTION_ID}
+next${UNSECTION_ID}:
+    !insertmacro UnselectSection "${UNSECTION_ID}"
+done${UNSECTION_ID}:
+    Pop $R0
+!macroend
+
+# Uninstaller sections
+Section /o -un.Main UNSEC0000
+    @CPACK_NSIS_DELETE_FILES@
+    @CPACK_NSIS_DELETE_DIRECTORIES@
+    DeleteRegValue HKLM "${REGKEY}\Components" Main
+SectionEnd
+
+Section -un.post UNSEC0001
+    DeleteRegKey HKCU "${REGKEY}"
+    DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" ${NAME}
+    DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
+    Delete /REBOOTOK "$SMPROGRAMS\$STARTMENU_FOLDER\$(^UninstallLink).lnk"
+    Delete /REBOOTOK $INSTDIR\uninstall.exe
+    DeleteRegValue HKLM "${REGKEY}" STARTMENU_FOLDER
+    DeleteRegValue HKLM "${REGKEY}" Path
+    DeleteRegKey HKLM "${REGKEY}\Components"
+    DeleteRegKey HKLM "${REGKEY}"
+    RmDir /REBOOTOK $SMPROGRAMS\$STARTMENU_FOLDER
+    RmDir /REBOOTOK $INSTDIR
+    Push $R0
+    StrCpy $R0 $STARTMENU_FOLDER 1
+    StrCmp $R0 ">" no_smgroup
+no_smgroup:
+    Pop $R0
+SectionEnd
+
+# Installer functions
+Function .onInit
+    InitPluginsDir
+FunctionEnd
+
+# Uninstaller functions
+Function un.onInit
+    SetAutoClose true
+    ReadRegStr $INSTDIR HKLM "${REGKEY}" Path
+    !insertmacro MUI_STARTMENU_GETFOLDER Application $STARTMENU_FOLDER
+    !insertmacro SELECT_UNSECTION Main ${UNSEC0000}
+FunctionEnd
+
+# Installer Language Strings
+# TODO Update the Language Strings with the appropriate translations.
+
+LangString ^UninstallLink ${LANG_GERMAN} "$(^Name) deinstallieren"
+LangString ^UninstallLink ${LANG_ENGLISH} "Uninstall $(^Name)"
