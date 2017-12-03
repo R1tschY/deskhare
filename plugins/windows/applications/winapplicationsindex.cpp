@@ -161,8 +161,8 @@ bool WinApplicationsIndex::upgrade(int currentFormatVersion)
 
 void WinApplicationsIndex::clear()
 {
-  QSqlQuery clearQuery(QLatin1String("DELETE FROM apps"), dataBase());
-  if (!clearQuery.last())
+  QSqlQuery clearQuery(dataBase());
+  if (!clearQuery.exec(QLatin1String("DELETE FROM apps")))
   {
     qCCritical(logger) << "Cannot clear apps table:" <<
       clearQuery.lastError().text();

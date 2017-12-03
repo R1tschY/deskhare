@@ -42,7 +42,7 @@ FileIndex::FileIndex()
 void FileIndex::clear()
 {
   QSqlQuery clearQuery(dataBase());
-  if (!clearQuery.exec(QLatin1String("DELETE FROM executables")))
+  if (!clearQuery.exec(QLatin1String("DELETE FROM files")))
   {
     qCCritical(fileIndexLogger) << "Cannot clear files table:" <<
       clearQuery.lastError().text();
