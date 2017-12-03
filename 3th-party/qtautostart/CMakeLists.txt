@@ -19,8 +19,12 @@ find_package(Qt5Gui REQUIRED)
 
 ## Build
 
-file(GLOB_RECURSE qtautostart_SOURCES "src/*.cpp")
-file(GLOB_RECURSE qtautostart_HEADER "src/*.h")
+if (WIN32)
+    set(qtautostart_SOURCES "src/qtautostart_win.cpp")
+elseif(UNIX AND NOT APPLE)
+    set(qtautostart_SOURCES "src/qtautostart_unix.cpp")
+endif()
+set(qtautostart_HEADER "src/qtautostart.h")
 
 add_library(qtautostart STATIC ${qtautostart_SOURCES})
 target_link_libraries(qtautostart Qt5::Gui)

@@ -37,7 +37,10 @@ namespace QtAutostart {
 /// Icon entry is set to @c <appname>.
 /// Name entry is set to @c QCoreApplication::applicationName().
 ///
-bool addToAutostart(const QString& appName = QString());
+bool addToAutostart(
+  const QString& appName = QString(),
+  const QString& commandLine = QString()
+);
 
 /// @brief removes application from autostart
 void removeFromAutostart(const QString& appName = QString());

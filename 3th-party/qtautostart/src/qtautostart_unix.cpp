@@ -40,8 +40,12 @@ Q_LOGGING_CATEGORY(logger, "qtautostart")
 
 } // namespace
 
-bool addToAutostart(const QString& appName)
+bool addToAutostart(const QString& appName, const QString& commandLine)
 {
+  QString cmdLine = commandLine;
+  if (cmdLine.isEmpty())
+    cmdLine = QGuiApplication::applicationFilePath();
+
   QFileInfo autostartFilePath = getAutostartDesktopFilePath(
     appName.isEmpty() ? QCoreApplication::applicationName() : appName);
 
@@ -77,7 +81,7 @@ bool addToAutostart(const QString& appName)
     "X-GNOME-Autostart-enabled=true\n"
   ).arg(
     QGuiApplication::applicationDisplayName(),
-    QGuiApplication::applicationFilePath(),
+    cmdLine,
     appName.isEmpty()
     ? QCoreApplication::applicationName().toLower()
     : appName.toLower()
