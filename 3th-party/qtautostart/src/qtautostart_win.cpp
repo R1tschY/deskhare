@@ -28,7 +28,7 @@ namespace QtAutostart {
 
 namespace {
 
-auto autorunPath = QLatin1String(
+const QLatin1String autorunPath = QLatin1String(
   "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run");
 
 Q_LOGGING_CATEGORY(logger, "qtautostart")
@@ -56,40 +56,35 @@ void logSettingsError(QSettings& settings)
 
 } // namespace
 
-bool addToAutostart(const QString& appName, const QString& commandLine)
+bool addToAutostart_private(const QString& appName, const QString& commandLine)
 {
-  QString cmdLine = commandLine;
-  if (cmdLine.isEmpty())
-  {
-    cmdLine = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
-  }
-
-  if (cmdLine.length() > 260)
+  if (commandLine.length() > 260)
   {
     qCCritical(logger)
       << "Too long (> 260 characters) command line:"
-      << cmdLine;
+      << commandLine;
     // TODO: use 6.2 format
     return false;
   }
 
   QSettings settings(autorunPath, QSettings::NativeFormat);
-  settings.setValue(appName, cmdLine);
+  settings.setValue(appName, commandLine);
 
   logSettingsError(settings);
   return settings.status() == QSettings::NoError;
 }
 
-void removeFromAutostart(const QString& appName)
+void removeFromAutostart_private(const QString& appName)
 {
   QSettings settings(autorunPath, QSettings::NativeFormat);
   settings.remove(appName);
   logSettingsError(settings);
 }
 
-bool isInAutostart(const QString& appName)
+bool isInAutostart_private(const QString& appName)
 {
-  return QSettings(autorunPath, QSettings::NativeFormat).contains(appName);
+  QSettings settings(autorunPath, QSettings::NativeFormat);
+  return settings.contains(appName);
 }
 
 } // namespace QtAutostart

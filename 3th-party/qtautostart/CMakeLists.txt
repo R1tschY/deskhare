@@ -20,9 +20,9 @@ find_package(Qt5Gui REQUIRED)
 ## Build
 
 if (WIN32)
-    set(qtautostart_SOURCES "src/qtautostart_win.cpp")
+    set(qtautostart_SOURCES "src/qtautostart_p.cpp" "src/qtautostart_win.cpp")
 elseif(UNIX AND NOT APPLE)
-    set(qtautostart_SOURCES "src/qtautostart_unix.cpp")
+    set(qtautostart_SOURCES "src/qtautostart_p.cpp" "src/qtautostart_unix.cpp")
 endif()
 set(qtautostart_HEADER "src/qtautostart.h")
 

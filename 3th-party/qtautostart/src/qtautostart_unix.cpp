@@ -40,15 +40,9 @@ Q_LOGGING_CATEGORY(logger, "qtautostart")
 
 } // namespace
 
-bool addToAutostart(const QString& appName, const QString& commandLine)
+bool addToAutostart_private(const QString& appName, const QString& commandLine)
 {
-  QString cmdLine = commandLine;
-  if (cmdLine.isEmpty())
-    cmdLine = QGuiApplication::applicationFilePath();
-
-  QFileInfo autostartFilePath = getAutostartDesktopFilePath(
-    appName.isEmpty() ? QCoreApplication::applicationName() : appName);
-
+  QFileInfo autostartFilePath = getAutostartDesktopFilePath(appName);
   if (!autostartFilePath.dir().mkpath("."))
   {
     qCWarning(logger) << "Could not create autostart folder";
@@ -81,10 +75,8 @@ bool addToAutostart(const QString& appName, const QString& commandLine)
     "X-GNOME-Autostart-enabled=true\n"
   ).arg(
     QGuiApplication::applicationDisplayName(),
-    cmdLine,
-    appName.isEmpty()
-    ? QCoreApplication::applicationName().toLower()
-    : appName.toLower()
+    commandLine,
+    appName.toLower()
   );
 
   if (ts.status())
@@ -100,19 +92,17 @@ bool addToAutostart(const QString& appName, const QString& commandLine)
   return true;
 }
 
-void removeFromAutostart(const QString& appName)
+void removeFromAutostart_private(const QString& appName)
 {
-  if (!QFile::remove(getAutostartDesktopFilePath(
-    appName.isEmpty() ? QCoreApplication::applicationName() : appName)))
+  if (!QFile::remove(getAutostartDesktopFilePath(appName)))
   {
     qCWarning(logger) << "Could not remove autostart desktop file";
   }
 }
 
-bool isInAutostart(const QString& appName)
+bool isInAutostart_private(const QString& appName)
 {
-  return QFileInfo::exists(getAutostartDesktopFilePath(
-    appName.isEmpty() ? QCoreApplication::applicationName() : appName));
+  return QFileInfo::exists(getAutostartDesktopFilePath(appName));
 }
 
 } // namespace QtAutostart
