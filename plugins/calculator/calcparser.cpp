@@ -226,16 +226,19 @@ bool evalExpression(const QString& input, double& result)
     }
     else
     {
-      std::wstring rest(iter, end);
-      qCDebug(logger) << "could not parse everything:" << rest.c_str();
+      qCDebug(logger).noquote()
+        << "could not parse everything:"
+        << QString::fromWCharArray(&(*start), iter - start) << "!"
+        << QString::fromWCharArray(&(*iter), end - iter);
     }
   }
   catch (const x3::expectation_failure<iterator_type>& exp)
   {
     std::wstring rest(exp.where(), end);
-    qCDebug(logger) << "invalid expression: expected" << exp.which().c_str() <<
-      "in" << std::wstring(start, exp.where()).c_str() << "*"
-      << std::wstring(exp.where(), end).c_str();
+    qCDebug(logger).noquote()
+      << "invalid expression: expected" << exp.which().c_str() <<
+      "in" << QString::fromWCharArray(&(*start), exp.where() - start) << "!"
+      << QString::fromWCharArray(&(*exp.where()), end - exp.where());
   }
   catch (const std::exception& e)
   {

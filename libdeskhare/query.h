@@ -38,6 +38,7 @@ public:
     Location = 1 << 2,
     Web      = 1 << 3,
     File     = 1 << 4,
+    Meta     = 1 << 5,
 
     All      = 0xFFFF
   };
