@@ -91,7 +91,8 @@ void XdgApplications::index()
   for (XdgDesktopFile* desktopFile : cpp::as_const(desktopFiles))
   {
     n += 1;
-    if (desktopFile->isSuitable())
+    if (desktopFile->fileName().endsWith(QLatin1String(".desktop"))
+      && desktopFile->isSuitable())
       index_.emplace_back(*desktopFile);
   }
 

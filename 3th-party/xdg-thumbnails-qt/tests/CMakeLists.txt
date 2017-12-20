@@ -3,11 +3,6 @@ enable_testing()
 
 find_package(Qt5Test REQUIRED)
 
-# make check
-if(NOT TARGET check)
-   add_custom_target(check)
-endif()
-
 macro(add_qttest_test)
     foreach(_testname ${ARGN})
         set(_longtestname "xdg-thumbnails-qt-test-${_testname}")
