@@ -104,7 +104,7 @@ std::vector<std::shared_ptr<Match>> ExecutablesIndex::search(
 
   QSqlQuery sqlquery(dataBase());
   sqlquery.prepare(QLatin1String(
-    "SELECT path FROM executables WHERE name MATCH ?"));
+    "SELECT path FROM executables WHERE name MATCH ? LIMIT 100"));
   sqlquery.bindValue(0, QString(query + '*'));  // TODO: escape query
   if (!sqlquery.exec())
   {
