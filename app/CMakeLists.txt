@@ -19,6 +19,7 @@ add_executable(deskhare-app WIN32 ${deskhare_SOURCES} ${deskhare_RES})
 target_link_libraries(deskhare-app 
  cpp-utils deskhare Qt5::Widgets qxtglobalshortcut5 qtautostart
  Qt5::Svg)
+set_property(TARGET deskhare-app PROPERTY OUTPUT_NAME deskhare)
  
 # Install
 if (WIN32)
@@ -29,7 +30,7 @@ if (WIN32)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
     
     set(DESKHARE_APP
-        "${CMAKE_INSTALL_PREFIX}/deskhare-app.exe")
+        "${CMAKE_INSTALL_PREFIX}/deskhare.exe")
     set(DESKHARE_LIBS
         "${CMAKE_INSTALL_PREFIX}/libdeskhare.dll;\${INSTALLED_PLUGINS}")
     set(DIRS ${QT_LIBRARY_DIRS}) 
