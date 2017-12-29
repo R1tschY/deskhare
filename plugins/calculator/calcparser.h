@@ -19,10 +19,18 @@
 #pragma once
 
 #include <QString>
+#include <cpp-utils/compiler/lib-export.h>
+
+#ifdef BUILD_CALC_PARSER
+#define CALC_PARSER_EXPORT CPP_LIB_EXPORT
+#else
+#define CALC_PARSER_EXPORT CPP_LIB_IMPORT
+#endif
 
 namespace Deskhare {
 namespace Calc {
 
+CALC_PARSER_EXPORT
 bool evalExpression(const QString& input, double& result);
 
 } // namespace Calc
