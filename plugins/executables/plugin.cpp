@@ -30,8 +30,6 @@ namespace Deskhare {
 void ExecutablesPlugin::initialize(const PluginContext& ctx)
 {
   auto source = std::make_shared<ExecutablesSource>(ctx);
-  source->index();
-
   ctx.getRegistry().registerSource(source);
 }
 

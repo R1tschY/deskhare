@@ -82,6 +82,9 @@ ExecutablesSource::ExecutablesSource(const PluginContext& ctx)
 {
   if (!db_.open(SqliteIndex::createIndexPath("executables.db")))
     return;
+
+  if (db_.getLastIndexing().daysTo(QDateTime::currentDateTime()) > 7)
+    index();
 };
 
 bool ExecutablesSource::canHandleQuery(const Query& query)
