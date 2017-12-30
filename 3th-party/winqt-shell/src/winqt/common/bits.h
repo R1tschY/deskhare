@@ -25,7 +25,7 @@ namespace WinQt {
 // word
 
 constexpr uint16_t low_word(uint32_t x) {
-  return static_cast<uint16_t>(x);
+  return x;
 }
 
 constexpr uint32_t low_word(uint32_t x, uint16_t value) {
@@ -33,7 +33,7 @@ constexpr uint32_t low_word(uint32_t x, uint16_t value) {
 }
 
 constexpr uint16_t high_word(uint32_t x) {
-  return static_cast<uint16_t>(x >> 16);
+  return x >> 16;
 }
 
 constexpr uint32_t high_word(uint32_t x, uint16_t value) {
@@ -47,7 +47,7 @@ constexpr uint32_t dword(uint16_t high, uint16_t low) {
 // byte
 
 constexpr uint8_t low_byte(uint16_t x) {
-  return static_cast<uint8_t>(x);
+  return x;
 }
 
 constexpr uint16_t low_byte(uint16_t x, uint8_t value) {
@@ -55,7 +55,7 @@ constexpr uint16_t low_byte(uint16_t x, uint8_t value) {
 }
 
 constexpr uint8_t high_byte(uint16_t x) {
-  return static_cast<uint8_t>(x >> 8);
+  return x >> 8;
 }
 
 constexpr uint16_t high_byte(uint16_t x, uint8_t value) {

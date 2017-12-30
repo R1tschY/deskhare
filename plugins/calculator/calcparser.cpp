@@ -204,14 +204,15 @@ BOOST_SPIRIT_DEFINE(Expression, Term, Factor);
 
 } // namespace Grammar
 
+
 bool evalExpression(const QString& input, double& result)
 {
   typedef std::wstring::const_iterator iterator_type;
 
-  std::wstring str = input.toStdWString();
-  iterator_type start = str.begin();
+  const std::wstring str = input.toStdWString();
+  const iterator_type start = str.begin();
   iterator_type iter = start;
-  iterator_type end = str.end();
+  const iterator_type end = str.end();
 
   try
   {

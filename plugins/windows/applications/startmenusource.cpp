@@ -119,14 +119,13 @@ void StartMenuSource::index()
       }
 
       QString path = shell_link.path();
-      QFileInfo pathInfo(path);
+      QFileInfo pathInfo = path;
       QString fileName = pathInfo.fileName();
-      if (!path.endsWith(QLatin1String("exe"))
+      if (!pathInfo.exists()
           || fileName.startsWith(QLatin1String("unins"), Qt::CaseInsensitive)
           || fileName.compare(
               QLatin1String("msiexec.exe"), Qt::CaseInsensitive) == 0
-          || fileName.contains(QLatin1String("uninstall"), Qt::CaseInsensitive)
-          )
+          || fileName.contains(QLatin1String("uninstall"), Qt::CaseInsensitive))
         return;
 
       IconLocation iconLoc = shell_link.iconLocation();
