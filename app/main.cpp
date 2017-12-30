@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <windows.h>
 #include <QApplication>
 #include <QDebug>
 
@@ -23,47 +24,14 @@
 
 #include "searchwindow.h"
 #include "flatstyle.h"
-
-namespace Deskhare {
-
-void logHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-  QByteArray localMsg = msg.toLocal8Bit();
-  switch (type) {
-  case QtDebugMsg:
-      fprintf(stderr, "\x1b[37m[DEBUG] %s: %s\x1b[0m\n",
-        context.category, localMsg.constData());
-      fflush(stderr);
-      break;
-  case QtInfoMsg:
-      fprintf(stderr, "\x1b[0m[INFO]\x1b[0m %s: %s\x1b[0m\n",
-        context.category, localMsg.constData());
-      fflush(stderr);
-      break;
-  case QtWarningMsg:
-      fprintf(stderr, "\x1b[33m[WARN]\x1b[0m %s: %s\n",
-        context.category, localMsg.constData());
-      fflush(stderr);
-      break;
-  case QtCriticalMsg:
-      fprintf(stderr, "\x1b[31m[CRIT]\x1b[0m %s: %s\x1b[0m\n",
-        context.category, localMsg.constData());
-      fflush(stderr);
-      break;
-  case QtFatalMsg:
-      fprintf(stderr, "\x1b[31m[FATAL]\x1b[0m %s: %s\x1b[0m\n",
-        context.category, localMsg.constData());
-      abort();
-  }
-}
-
-} // namespace Deskhare
+#include "logging.h"
 
 using namespace Deskhare;
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[], char *envp[])
 {
-  qInstallMessageHandler(logHandler);
+  initLogging();
+
   qInfo() << "Starting deskhare ...";
 
   SharedLock lock("deskhare");
