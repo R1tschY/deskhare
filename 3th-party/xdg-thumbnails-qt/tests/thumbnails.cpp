@@ -16,11 +16,11 @@ void XdgThumbnailsTest::testQUrlFileSchema()
 
   QCOMPARE(
     QUrl::fromLocalFile(
-      QString::fromUtf16(u"/tmp/!\"#$%&'()*+,-.:<=>?@\\^_`{|}~.m4v")
+      QString::fromUtf16(u"/tmp/!\"#$%&'()*+,-.:<=>?@^_`{|}~.m4v")
     ).toEncoded(),
     QByteArray(
       "file:///tmp/"
-      "!%22%23$%25&'()*+,-.:%3C=%3E%3F@%5C%5E_%60%7B%7C%7D~.m4v"
+      "!%22%23$%25&'()*+,-.:%3C=%3E%3F@%5E_%60%7B%7C%7D~.m4v"
     )
   );
 }
@@ -53,6 +53,7 @@ void XdgThumbnailsTest::testThumbnailPath()
   );
 
   // ASCII
+#ifndef Q_OS_WIN32
   QCOMPARE(
     XdgThumbnails::getThumbnailFile(
       QUrl::fromLocalFile(
@@ -61,6 +62,7 @@ void XdgThumbnailsTest::testThumbnailPath()
     ),
     QString("/tmp/.cache/thumbnails/large/0eead8ed983fec20bcb1ceff085cbce4.png")
   );
+#endif
 
   // Unicode
   QCOMPARE(
