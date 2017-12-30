@@ -1,4 +1,0 @@
-include(BundleUtilities)
-
-fixup_bundle("@DESKHARE_APPS@" "@DESKHARE_PLUGINS@" "${CMAKE_BINARY_DIR}/bin")
-        

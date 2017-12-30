@@ -30,9 +30,9 @@ if (WIN32)
     set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
     
     set(DESKHARE_APP
-        "${CMAKE_INSTALL_PREFIX}/deskhare.exe")
+        "\${CMAKE_INSTALL_PREFIX}/deskhare.exe")
     set(DESKHARE_LIBS
-        "${CMAKE_INSTALL_PREFIX}/libdeskhare.dll;\${INSTALLED_PLUGINS}")
+        "\${CMAKE_INSTALL_PREFIX}/libdeskhare.dll;\${INSTALLED_PLUGINS}")
     set(DIRS ${QT_LIBRARY_DIRS}) 
     install(CODE "set(gp_tool objdump)")
     install(CODE "file(GLOB INSTALLED_PLUGINS \"\${CMAKE_INSTALL_PREFIX}/plugins/*.dll\")")
