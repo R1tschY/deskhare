@@ -20,6 +20,13 @@ add_config(
   LINKER_FLAGS "-O2 -s"
 )
 
+# Tests
+add_custom_target(tests
+    COMMAND ${CMAKE_COMMAND} --build . 
+    COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG> --verbose --output-on-failure
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+enable_testing()
+
 ## C++
 
 set(CMAKE_CXX_STANDARD 14)

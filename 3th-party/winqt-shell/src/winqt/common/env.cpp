@@ -14,26 +14,30 @@ namespace WinQt {
 
 QString expandEnvironmentStrings(const QString& path)
 {
-  QRegularExpression regex(QLatin1String("%[^%]+%"));
-  QString result = path;
+  const QRegularExpression regex(QStringLiteral("%[^%]+%"));
+  QString result;
+  int pos = 0;
 
   auto iter = regex.globalMatch(path);
-  int diff = 0;
   while (iter.hasNext()) {
     QRegularExpressionMatch match = iter.next();
 
-    int start = match.capturedStart() + diff + 1;
-    int end = match.capturedEnd() + diff - 1;
-    auto envName = QStringRef(&result, start, end - start).toString().toUpper();
-    auto envValue = qgetenv(envName.toLocal8Bit().data());
+    const int start = match.capturedStart();
+    const int end = match.capturedEnd();
+    const auto envName = path.mid(
+      match.capturedStart() + 1, match.capturedLength() - 2).toUpper();
+    const auto envValue = qgetenv(envName.toLocal8Bit().data());
     if (!envValue.isNull())
     {
-      auto envStr = QString::fromLocal8Bit(envValue);
-      result.replace(start - 1, end - start + 2, envStr);
-      diff += envStr.size() - (end - start) - 2;
+      const auto envStr = QString::fromLocal8Bit(envValue);
+      result.reserve(result.size() + envStr.size() + path.size() - end);
+      result += QStringRef(&path, pos, start - pos);
+      result += envStr;
+      pos = end;
     }
   }
 
+  result += QStringRef(&path, pos, path.size() - pos);
   return result;
 }
 
