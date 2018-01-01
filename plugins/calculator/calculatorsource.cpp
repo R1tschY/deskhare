@@ -22,6 +22,7 @@
 #include <libdeskhare/query.h>
 #include <libdeskhare/resultset.h>
 #include <libdeskhare/matches/textmatch.h>
+#include <libdeskhare/shell/iconservice.h>
 
 #include "calcparser.h"
 
@@ -48,7 +49,7 @@ void CalculatorSource::search(const Query& query, ResultSet& results)
       MatchScore::Excellent,
       result_str,
       QString("%1 = %2").arg(query_string, result_str),
-      QIcon::fromTheme("accessories-calculator")
+      IconService::iconFromTheme("accessories-calculator")
     ));
   }
 }

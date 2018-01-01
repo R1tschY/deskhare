@@ -83,7 +83,7 @@ void SourceRegistry::registerSourceShell(
   source_shells_.emplace_back(std::make_tuple(queryPrefix, source));
 }
 
-void SourceRegistry::registerFileIconProvider(
+void SourceRegistry::registerIconProvider(
   const std::shared_ptr<IconProvider>& provider)
 {
   qCInfo(logger).noquote() << "got file icon provider:"

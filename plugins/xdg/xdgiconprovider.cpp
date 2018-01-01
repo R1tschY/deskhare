@@ -16,12 +16,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "xdgfileiconprovider.h"
+#include "xdgiconprovider.h"
 
-#include <qfileiconprovider.h>
-#include <qmimedatabase.h>
+#include <QFileIconProvider>
+#include <QMimeDatabase>
 #include <QFileInfo>
-#include <xdgthumbnails.h>
+
+#include "xdgthumbnails.h"
 
 namespace Deskhare {
 
@@ -51,22 +52,22 @@ QIcon XdgFileIconProvider::icon(const QFileInfo& info) const
 }
 
 
-float XdgFileIconProviderPlugin::getPriorityIndex()
+float XdgIconProvider::getPriorityIndex()
 {
   return 10;
 }
 
-const QFileIconProvider& XdgFileIconProviderPlugin::getFileIconProvider()
+const QFileIconProvider& XdgIconProvider::getFileIconProvider()
 {
   return fileIcons_;
 }
 
-QIcon XdgFileIconProviderPlugin::iconFromTheme(const QString& name)
+QIcon XdgIconProvider::iconFromTheme(const QString& name)
 {
   return QIcon::fromTheme(name);
 }
 
-QString XdgFileIconProviderPlugin::getDescription() const
+QString XdgIconProvider::getDescription() const
 {
   return "Xdg file icon provider.\n"
     "\n"

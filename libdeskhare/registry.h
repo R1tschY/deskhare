@@ -36,7 +36,7 @@ public:
   virtual void registerActionSource(const std::shared_ptr<Source>& source) = 0;
   virtual void registerSourceShell(
     const QString& queryPrefix, const std::shared_ptr<Source>& source) = 0;
-  virtual void registerFileIconProvider(
+  virtual void registerIconProvider(
     const std::shared_ptr<IconProvider>& provider) = 0;
 };
 

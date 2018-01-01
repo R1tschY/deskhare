@@ -51,7 +51,7 @@ public:
   void registerActionSource(const std::shared_ptr<Source>& source) override;
   void registerSourceShell(
     const QString& queryPrefix, const std::shared_ptr<Source>& source) override;
-  void registerFileIconProvider(
+  void registerIconProvider(
       const std::shared_ptr<IconProvider>& provider) override;
 
   QVector<std::shared_ptr<Source>> getSources() const;

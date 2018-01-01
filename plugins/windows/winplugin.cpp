@@ -3,6 +3,7 @@
 #include <libdeskhare/registry.h>
 
 #include "applications/startmenusource.h"
+#include "icons/winiconprovider.h"
 
 namespace Deskhare {
 
@@ -17,6 +18,8 @@ void WinPlugin::initialize(const PluginContext& ctx)
 
   registry.registerSource(
     std::make_shared<StartMenuSource>(ctx));
+  registry.registerIconProvider(
+    std::make_shared<WinIconProvider>());
 }
 
 QString WinPlugin::getDescription()

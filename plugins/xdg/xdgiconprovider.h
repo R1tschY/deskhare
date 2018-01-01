@@ -1,5 +1,5 @@
 //
-  // deskhare - cross-platform quick launcher
+// deskhare
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,33 +16,34 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "xdgplugin.h"
+#pragma once
 
-#include <libdeskhare/registry.h>
+#include <QMimeDatabase>
 
-#include "xdgapplications.h"
-#include "xdgiconprovider.h"
-#include "xdginfocache.h"
+#include <libdeskhare/shell/iconprovider.h>
 
 namespace Deskhare {
 
-void XdgPlugin::initialize(const PluginContext& ctx)
+class XdgFileIconProvider : public QFileIconProvider
 {
-  // load cache
-  getInfoCache();
+public:
+  QIcon icon(const QFileInfo &info) const override;
 
-  auto& registry = ctx.getRegistry();
+private:
+  QMimeDatabase mimeDb_;
+};
 
-  registry.registerSource(
-    std::make_shared<XdgApplications>(ctx));
-
-  registry.registerFileIconProvider(
-    std::make_shared<XdgIconProvider>());
-}
-
-QString XdgPlugin::getDescription()
+class XdgIconProvider : public IconProvider
 {
-  return QLatin1String("integration for freedesktop compatible unix systems");
-}
+public:
+  const QFileIconProvider& getFileIconProvider() override;
+  QIcon iconFromTheme(const QString& name) override;
+
+  float getPriorityIndex() override;
+  QString getDescription() const override;
+
+private:
+  XdgFileIconProvider fileIcons_;
+};
 
 } // namespace Deskhare

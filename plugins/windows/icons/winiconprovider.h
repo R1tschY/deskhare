@@ -18,32 +18,31 @@
 
 #pragma once
 
-#include <QMimeDatabase>
+#include <QCache>
+#include <QString>
+#include <QIcon>
+#include <QMap>
 
-#include <libdeskhare/shell/iconprovider.h>
+#include <libdeskhare/shell/defaulticonprovider.h>
 
 namespace Deskhare {
 
-class XdgFileIconProvider : public QFileIconProvider
+class WinIconProvider : public DefaultIconProvider
 {
 public:
-  QIcon icon(const QFileInfo &info) const override;
+  WinIconProvider();
 
-private:
-  QMimeDatabase mimeDb_;
-};
-
-class XdgFileIconProviderPlugin : public IconProvider
-{
-public:
-  const QFileIconProvider& getFileIconProvider() override;
   QIcon iconFromTheme(const QString& name) override;
 
   float getPriorityIndex() override;
   QString getDescription() const override;
 
 private:
-  XdgFileIconProvider fileIcons_;
+  QCache<QString, QIcon> cache_;
+  QMap<QString, QStringList> icon_locations_;
+
+  QIcon* resolve(const QString& name) const;
+  void fillLocations();
 };
 
 } // namespace Deskhare

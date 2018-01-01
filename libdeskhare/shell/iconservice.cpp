@@ -43,9 +43,9 @@ QIcon IconService::fileIcon(const QFileInfo& info)
   return getInstance().provider_->getFileIconProvider().icon(info);
 }
 
-QIcon IconService::iconFromTheme(const QString& info)
+QIcon IconService::iconFromTheme(const QString& name)
 {
-  return getInstance().provider_->iconFromTheme(info);
+  return getInstance().provider_->iconFromTheme(name);
 }
 
 void IconService::setProvider(const std::shared_ptr<IconProvider>& provider)

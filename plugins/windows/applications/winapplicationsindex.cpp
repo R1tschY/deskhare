@@ -145,7 +145,7 @@ std::vector<std::shared_ptr<Match> > WinApplicationsIndex::search(
       sqlquery.value(1).toString(),
       // TODO: use cache (QPixmapCache)
       IconLocation::fromString(sqlquery.value(3).toString()).resolve(),
-      "xdg-app://" + name,
+      "win-app://" + name,
       MatchScore::Excellent,
       std::make_shared<WinApplicationAction>(sqlquery.value(2).toString(), 0)
     ));
