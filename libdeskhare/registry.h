@@ -24,7 +24,7 @@
 namespace Deskhare {
 
 class Source;
-class FileIconProviderPlugin;
+class IconProvider;
 
 /// \brief
 class Registry
@@ -37,7 +37,7 @@ public:
   virtual void registerSourceShell(
     const QString& queryPrefix, const std::shared_ptr<Source>& source) = 0;
   virtual void registerFileIconProvider(
-    const std::shared_ptr<FileIconProviderPlugin>& provider) = 0;
+    const std::shared_ptr<IconProvider>& provider) = 0;
 };
 
 } // namespace Deskhare

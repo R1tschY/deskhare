@@ -30,7 +30,7 @@
 #include <tuple>
 
 #include "filesystem/diriterator.h"
-#include "shell/fileiconproviderplugin.h"
+#include "shell/iconprovider.h"
 
 namespace Deskhare {
 

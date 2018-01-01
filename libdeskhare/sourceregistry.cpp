@@ -84,10 +84,10 @@ void SourceRegistry::registerSourceShell(
 }
 
 void SourceRegistry::registerFileIconProvider(
-  const std::shared_ptr<FileIconProviderPlugin>& provider)
+  const std::shared_ptr<IconProvider>& provider)
 {
   qCInfo(logger).noquote() << "got file icon provider:"
-    << getTitleFromDescription(provider->getFileIconProviderDescription());
+    << getTitleFromDescription(provider->getDescription());
 
   icon_providers_.emplace(provider);
 }
@@ -108,12 +108,11 @@ std::shared_ptr<Source> SourceRegistry::findSourceShell(
   return {};
 }
 
-std::shared_ptr<FileIconProviderPlugin>
-SourceRegistry::getBestFileIconProvider() const
+std::shared_ptr<IconProvider> SourceRegistry::getBestFileIconProvider() const
 {
   return (!icon_providers_.empty())
     ? icon_providers_.top()
-    : std::shared_ptr<FileIconProviderPlugin>();
+    : std::shared_ptr<IconProvider>();
 }
 
 } // namespace Deskhare

@@ -31,7 +31,7 @@
 #include <libdeskhare/matches/filematch.h>
 #include <libdeskhare/query.h>
 #include <libdeskhare/resultset.h>
-#include <libdeskhare/shell/fileiconservice.h>
+#include <libdeskhare/shell/iconservice.h>
 
 namespace Deskhare {
 
@@ -97,8 +97,7 @@ bool ExecutablesIndex::addFile(const QFileInfo& file)
 }
 
 std::vector<std::shared_ptr<Match>> ExecutablesIndex::search(
-  const QString& query,
-  const FileIconProvider& icon_provider)
+  const QString& query)
 {
   std::vector<std::shared_ptr<Match>> matches;
 
@@ -121,7 +120,7 @@ std::vector<std::shared_ptr<Match>> ExecutablesIndex::search(
     matches.emplace_back(std::make_shared<ExecutableMatch>(
       fileInfo.baseName(),
       fileInfo.filePath(),
-      icon_provider.icon(fileInfo.filePath()),
+      IconService::fileIcon(fileInfo.filePath()),
       MatchScore::BelowAverage
     ));
   }

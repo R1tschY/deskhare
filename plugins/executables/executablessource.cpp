@@ -95,8 +95,7 @@ bool ExecutablesSource::canHandleQuery(const Query& query)
 
 void ExecutablesSource::search(const Query& query, ResultSet& results)
 {
-  auto matches = db_.search(
-    query.getSearchString(), *context_.getFileIconProvider());
+  auto matches = db_.search(query.getSearchString());
   results.sendMatches(matches);
 }
 

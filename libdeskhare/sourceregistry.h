@@ -25,7 +25,7 @@
 #include <QString>
 
 #include "registry.h"
-#include "shell/fileiconproviderplugin.h"
+#include "shell/iconprovider.h"
 
 namespace Deskhare {
 
@@ -34,12 +34,12 @@ class Source;
 struct FileIconProviderCompare
 {
   bool operator()(
-    const std::shared_ptr<FileIconProviderPlugin>& lhs,
-    const std::shared_ptr<FileIconProviderPlugin>& rhs)
+    const std::shared_ptr<IconProvider>& lhs,
+    const std::shared_ptr<IconProvider>& rhs)
   {
     return
-      lhs->getFileIconProviderPriorityIndex()
-      < rhs->getFileIconProviderPriorityIndex();
+      lhs->getPriorityIndex()
+      < rhs->getPriorityIndex();
   }
 };
 
@@ -52,20 +52,20 @@ public:
   void registerSourceShell(
     const QString& queryPrefix, const std::shared_ptr<Source>& source) override;
   void registerFileIconProvider(
-      const std::shared_ptr<FileIconProviderPlugin>& provider) override;
+      const std::shared_ptr<IconProvider>& provider) override;
 
   QVector<std::shared_ptr<Source>> getSources() const;
   QVector<std::shared_ptr<Source>> getActionSources() const;
 
   std::shared_ptr<Source> findSourceShell(const QString& query) const;
-  std::shared_ptr<FileIconProviderPlugin> getBestFileIconProvider() const;
+  std::shared_ptr<IconProvider> getBestFileIconProvider() const;
 
 private:
   std::vector<std::shared_ptr<Source>> sources_;
   std::vector<std::shared_ptr<Source>> action_sources_;
   std::priority_queue<
-    std::shared_ptr<FileIconProviderPlugin>,
-    std::vector<std::shared_ptr<FileIconProviderPlugin>>,
+    std::shared_ptr<IconProvider>,
+    std::vector<std::shared_ptr<IconProvider>>,
     FileIconProviderCompare>
       icon_providers_;
   std::vector<std::tuple<QString, std::shared_ptr<Source>>> source_shells_;

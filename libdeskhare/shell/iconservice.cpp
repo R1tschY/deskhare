@@ -16,62 +16,57 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "fileiconservice.h"
+#include "iconservice.h"
 
 #include <QDebug>
+#include <QFileInfo>
+#include <QString>
+#include <QIcon>
+#include <QFileIconProvider>
+
+#include "iconprovider.h"
 #include <cpp-utils/assert.h>
 #include <cpp-utils/algorithm/container.h>
 #include <cpp-utils/lambda.h>
 
-#include "fileiconproviderplugin.h"
 #include "../utils/pluginutils.h"
+#include "defaulticonprovider.h"
 
 namespace Deskhare {
 
-FileIconProvider::FileIconProvider()
-: provider_(std::make_unique<QFileIconProvider>())
+IconService::IconService()
+: provider_(std::make_shared<DefaultIconProvider>())
 { }
 
-QIcon FileIconProvider::icon(QFileIconProvider::IconType type) const
+QIcon IconService::fileIcon(const QFileInfo& info)
 {
-  return provider_->icon(type);
+  return getInstance().provider_->getFileIconProvider().icon(info);
 }
 
-QIcon FileIconProvider::icon(const QFileInfo& info) const
+QIcon IconService::iconFromTheme(const QString& info)
 {
-  return provider_->icon(info);
+  return getInstance().provider_->iconFromTheme(info);
 }
 
-QString FileIconProvider::type(const QFileInfo& info) const
+void IconService::setProvider(const std::shared_ptr<IconProvider>& provider)
 {
-  return provider_->type(info);
-}
-
-void FileIconProvider::setProvider(std::unique_ptr<QFileIconProvider> provider)
-{
-  if (provider == nullptr)
+  if (provider)
   {
-    provider_ = std::make_unique<QFileIconProvider>();
+    qDebug() << "Setting icon provider to"
+      << getTitleFromDescription(provider->getDescription());
+    getInstance().provider_ = provider;
   }
   else
   {
-    provider_ = std::move(provider);
+    qDebug() << "Resetting icon";
+    getInstance().provider_ = std::make_shared<DefaultIconProvider>();
   }
 }
 
-void FileIconProvider::setPlugin(
-  const std::shared_ptr<FileIconProviderPlugin>& plugin)
+IconService& IconService::getInstance()
 {
-  if (plugin)
-  {
-    qDebug() << "Setting file icon provider to"
-      << getTitleFromDescription(plugin->getFileIconProviderDescription());
-    setProvider(plugin->getFileIconProvider());
-  }
-  else
-  {
-    setProvider(nullptr);
-  }
+  static IconService instance;
+  return instance;
 }
 
 } // namespace Deskhare

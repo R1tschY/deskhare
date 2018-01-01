@@ -24,8 +24,8 @@
 #include <QLoggingCategory>
 #include <QDesktopServices>
 
-#include "../shell/fileiconservice.h"
 #include "../actions/openurlaction.h"
+#include "../shell/iconservice.h"
 
 Q_LOGGING_CATEGORY(localFileMatch, "deskhare.LocalFileMatch")
 
@@ -48,15 +48,15 @@ static QStringList getPathComponents(const QFileInfo& fileInfo)
 }
 
 
-LocalFileMatch::LocalFileMatch(const QString& filePath, const FileIconProvider& icons, float score)
-: LocalFileMatch(QFileInfo(filePath), icons, score)
+LocalFileMatch::LocalFileMatch(const QString& filePath, float score)
+: LocalFileMatch(QFileInfo(filePath), score)
 { }
 
-LocalFileMatch::LocalFileMatch(const QFileInfo& fileInfo, const FileIconProvider& icons, float score)
+LocalFileMatch::LocalFileMatch(const QFileInfo& fileInfo, float score)
 : Match(
     fileInfo.fileName(),
     getPathComponents(fileInfo).join(QStringLiteral(" › ")),
-    icons.icon(fileInfo),
+    IconService::fileIcon(fileInfo),
     "file://" + fileInfo.filePath(),
     score
   )

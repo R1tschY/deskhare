@@ -18,30 +18,34 @@
 
 #pragma once
 
-#include <QFileIconProvider>
 #include <memory>
 #include <vector>
 
+class QString;
+class QIcon;
+class QFileInfo;
+class QFileIconProvider;
+
 namespace Deskhare {
 
-class FileIconProviderPlugin;
+class IconProvider;
 
-class FileIconProvider
+class IconService
 {
 public:
-  FileIconProvider();
+  static QIcon fileIcon(const QFileInfo &info);
+  static QIcon iconFromTheme(const QString& name);
 
-  QIcon icon(QFileIconProvider::IconType type) const;
-  QIcon icon(const QFileInfo &info) const;
-  QString type(const QFileInfo &info) const;
-
-  void setProvider(std::unique_ptr<QFileIconProvider> provider);
-  QFileIconProvider* getProvider() { return provider_.get(); }
-
-  void setPlugin(const std::shared_ptr<FileIconProviderPlugin>& plugin);
+  static void setProvider(const std::shared_ptr<IconProvider>& provider);
+  static std::shared_ptr<IconProvider> getProvider()
+  { return getInstance().provider_; }
 
 private:
-  std::unique_ptr<QFileIconProvider> provider_;
+  IconService();
+
+  static IconService& getInstance();
+
+  std::shared_ptr<IconProvider> provider_;
 };
 
 } // namespace Deskhare

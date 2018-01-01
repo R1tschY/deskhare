@@ -25,15 +25,6 @@
 
 namespace Deskhare {
 
-class XdgFileIconProvider: public QFileIconProvider
-{
-public:
-  QIcon icon(const QFileInfo &info) const override;
-
-private:
-  QMimeDatabase mimeDb_;
-};
-
 QIcon XdgFileIconProvider::icon(const QFileInfo& info) const
 {
   if (info.isFile())
@@ -60,18 +51,22 @@ QIcon XdgFileIconProvider::icon(const QFileInfo& info) const
 }
 
 
-float XdgFileIconProviderPlugin::getFileIconProviderPriorityIndex()
+float XdgFileIconProviderPlugin::getPriorityIndex()
 {
   return 10;
 }
 
-std::unique_ptr<QFileIconProvider>
-XdgFileIconProviderPlugin::getFileIconProvider()
+const QFileIconProvider& XdgFileIconProviderPlugin::getFileIconProvider()
 {
-  return std::make_unique<XdgFileIconProvider>();
+  return fileIcons_;
 }
 
-QString XdgFileIconProviderPlugin::getFileIconProviderDescription() const
+QIcon XdgFileIconProviderPlugin::iconFromTheme(const QString& name)
+{
+  return QIcon::fromTheme(name);
+}
+
+QString XdgFileIconProviderPlugin::getDescription() const
 {
   return "Xdg file icon provider.\n"
     "\n"

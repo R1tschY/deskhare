@@ -31,7 +31,7 @@ class QString;
 namespace Deskhare {
 
 class Match;
-class FileIconProvider;
+class IconService;
 
 class FileIndex : public SqliteIndex
 {
@@ -42,9 +42,7 @@ public:
 
   void clear();
 
-  std::vector<std::shared_ptr<Match>> search(
-    const QString& query,
-    const FileIconProvider& icon_provider);
+  std::vector<std::shared_ptr<Match>> search(const QString& query);
 
   QDateTime getLastIndexing()
   { return index_time_table_.getLastIndexing(); }

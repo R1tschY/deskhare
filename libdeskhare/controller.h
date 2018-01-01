@@ -22,10 +22,10 @@
 #include <vector>
 #include <memory>
 
-#include "shell/fileiconservice.h"
 #include "query.h"
 #include "signals.h"
 #include "history/historyservice.h"
+#include "shell/iconservice.h"
 #include "sourceregistry.h"
 
 class QString;
@@ -60,7 +60,6 @@ public slots:
 
 private:
   SourceRegistry sources_;
-  FileIconProvider file_icon_provider_;
   std::shared_ptr<HistoryService> history_service_;
   EvaluationServiceRegistry evaluation_service_registry_;
   Signals signals_;

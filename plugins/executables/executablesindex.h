@@ -32,7 +32,7 @@ class QString;
 
 namespace Deskhare {
 
-class FileIconProvider;
+class IconService;
 
 
 class ExecutableMatch : public Action
@@ -60,9 +60,7 @@ public:
 
   void clear();
 
-  std::vector<std::shared_ptr<Match>> search(
-    const QString& query,
-    const FileIconProvider& icon_provider);
+  std::vector<std::shared_ptr<Match>> search(const QString& query);
 
   QDateTime getLastIndexing()
   { return index_time_table_.getLastIndexing(); }

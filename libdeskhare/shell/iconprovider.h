@@ -18,30 +18,34 @@
 
 #pragma once
 
+#include <memory>
 #include <QtPlugin>
+#include <QFileIconProvider>
 
-#include "fileiconservice.h"
+class QString;
 
 namespace Deskhare {
 
-class FileIconProviderPlugin
+class IconProvider
 {
 public:
-  virtual ~FileIconProviderPlugin() = default;
+  virtual ~IconProvider() = default;
 
   /// \brief an index for the fitting of the icons to the system
   /// \retval 0 general plattform-independet implementation
-  /// \retval 10 general implementation for the plattform (e.g. xdg)
-  /// \retval 15 spezialized implementation for the plattform
-  virtual float getFileIconProviderPriorityIndex() = 0;
+  /// \retval 10 general implementation for the platform (e.g. xdg)
+  /// \retval 15 spezialized implementation for the platform
+  virtual float getPriorityIndex() = 0;
 
-  /// \brief get QFileIconProvider
-  virtual std::unique_ptr<QFileIconProvider> getFileIconProvider() = 0;
+  /// \brief get QFileIconProvider interface
+  virtual const QFileIconProvider& getFileIconProvider() = 0;
 
-  /// \brief description of FileIconProvider
+  virtual QIcon iconFromTheme(const QString& name) = 0;
+
+  /// \brief description of IconProviderPlugin
   ///
   /// The contents to the first dot are used as title.
-  virtual QString getFileIconProviderDescription() const = 0;
+  virtual QString getDescription() const = 0;
 };
 
 } // namespace Deskhare

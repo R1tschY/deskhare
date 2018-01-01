@@ -107,9 +107,7 @@ void FileIndexSource::search(const Query& query, ResultSet& results)
   Q_ASSERT(!query.getSearchString().isEmpty());
   Q_ASSERT(db_->isOpen());
 
-  results.sendMatches(
-    db_->search(query.getSearchString(), *context_.getFileIconProvider())
-  );
+  results.sendMatches(db_->search(query.getSearchString()));
 }
 
 QString FileIndexSource::getDescription() const

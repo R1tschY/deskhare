@@ -19,8 +19,9 @@
 #pragma once
 
 #include <memory>
-#include <libdeskhare/shell/fileiconproviderplugin.h>
+#include <libdeskhare/shell/iconprovider.h>
 #include <libdeskhare/plugin.h>
+
 
 namespace Deskhare {
 

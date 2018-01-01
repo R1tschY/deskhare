@@ -23,23 +23,18 @@
 
 namespace Deskhare {
 
-class FileIconProvider;
 class Signals;
 class Registry;
 
 class PluginContext
 {
 public:
-  using Classes = std::tuple<
-    const FileIconProvider*, const Signals*, Registry*>;
+  using Classes = std::tuple<const Signals*, Registry*>;
 
   template<typename...Args>
   PluginContext(Args&&...classes)
   : classes_(std::forward<Args>(classes)...)
   { }
-
-  const FileIconProvider* getFileIconProvider() const
-  { return std::get<const FileIconProvider*>(classes_); }
 
   const Signals* getSignals() const
   { return std::get<const Signals*>(classes_); }

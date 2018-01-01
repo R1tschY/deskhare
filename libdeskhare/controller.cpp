@@ -33,9 +33,9 @@
 #include "source.h"
 #include "queryresultmodel.h"
 #include "pluginmanager.h"
-#include "shell/fileiconproviderplugin.h"
 #include "history/historyservice.h"
 #include "resultset.h"
+#include "shell/iconprovider.h"
 #include "utils/pluginutils.h"
 
 namespace Deskhare {
@@ -49,10 +49,10 @@ Controller::Controller(QObject* parent)
   evaluation_service_registry_.registerEvaluator(
     std::make_shared<SimilarityEvaluator>());
 
-  PluginContext plugincontext(&file_icon_provider_, &signals_, &sources_);
+  PluginContext plugincontext(&signals_, &sources_);
   plugin_manager_ = new PluginManager(plugincontext, this);
 
-  file_icon_provider_.setPlugin(sources_.getBestFileIconProvider());
+  IconService::setProvider(sources_.getBestFileIconProvider());
 
   result_model_ = new QueryResultModel(this);
   result_model_->setSources(sources_.getSources());

@@ -68,9 +68,7 @@ bool FileIndex::addFile(const QFileInfo& file)
   return true;
 }
 
-std::vector<std::shared_ptr<Match>> FileIndex::search(
-  const QString& query,
-  const FileIconProvider& icon_provider)
+std::vector<std::shared_ptr<Match>> FileIndex::search(const QString& query)
 {
   std::vector<std::shared_ptr<Match>> matches;
 
@@ -89,7 +87,6 @@ std::vector<std::shared_ptr<Match>> FileIndex::search(
   {
     matches.emplace_back(std::make_shared<LocalFileMatch>(
       sqlquery.value(0).toString(),
-      icon_provider,
       MatchScore::Good
     ));
   }
