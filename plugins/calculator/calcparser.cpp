@@ -58,7 +58,7 @@ struct UnaryOp;
 struct Expression;
 
 struct Operand : x3::variant<
-  Nil, unsigned int, x3::forward_ast<UnaryOp>, x3::forward_ast<Expression>
+  Nil, double, x3::forward_ast<UnaryOp>, x3::forward_ast<Expression>
 >
 {
   using base_type::base_type;
@@ -83,7 +83,6 @@ struct Expression
   std::vector<Operation> rest;
 };
 
-// print function for debugging
 inline std::ostream& operator<<(std::ostream& out, Nil)
 {
   out << "nil";
@@ -113,22 +112,22 @@ namespace Ast {
 
 struct Evaluator
 {
-  typedef int result_type;
+  typedef double result_type;
 
-  int operator()(Nil) const
+  double operator()(Nil) const
   {
     Q_ASSERT(false);
     return 0;
   }
 
-  int operator()(unsigned int n) const
+  double operator()(double n) const
   {
     return n;
   }
 
-  int operator()(const Operation& x, int lhs) const
+  double operator()(const Operation& x, double lhs) const
   {
-    int rhs = boost::apply_visitor(*this, x.operand_);
+    double rhs = boost::apply_visitor(*this, x.operand_);
     switch (x.operator_)
     {
     case '+':
@@ -144,9 +143,9 @@ struct Evaluator
     return 0;
   }
 
-  int operator()(const UnaryOp& x) const
+  double operator()(const UnaryOp& x) const
   {
-    int rhs = boost::apply_visitor(*this, x.operand_);
+    double rhs = boost::apply_visitor(*this, x.operand_);
     switch (x.operator_)
     {
     case '-':
@@ -158,9 +157,9 @@ struct Evaluator
     return 0;
   }
 
-  int operator()(const Expression& x) const
+  double operator()(const Expression& x) const
   {
-    int state = boost::apply_visitor(*this, x.first);
+    double state = boost::apply_visitor(*this, x.first);
     for (const Operation& oper : x.rest)
     {
       state = (*this)(oper, state);
@@ -177,6 +176,76 @@ struct Evaluator
 
 namespace Grammar {
 
+/**
+ * Own Real-Parser which supports dot and comma as decimal seperator.
+ */
+template <typename T>
+struct RealPolicies
+{
+  static const bool allow_leading_dot = true;
+  static const bool allow_trailing_dot = true;
+  static const bool expect_dot = false;
+
+  template<typename Iterator>
+  static bool parse_sign(Iterator& first, const Iterator& last)
+  {
+    return x3::extract_sign(first, last);
+  }
+
+  template <typename Iterator, typename Attribute>
+  static bool parse_n(Iterator& first, const Iterator& last, Attribute& attr_)
+  {
+    return x3::extract_uint<T, 10, 1, -1>::call(first, last, attr_);
+  }
+
+  template <typename Iterator>
+  static bool parse_dot(Iterator& first, const Iterator& last)
+  {
+    if (first == last || (*first != '.' && *first != ','))
+      return false;
+    ++first;
+    return true;
+  }
+
+  template <typename Iterator, typename Attribute>
+  static bool parse_frac_n(
+        Iterator& first, const Iterator& last, Attribute& attr_)
+  {
+    return x3::extract_uint<T, 10, 1, -1, true>::call(first, last, attr_);
+  }
+
+  template <typename Iterator>
+  static bool parse_exp(Iterator& first, const Iterator& last)
+  {
+    if (first == last || (*first != 'e' && *first != 'E'))
+      return false;
+    ++first;
+    return true;
+  }
+
+  template <typename Iterator>
+  static bool parse_exp_n(Iterator& first, const Iterator& last, int& attr_)
+  {
+    return x3::extract_int<int, 10, 1, -1>::call(first, last, attr_);
+  }
+
+  template <typename Iterator, typename Attribute>
+  static bool parse_nan(
+        Iterator& /*first*/, const Iterator& /*last*/, Attribute& /*attr_*/)
+  {
+    return false;
+  }
+
+  template <typename Iterator, typename Attribute>
+  static bool parse_inf(
+        Iterator& /*first*/, const Iterator& /*last*/, Attribute& /*attr_*/)
+  {
+    return false;
+  }
+};
+
+const x3::real_parser<double, RealPolicies<double>> double_ = {};
+
 using x3::uint_;
 using x3::char_;
 
@@ -184,23 +253,23 @@ struct Expression_class;
 struct Term_class;
 struct Factor_class;
 
-x3::rule<Expression_class, Ast::Expression> const Expression("Expression");
-x3::rule<Term_class, Ast::Expression> const Term("Term");
-x3::rule<Factor_class, Ast::Operand> const Factor("Factor");
+const x3::rule<Expression_class, Ast::Expression> Expression("Expression");
+const x3::rule<Term_class, Ast::Expression> Term("Term");
+const x3::rule<Factor_class, Ast::Operand> Factor("Factor");
 
-auto const Expression_def =
+const auto Expression_def =
   Term >> *((char_('+') > Term) | (char_('-') > Term));
 
-auto const Term_def =
+const auto Term_def =
   Factor >> *((char_('*') > Factor) | (char_('/') > Factor));
 
-auto const Factor_def =
-  uint_
+const auto Factor_def =
+  double_
   | '(' > Expression > ')'
   | (char_('-') > Factor)
   | (char_('+') > Factor);
-
-BOOST_SPIRIT_DEFINE(Expression, Term, Factor);
+  
+BOOST_SPIRIT_DEFINE(Expression, Term, Factor)
 
 } // namespace Grammar
 
