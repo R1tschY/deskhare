@@ -26,5 +26,11 @@ Match::Match(const QString& title, const QString& description,
   score_(score), uri_(uri)
 { }
 
-} // namespace QuickStarter
+Match::Match(const QString& title, const QString& description,
+  const QIcon& icon, const QString& uri, const QStringList& keywords_,
+  float score)
+: title_(title), description_(description), icon_(icon),
+  score_(score), uri_(uri), keywords_(keywords_)
+{ }
 
+} // namespace QuickStarter

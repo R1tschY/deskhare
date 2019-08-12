@@ -67,27 +67,29 @@ bool SqliteIndex::open(const QString& filePath)
   {
     return doCreate();
   }
-
-  int curVersion = getCurrentFormatVersion();
-  if (curVersion < 0)
-    return recreate(true);
-
-  if (curVersion > formatVersion_)
+  else
   {
-    qCCritical(logger) << "Recreate index database" << db_.connectionName()
-      << "because database version" << curVersion
-      << "is bigger than current version";
-    return recreate();
-  }
+    int curVersion = getCurrentFormatVersion();
+    if (curVersion < 0)
+      return recreate(true);
 
-  if (curVersion < formatVersion_)
-  {
-    // upgrade needed
-    if (!doUpgrade(curVersion))
+    if (curVersion > formatVersion_)
+    {
+      qCCritical(logger) << "Recreate index database" << db_.connectionName()
+        << "because database version" << curVersion
+        << "is bigger than current version";
       return recreate();
-  }
+    }
 
-  return true;
+    if (curVersion < formatVersion_)
+    {
+      // upgrade needed
+      if (!doUpgrade(curVersion))
+        return recreate();
+    }
+
+    return true;
+  }
 }
 
 int SqliteIndex::getCurrentFormatVersion()
@@ -118,7 +120,7 @@ bool SqliteIndex::setCurrentFormatVersion()
   {
     QSqlQuery create_query(db_);
     if (!create_query.exec(QStringLiteral("CREATE TABLE versions ("
-      "  id   TEXT NOT NULL,"
+      "  id   TEXT NOT NULL UNIQUE,"
       "  version INTEGER NOT NULL"
       ")")))
     {

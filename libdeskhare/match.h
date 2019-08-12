@@ -62,25 +62,35 @@ public:
     const QString& uri,
     float score);
 
+  Match(
+    const QString& title,
+    const QString& description,
+    const QIcon& icon,
+    const QString& uri,
+    const QStringList& keywords_,
+    float score);
+
   virtual ~Match() = default;
 
   QString getDescription() const { return description_; };
   QString getTitle() const { return title_; };
   QIcon getIcon() const { return icon_; };
+  QString getUri() const { return uri_; }
+  QStringList getKeywords() const { return keywords_; };
 
   float getScore() const { return score_; }
   void setScore(float score) { score_ = score; }
 
-  QString getUri() const { return uri_; }
 
   virtual std::shared_ptr<Action> getDefaultAction() const = 0;
 
 private:
   float score_;
   const QString uri_;
-  QString description_;
-  QString title_;
-  QIcon icon_;
+  const QString description_;
+  const QString title_;
+  const QIcon icon_;
+  const QStringList keywords_;
 };
 
 using MatchResults = std::vector<std::shared_ptr<Match>>;

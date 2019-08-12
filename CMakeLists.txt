@@ -54,7 +54,7 @@ if (WIN32)
     )
 endif()
 
-# Find the QtWidgets library
+# Find the Qt libraries
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Sql REQUIRED)
 find_package(Qt5Concurrent REQUIRED)

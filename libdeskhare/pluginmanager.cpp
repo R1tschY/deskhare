@@ -71,6 +71,7 @@ void PluginManager::loadPlugin(const QString& filePath)
     return;
   }
 
+
   qCInfo(logger) << "loading plugin" << filePath;
   plugin_loaders_.emplace_back();
 
@@ -86,6 +87,7 @@ void PluginManager::loadPlugin(const QString& filePath)
           << rawplugin.loader->errorString();
     return;
   }
+  qCInfo(logger) << rawplugin.loader->metaData();
 
   auto* plugin = qobject_cast<Plugin*>(rawplugin.instance);
   if (plugin)

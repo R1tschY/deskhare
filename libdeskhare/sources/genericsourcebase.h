@@ -18,19 +18,35 @@
 
 #pragma once
 
-#include "evaluationservice.h"
+#include <memory>
+#include <QStringList>
+#include <QVector>
+
+#include "../source.h"
+#include "../query.h"
+#include "../match.h"
+
+class QString;
+class QIcon;
 
 namespace Deskhare {
 
+class Action;
+class ResultSet;
+
 /// \brief
-class SimilarityEvaluator: public Evaluator
+class GenericSourceBase : public Source
 {
 public:
-  float eval(const Query& query, const Match& match) const override;
-  bool isThreadSafe() const override { return true; }
+  bool canHandleQuery(const Query& query) override;
+  void search(const Query& query, ResultSet& results) override;
+
+  void clearMatches();
+  void addMatch(const std::shared_ptr<Match>& match);
 
 private:
-  float evalOne(const QString& querystr, const QString& keyword) const;
+  Query::Category categories_;
+  QVector<std::shared_ptr<Match>> matches_;
 };
 
 } // namespace Deskhare

@@ -34,18 +34,37 @@ float Deskhare::SimilarityEvaluator::eval(
   // everything must be thread-safe
 
   QString querystr = query.getSearchString();
-  QString matched = match.getTitle();
 
-  if (querystr.length() == 0 || matched.length() == 0)
+  const auto keywords = match.getKeywords();
+  if (keywords.isEmpty())
+  {
+    QString matched = match.getTitle();
+    return evalOne(querystr, matched);
+  }
+  else
+  {
+    float score = 0.0;
+    for (auto& keyword : keywords)
+    {
+      score = std::max(score, evalOne(querystr, keyword));
+    }
+    return score;
+  }
+}
+
+float SimilarityEvaluator::evalOne(const QString& querystr,
+  const QString& keyword) const
+{
+  if (querystr.length() == 0 || keyword.length() == 0)
     // no evaluation possible
     return 1.0;
 
-  int index = matched.indexOf(querystr, 0, Qt::CaseInsensitive);
+  int index = keyword.indexOf(querystr, 0, Qt::CaseInsensitive);
   if (index != -1)
   {
     return std::max(std::exp(-index / 100.f), 0.8f);
   }
-  else if (matched[0].toLower() == querystr[0].toLower())
+  else if (keyword[0].toLower() == querystr[0].toLower())
   {
     return 0.75;
   }
