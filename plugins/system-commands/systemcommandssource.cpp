@@ -35,7 +35,8 @@ SystemCommandsSource::~SystemCommandsSource() = default;
 
 bool SystemCommandsSource::canHandleQuery(const Query& query)
 {
-  return query.hasCategory(Query::Category::Action);
+  return query.hasCategory(Query::Category::Action) &&
+    !query.getSearchString().isEmpty();
 }
 
 void SystemCommandsSource::search(const Query& query,
