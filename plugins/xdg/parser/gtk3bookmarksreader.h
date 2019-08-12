@@ -1,5 +1,5 @@
 //
-  // deskhare - cross-platform quick launcher
+// deskhare
 // Copyright (C) 2017 Richard Liebscher
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,33 +16,33 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "xdgplugin.h"
+#pragma once
 
-#include <libdeskhare/registry.h>
+#include <QString>
+#include <QUrl>
+#include <QVector>
 
-#include "xdgiconprovider.h"
-#include "applications/xdgapplications.h"
-#include "xdginfocache.h"
+class QIODevice;
 
 namespace Deskhare {
 
-void XdgPlugin::initialize(const PluginContext& ctx)
+struct Gtk3Bookmark {
+  QString title;
+  QUrl href;
+};
+
+/// \brief
+class Gtk3BookmarksReader
 {
-  // load cache
-  getInfoCache();
+public:
+  bool read(QIODevice* device);
 
-  auto& registry = ctx.getRegistry();
+  QVector<Gtk3Bookmark> bookmarks() const;
 
-  registry.registerSource(
-    std::make_shared<XdgApplications>(ctx));
+private:
+  QVector<Gtk3Bookmark> bookmarks_;
 
-  registry.registerIconProvider(
-    std::make_shared<XdgIconProvider>());
-}
-
-QString XdgPlugin::getDescription()
-{
-  return QLatin1String("integration for freedesktop compatible unix systems");
-}
+  void addBookmark(QUrl href, QString title);
+};
 
 } // namespace Deskhare
