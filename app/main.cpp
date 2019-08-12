@@ -16,9 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <windows.h>
 #include <QApplication>
 #include <QDebug>
+#include <QDir>
+#include <QIcon>
 
 #include <libdeskhare/utils/sharedlock.h>
 
@@ -49,10 +50,13 @@ int main(int argc, char *argv[], char *envp[])
 
   a.setStyle(new FlatStyle());
 
-  //QIcon::setThemeName("gnome");
-//  auto paths = QIcon::themeSearchPaths();
-//  paths.append("$HOME/.icons");
-//  QIcon::setThemeSearchPaths(paths);
+  // add missing icon paths
+#ifdef Q_OS_LINUX
+  auto paths = QIcon::themeSearchPaths();
+  paths.append(QDir::homePath() + "/.icons");
+  paths.append(QDir::homePath() + "/.local/share/icons");
+  QIcon::setThemeSearchPaths(paths);
+#endif
 
   Deskhare::SearchWindow w;
   w.show();
