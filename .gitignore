@@ -5,6 +5,12 @@
 .*project
 .settings
 
+# VS Code
+.vscode
+
+# Qt Creator
+/*.user.*
+
 # Backups
 *~
 .*.swp
